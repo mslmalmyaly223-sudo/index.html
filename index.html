@@ -1329,6 +1329,34 @@
     }
     async function markNotifSeen(id){ try{ await db.collection("notifications").doc(id).update({seen:true}); }catch{} await renderNotificationsPage(); }
     function openPostFromNotif(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
-  </script>
+<script>
+(function(){
+  function add(tag, attrs, keyAttr){
+    const sel = keyAttr ? `${tag}[${keyAttr}="${attrs[keyAttr]}"]` : null;
+    let el = sel ? document.querySelector(sel) : null;
+    if(!el){ el = document.createElement(tag); document.head.appendChild(el); }
+    Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+  }
+
+  // manifest + لون الشريط
+  add('link', { rel:'manifest', href:'manifest.webmanifest' }, 'rel');
+  add('meta', { name:'theme-color', content:'#4a6bff' }, 'name');
+
+  // دعم iOS
+  add('meta', { name:'apple-mobile-web-app-capable', content:'yes' }, 'name');
+  add('meta', { name:'apple-mobile-web-app-status-bar-style', content:'black-translucent' }, 'name');
+  add('meta', { name:'apple-mobile-web-app-title', content:'سوق الطلاب' }, 'name');
+  add('link', { rel:'apple-touch-icon', href:'icons/icon-192.png' }, 'rel');
+
+  // تسجيل Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
+})();
+</script>
 </body>
 </html>
+
