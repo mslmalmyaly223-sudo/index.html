@@ -1357,6 +1357,32 @@
   }
 })();
 </script>
+
+<!-- أخفاء شاشة البداية تلقائيًا حتى لو صار خطأ -->
+<script>
+  (function () {
+    function hideSplash() {
+      var sp = document.getElementById('splash');
+      if (sp) {
+        sp.style.opacity = '0';
+        setTimeout(function(){ sp.style.display = 'none'; }, 300);
+      }
+      // اظهر صفحة الدخول أو الرئيسية إذا كانت مخفية
+      var auth = document.getElementById('auth-page');
+      if (auth) auth.style.display = 'block';
+      var home = document.getElementById('home');
+      if (home) home.style.display = 'block';
+    }
+
+    // ضمان إخفاء السبلش بعد 7 ثواني حتى لو تعطل شيء
+    window.addEventListener('load', function () {
+      setTimeout(hideSplash, 7000);
+    });
+
+    // أي أخطاء عامة → أخفي السبلش بدل ما تبقى الشاشة متجمدة
+    window.addEventListener('error', hideSplash);
+    window.addEventListener('unhandledrejection', hideSplash);
+  })();
+</script>
 </body>
 </html>
-
