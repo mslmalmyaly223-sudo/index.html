@@ -24,44 +24,14 @@
       radial-gradient(70% 80% at 90% 90%, rgba(106,17,203,.18), transparent 60%),
       linear-gradient(135deg,#0d0f1a 0%, #0f1330 100%);z-index:1200;overflow:hidden;transition:opacity .6s ease}
     .splash.fade-out{opacity:0;pointer-events:none}
-
-    /* الحروف تبقى في منتصف الشاشة (تنقّل قصير فقط) */
-    .runner{
-      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-      gap:.08em;filter:drop-shadow(0 10px 28px rgba(0,0,0,.45));
-      pointer-events:none;
-    }
-    .runner span{
-      font-weight:900;font-size:clamp(40px,9vw,74px);color:#e6ebff;display:inline-block;
-      opacity:0; transform:translateX(6vw) scale(.96);
-      animation:runCentered .8s cubic-bezier(.2,.8,.2,1) forwards;
-      will-change:transform,opacity;
-    }
-    .runner span:nth-child(1){animation-delay:.00s}
-    .runner span:nth-child(2){animation-delay:.05s}
-    .runner span:nth-child(3){animation-delay:.10s}
-    .runner span:nth-child(4){animation-delay:.15s}
-    .runner span:nth-child(5){animation-delay:.20s}
-    .runner span:nth-child(6){animation-delay:.25s}
-    .runner span:nth-child(7){animation-delay:.30s}
-    .runner span:nth-child(8){animation-delay:.35s}
-    .runner span:nth-child(9){animation-delay:.40s}
+    .runner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.08em;filter:drop-shadow(0 10px 28px rgba(0,0,0,.45));pointer-events:none;}
+    .runner span{font-weight:900;font-size:clamp(40px,9vw,74px);color:#e6ebff;display:inline-block;opacity:0; transform:translateX(6vw) scale(.96);animation:runCentered .8s cubic-bezier(.2,.8,.2,1) forwards;will-change:transform,opacity}
+    .runner span:nth-child(1){animation-delay:.00s}.runner span:nth-child(2){animation-delay:.05s}.runner span:nth-child(3){animation-delay:.10s}
+    .runner span:nth-child(4){animation-delay:.15s}.runner span:nth-child(5){animation-delay:.20s}.runner span:nth-child(6){animation-delay:.25s}
+    .runner span:nth-child(7){animation-delay:.30s}.runner span:nth-child(8){animation-delay:.35s}.runner span:nth-child(9){animation-delay:.40s}
     .runner span:nth-child(10){animation-delay:.45s}
-
-    @keyframes runCentered{
-      0%   {opacity:0; transform:translateX(6vw) scale(.96)}
-      18%  {opacity:1}
-      55%  {transform:translateX(-6vw) scale(1.02)}
-      100% {opacity:0; transform:translateX(-6vw) scale(.98)}
-    }
-
-    .final-logo{
-      position:relative;z-index:2;opacity:0;font-weight:900;
-      font-size:clamp(42px,9.5vw,72px);color:#eef2ff;
-      text-shadow:0 14px 40px rgba(16,209,255,.22),0 4px 10px rgba(0,0,0,.5);
-      white-space:nowrap;line-height:1;direction:rtl;unicode-bidi:plaintext;
-      animation:logoMerge .55s cubic-bezier(.2,.9,.1,1) var(--merge-delay,1.35s) forwards
-    }
+    @keyframes runCentered{0%{opacity:0; transform:translateX(6vw) scale(.96)}18%{opacity:1}55%{transform:translateX(-6vw) scale(1.02)}100%{opacity:0; transform:translateX(-6vw) scale(.98)}}
+    .final-logo{position:relative;z-index:2;opacity:0;font-weight:900;font-size:clamp(42px,9.5vw,72px);color:#eef2ff;text-shadow:0 14px 40px rgba(16,209,255,.22),0 4px 10px rgba(0,0,0,.5);white-space:nowrap;line-height:1;direction:rtl;unicode-bidi:plaintext;animation:logoMerge .55s cubic-bezier(.2,.9,.1,1) var(--merge-delay,1.35s) forwards}
     @keyframes logoMerge{0%{opacity:0;transform:translateY(18px) scale(.94)}100%{opacity:1;transform:translateY(0) scale(1)}}
 
     /* Auth */
@@ -76,13 +46,14 @@
     .form-control{width:100%;padding:12px 15px;border:1px solid var(--border-color);border-radius:8px;font-size:16px;transition:.3s}
     .form-control:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(74,107,255,.2)}
     .row{display:flex;gap:8px;align-items:center}
+    .grow{flex:1}
 
-    /* اختيار الصورة في التسجيل/الدخول */
+    /* اختيار الصورة في التسجيل فقط */
     .choose-avatar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .choose-avatar label{display:flex;align-items:center;gap:8px;background:#f2f4ff;border:1px solid #dfe4ff;padding:8px 10px;border-radius:12px;cursor:pointer}
+    .choose-avatar label{display:flex;align-items:center;gap:8px;background:#f2f4ff;border:1px solid #dfe4ff;padding:10px 12px;border-radius:12px;cursor:pointer}
     .choose-avatar input{display:none}
     .choose-avatar input:checked + span{outline:3px solid #3a5bef;border-radius:10px}
-    .choose-avatar .emo{font-size:22px;line-height:1}
+    .choose-avatar .emo{font-size:28px;line-height:1}
 
     /* Buttons */
     .btn{display:inline-block;padding:10px 14px;background:var(--primary-color);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;width:auto}
@@ -101,7 +72,6 @@
     .section-switch{display:inline-flex;background:#f2f4ff;border:1px solid #dfe4ff;border-radius:999px;overflow:hidden;margin-inline-start:10px}
     .section-pill{padding:6px 10px;font-size:12px;font-weight:800;color:#3a5bef;cursor:pointer;border:none;background:transparent}
     .section-pill.active{background:#3a5bef;color:#fff}
-
     .icon-btn{position:relative;background:transparent;border:none;cursor:pointer;font-size:20px}
     .icon-btn .dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#ff3b3b;border-radius:50%;display:none}
     .icon-btn.has-unseen .dot{display:block}
@@ -113,8 +83,8 @@
     .pull-indicator .bubble{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:#e9f0ff;border:1px solid #d0dcff;border-radius:999px;padding:4px 10px;font-size:12px;color:#3a5bef;display:none}
 
     .post{background:#fff;border-radius:14px;box-shadow:0 2px 5px rgba(0,0,0,.05);padding:15px;margin-bottom:15px;border:1px solid var(--border-color);position:relative}
-    .post.pinned{box-shadow:0 4px 14px rgba(255,199,0,.25)}
-    .post .pin-ribbon{position:absolute;top:-8px;right:-8px;background:#ffc107;color:#111;font-weight:800;padding:4px 8px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:11px}
+    .post.pinned{box-shadow:0 4px 14px rgba(74,107,255,.25)}
+    .post .pin-ribbon{position:absolute;top:-8px;right:-8px;background:#4a6bff;color:#fff;font-weight:800;padding:4px 8px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:11px}
     .post.sold{opacity:.85;position:relative}
     .post.sold::after{content:"تم بيعه";position:absolute;top:10px;left:10px;background:var(--success-color);color:#fff;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800}
     .post-header{display:grid;grid-template-columns:1fr auto;grid-row-gap:6px;align-items:center;margin-bottom:10px}
@@ -132,6 +102,7 @@
     .company .name{font-weight:900;color:#111;font-size:16px}
     .company .phone{color:#0c7a43;font-weight:800;margin-top:6px}
     .company .route{color:#555;margin-top:6px;font-size:13px}
+    .company .desc{color:#333;margin-top:6px}
 
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;overflow-y:auto}
     .modal-content{background:#fff;margin:20px auto;padding:20px;border-radius:12px;width:90%;max-width:520px;animation:modalOpen .25s}
@@ -147,7 +118,7 @@
     /* Profile */
     .profile-shell{padding:16px}
     .profile-card{background:var(--sky);border:1px solid #d0dcff;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:18px}
-    .avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:#d7e4ff;color:#2740b9;font-size:28px;cursor:pointer;border:2px solid #c9d7ff;overflow:hidden}
+    .avatar{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:#d7e4ff;color:#2740b9;font-size:40px;cursor:pointer;border:2px solid #c9d7ff;overflow:hidden}
     .profile-meta{display:flex;flex-direction:column;gap:4px}
     .profile-name-row{display:flex;align-items:center;gap:8px;font-weight:900;font-size:18px;color:#0f235f}
     .profile-count{font-size:13px;color:#2b3f8c;font-weight:700}
@@ -158,39 +129,29 @@
     .menu-item:hover{transform:translateY(-2px)}
     .muted{color:#777;font-size:13px}
 
-    /* ===== Broadcast popup (طولي) ===== */
+    /* ===== Broadcast popup (طولي) أزرق ===== */
     #broadcast-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:210}
     #broadcast-overlay.show{display:block}
-
     #broadcast-banner{
-      display:none;
-      position:fixed;
-      top:50%; left:50%;
-      transform:translate(-50%,-50%) scale(.98);
-      width:min(92%, 380px);
-      max-height:70vh;
-      overflow:auto;
-      z-index:220;
-      background:#fff7d1;
-      border:1px solid #f0d36a;
-      border-radius:16px;
-      padding:16px 46px 16px 16px;
-      box-shadow:0 20px 40px rgba(0,0,0,.28);
-      opacity:0;
+      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(.98);
+      width:min(92%, 380px); max-height:70vh; overflow:auto; z-index:220;
+      background:#e9f0ff; border:1px solid #d0dcff; border-radius:16px; padding:16px 46px 16px 16px;
+      box-shadow:0 20px 40px rgba(0,0,0,.28); opacity:0;
     }
-    /* إصلاح: العرض عند إضافة .show */
-    #broadcast-banner.show{
-      display:block; /* مهم جدًا */
-      animation:bannerIn .32s cubic-bezier(.2,.8,.2,1) forwards
-    }
+    #broadcast-banner.show{animation:bannerIn .32s cubic-bezier(.2,.8,.2,1) forwards}
     @keyframes bannerIn{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-    #broadcast-banner .x{position:absolute;top:10px;right:12px;background:#0000;border:none;font-size:22px;cursor:pointer;color:#6b5a00}
+    #broadcast-banner .x{position:absolute;top:10px;right:12px;background:#0000;border:none;font-size:22px;cursor:pointer;color:#2643b8}
 
     .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid var(--border-color);z-index:120}
     .nav-item{display:flex;flex-direction:column;align-items:center;color:var(--light-text);font-size:12px;cursor:pointer}
     .nav-item.active{color:var(--primary-color)}
 
-    .notification{position:fixed;top:20px;right:20px;background:var(--success-color);color:#fff;padding:15px 20px;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:300;display:none;font-size:12px}
+    /* توست في منتصف الشاشة */
+    .notification{
+      position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+      background:var(--success-color);color:#fff;padding:16px 22px;border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:300;display:none;font-size:14px;text-align:center;min-width:240px;max-width:85%;
+    }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -215,19 +176,14 @@
         <div class="auth-tab" onclick="switchAuthTab('register')">إنشاء حساب</div>
       </div>
 
+      <!-- تسجيل الدخول (بدون اختيار صورة) -->
       <form id="login-form" class="auth-form active" onsubmit="event.preventDefault(); login();">
         <div class="form-group"><label for="login-email">البريد الإلكتروني</label><input type="email" id="login-email" class="form-control" required></div>
         <div class="form-group"><label for="login-password">كلمة المرور</label><input type="password" id="login-password" class="form-control" required></div>
-        <div class="form-group">
-          <label>اختر الصورة</label>
-          <div class="choose-avatar">
-            <label><input type="radio" name="login-avatar" value="male" checked><span class="emo">👨🏻‍🦰</span> ولد</label>
-            <label><input type="radio" name="login-avatar" value="female"><span class="emo">👩🏻‍🦰</span> بنت</label>
-          </div>
-        </div>
         <button type="submit" class="btn btn-block">تسجيل الدخول</button>
       </form>
 
+      <!-- إنشاء حساب (إجباري اختيار 👨🏻‍💼/👩🏻‍💼) -->
       <form id="register-form" class="auth-form" onsubmit="event.preventDefault(); register();">
         <div class="form-group"><label for="register-name">الاسم الكامل</label><input type="text" id="register-name" class="form-control" required></div>
         <div class="form-group"><label for="register-email">البريد الإلكتروني</label><input type="email" id="register-email" class="form-control" required></div>
@@ -235,8 +191,8 @@
         <div class="form-group">
           <label>اختر الصورة</label>
           <div class="choose-avatar">
-            <label><input type="radio" name="register-avatar" value="male" checked><span class="emo">👨🏻‍🦰</span> ولد</label>
-            <label><input type="radio" name="register-avatar" value="female"><span class="emo">👩🏻‍🦰</span> بنت</label>
+            <label><input type="radio" name="register-avatar" value="male" checked><span class="emo">👨🏻‍💼</span> ولد</label>
+            <label><input type="radio" name="register-avatar" value="female"><span class="emo">👩🏻‍💼</span> بنت</label>
           </div>
         </div>
         <button type="submit" class="btn btn-block">إنشاء حساب</button>
@@ -255,8 +211,7 @@
         </div>
       </div>
       <button class="icon-btn" id="notif-button" onclick="showNotificationsPage()" aria-label="الإشعارات">
-        <i class="fa-regular fa-bell"></i>
-        <span class="dot" id="notif-dot"></span>
+        <i class="fa-regular fa-bell"></i><span class="dot" id="notif-dot"></span>
       </button>
     </div>
 
@@ -270,12 +225,12 @@
       </select>
     </div>
 
-    <!-- طبقة التعتيم + نافذة الإشعار الطولية -->
+    <!-- إشعار عام -->
     <div id="broadcast-overlay"></div>
     <div id="broadcast-banner">
       <button class="x" onclick="dismissBroadcast()">×</button>
-      <div style="font-weight:900;color:#6b5a00" id="broadcast-title-display"></div>
-      <div id="broadcast-text-display" style="margin-top:4px;color:#4c3f00"></div>
+      <div style="font-weight:900;color:#0f235f" id="broadcast-title-display"></div>
+      <div id="broadcast-text-display" style="margin-top:4px;color:#0f235f"></div>
     </div>
 
     <div class="pull-indicator"><div id="pull-bubble" class="bubble">اسحب للتحديث…</div></div>
@@ -287,7 +242,7 @@
   <div id="profile-page" class="container page" style="display:none">
     <div class="profile-shell">
       <div class="profile-card">
-        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal"></div>
+        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal()"></div>
         <div class="profile-meta">
           <div class="profile-name-row">
             <span id="profile-name"></span>
@@ -384,8 +339,10 @@
   <div id="create-company-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header"><h2>إضافة شركة توصيل</h2><button class="close-modal" onclick="closeCreateCompanyModal()">&times;</button></div>
+
       <div class="form-group"><label for="company-name">اسم الشركة</label><input type="text" id="company-name" class="form-control" required></div>
-      <div class="form-group"><label for="company-phone">رقم الهاتف</label><input type="text" id="company-phone" class="form-control" placeholder="07xxxxxxxxxx" required></div>
+
+      <!-- من / إلى بين الاسم والرقم -->
       <div class="select-group">
         <label for="company-from">من محافظة</label>
         <select id="company-from" class="select-control"></select>
@@ -396,7 +353,35 @@
         <select id="company-to" class="select-control"></select>
         <div class="muted">المحافظات التي <b>تُوصل إليها</b> الشركة (اختر "كل المحافظات" إن كانت عامة).</div>
       </div>
+
+      <div class="form-group"><label for="company-phone">رقم الهاتف</label><input type="text" id="company-phone" class="form-control" placeholder="07xxxxxxxxxx" required></div>
+      <div class="form-group"><label for="company-desc">وصف (اختياري)</label><textarea id="company-desc" class="form-control" rows="3" placeholder="ملاحظات أو أسعار تقريبية..."></textarea></div>
+
       <div class="modal-footer"><button class="btn btn-secondary" onclick="closeCreateCompanyModal()">إلغاء</button><button id="company-submit-btn" class="btn" onclick="createCompany()">إضافة</button></div>
+    </div>
+  </div>
+
+  <!-- Edit Company (Owner) -->
+  <div id="edit-company-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>تعديل شركة توصيل</h2><button class="close-modal" onclick="closeEditCompanyModal()">&times;</button></div>
+      <input type="hidden" id="edit-company-id">
+      <div class="form-group"><label for="edit-company-name">اسم الشركة</label><input id="edit-company-name" class="form-control"></div>
+      <div class="select-group">
+        <label for="edit-company-from">من محافظة</label>
+        <select id="edit-company-from" class="select-control"></select>
+      </div>
+      <div class="select-group">
+        <label for="edit-company-to">إلى محافظة</label>
+        <select id="edit-company-to" class="select-control"></select>
+      </div>
+      <div class="form-group"><label for="edit-company-phone">رقم الهاتف</label><input id="edit-company-phone" class="form-control"></div>
+      <div class="form-group"><label for="edit-company-desc">وصف</label><textarea id="edit-company-desc" class="form-control" rows="3"></textarea></div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" onclick="deleteCompanyConfirmed()"><i class="fa-solid fa-trash"></i> حذف</button>
+        <button class="btn btn-secondary" onclick="closeEditCompanyModal()">إلغاء</button>
+        <button class="btn" onclick="saveCompanyEdits()">حفظ</button>
+      </div>
     </div>
   </div>
 
@@ -405,8 +390,8 @@
     <div class="modal-content">
       <div class="modal-header"><h2>اختيار صورة</h2><button class="close-modal" onclick="closeAvatarModal()">&times;</button></div>
       <div class="row" style="justify-content:center;margin-top:10px;">
-        <div class="avatar" onclick="setAvatar('female')" title="بنت" style="background:#ffd7ea;border-color:#ffc2e1"><div style="width:100%;height:100%;font-size:30px;line-height:56px">👩🏻‍🦰</div></div>
-        <div class="avatar" onclick="setAvatar('male')" title="ولد" style="background:#d7e4ff;border-color:#c9d7ff"><div style="width:100%;height:100%;font-size:30px;line-height:56px">👨🏻‍🦰</div></div>
+        <div class="avatar" onclick="setAvatar('female')" title="بنت" style="background:#ffd7ea;border-color:#ffc2e1"><div style="width:100%;height:100%;font-size:40px;line-height:72px">👩🏻‍💼</div></div>
+        <div class="avatar" onclick="setAvatar('male')" title="ولد" style="background:#d7e4ff;border-color:#c9d7ff"><div style="width:100%;height:100%;font-size:40px;line-height:72px">👨🏻‍💼</div></div>
       </div>
       <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAvatarModal()">إغلاق</button></div>
     </div>
@@ -436,9 +421,10 @@
     <div class="modal-content">
       <div class="modal-header"><h2>لوحة الإحصائيات</h2><button class="close-modal" onclick="closeStatsModal()">&times;</button></div>
       <div id="stats-cards" class="row" style="gap:12px;flex-wrap:wrap">
-        <div class="post" style="flex:1;min-width:140px"><div class="post-title">المستخدمون النشطون (7 أيام)</div><div id="stat-active" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
-        <div class="post" style="flex:1;min-width:140px"><div class="post-title">إجمالي المستخدمين</div><div id="stat-users" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
-        <div class="post" style="flex:1;min-width:140px"><div class="post-title">إجمالي المنشورات</div><div id="stat-posts" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
+        <div class="post" style="flex:1;min-width:160px"><div class="post-title">النشطون الآن</div><div id="stat-active-now" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
+        <div class="post" style="flex:1;min-width:160px"><div class="post-title">النشطون اليوم</div><div id="stat-active-today" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
+        <div class="post" style="flex:1;min-width:160px"><div class="post-title">إجمالي المستخدمين</div><div id="stat-users" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
+        <div class="post" style="flex:1;min-width:160px"><div class="post-title">إجمالي المنشورات</div><div id="stat-posts" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
       </div>
       <div class="modal-footer"><button class="btn btn-secondary" onclick="closeStatsModal()">إغلاق</button></div>
     </div>
@@ -462,14 +448,12 @@
 
     const APP_OWNER_EMAIL = "mslmalmyaly223@gmail.com";
     let APP_OWNER_UID = null;
-    let pendingChosenAvatar = null;           // يُملأ من فورم الدخول/التسجيل
+    let pendingChosenAvatar = null;           // يُملأ فقط من فورم التسجيل
     let lastBroadcast = null;
 
-    // ===== Splash timings (أسرع) =====
+    // ===== Splash timings =====
     (function(){
-      const lastDelay = 0.45;   // آخر حرف يبدأ بعد 0.45s
-      const runDur   = 0.8;     // مدة حركة الحرف
-      const mergeDelay = lastDelay + runDur + .10; // متى يظهر الشعار
+      const lastDelay = 0.45, runDur=0.8, mergeDelay = lastDelay + runDur + .10;
       document.getElementById('final-logo').style.setProperty('--merge-delay', mergeDelay+'s');
       setTimeout(()=>{ document.querySelector('.runner')?.remove(); }, (mergeDelay+0.4)*1000);
       const splash=document.getElementById('splash');
@@ -484,38 +468,21 @@
       n.textContent=msg; n.style.display="block";
       const colors={error:'var(--danger-color)',warning:'var(--warning-color)',info:'var(--primary-color)',success:'var(--success-color)'};
       n.style.backgroundColor = colors[type]||colors.success;
-      setTimeout(()=>{ n.style.display="none"; },5000);
+      clearTimeout(n._t);
+      n._t=setTimeout(()=>{ n.style.display="none"; },2500);
     }
     function validateEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase()); }
     function sanitizeWhatsApp(v){ return (v||"").toString().replace(/[^\d]/g,""); }
     function sanitizeTelegram(v){ return (v||"").toString().replace(/^@+/,"").trim(); }
-    function formatWhatsApp(msisdn){
-      const d = sanitizeWhatsApp(msisdn);
-      if (!d) return "";
-      if (d.startsWith("964")) return d;
-      if (d.startsWith("0")) return "964" + d.slice(1);
-      return "964" + d;
-    }
     function openTelegram(username){ username=sanitizeTelegram(username); if(!username) return; window.location.href = "https://t.me/" + username; }
     const GOVERNORATES = ["بغداد","نينوى","البصرة","أربيل","النجف","كربلاء","ذي قار","السليمانية","ديالى","الأنبار","بابل","كركوك","واسط","المثنى","القادسية","ميسان","صلاح الدين","دهوك","كل المحافظات"];
-
-    // تهريب HTML لمنع حقن سكربتات
-    function escapeHTML(s){
-      s = (s==null) ? "" : String(s);
-      return s
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#39;");
-    }
 
     function renderAvatar(kind){
       const el = document.getElementById("avatar");
       const bg = kind==="female" ? "#ffd7ea" : "#d7e4ff";
-      const emoji = kind==="female" ? "👩🏻‍🦰" : "👨🏻‍🦰";
+      const emoji = kind==="female" ? "👩🏻‍💼" : "👨🏻‍💼";
       el.style.background = bg;
-      el.innerHTML = `<div style="font-size:30px;line-height:56px">${emoji}</div>`;
+      el.innerHTML = `<div style="font-size:40px;line-height:72px">${emoji}</div>`;
     }
 
     // ===== Pages & UI =====
@@ -550,9 +517,11 @@
     let currentCommentsPostId = null;
     const userMetaCache = {}; // {uid: {isVerified, blockedFromPosting}}
     let activeSection = "posts";
+    let notifUnsub = null;
 
     // ===== Auth =====
     auth.onAuthStateChanged(async (user) => {
+      stopNotificationListener();
       if(!user){
         updateUIForLoggedOutUser();
         setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 900);
@@ -573,10 +542,8 @@
           },{merge:true});
           doc = await db.collection("users").doc(user.uid).get();
         }else{
+          // تحديث آخر ظهور
           db.collection("users").doc(user.uid).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
-          if(pendingChosenAvatar){
-            await db.collection("users").doc(user.uid).set({ avatar: pendingChosenAvatar }, {merge:true});
-          }
         }
 
         currentUser = { uid:user.uid, ...doc.data() };
@@ -592,9 +559,10 @@
 
       await resolveAppOwnerUid();
       updateUIForLoggedInUser();
+      startNotificationListener();
       await Promise.all([loadPostsFromFirestore(), refreshNotifDot(), loadCompanies(), fetchLatestBroadcast()]);
       setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
-      pendingChosenAvatar = null;
+      pendingChosenAvatar = null; // انتهى
     });
 
     function isOwner(){ return currentUser && (currentUser.email===APP_OWNER_EMAIL || currentUser.isOwner===true); }
@@ -622,14 +590,8 @@
     function login(){
       const email=document.getElementById("login-email").value.trim();
       const password=document.getElementById("login-password").value;
-      const picked=(document.querySelector('input[name="login-avatar"]:checked')?.value)||null;
-      pendingChosenAvatar = picked;
       if(!email||!password) return showNotification("يرجى ملء جميع الحقول","error");
-      auth.signInWithEmailAndPassword(email,password)
-        .then(cred=>{
-          if(picked){ return db.collection("users").doc(cred.user.uid).set({ avatar:picked },{merge:true}); }
-        })
-        .catch(handleAuthError);
+      auth.signInWithEmailAndPassword(email,password).catch(handleAuthError);
     }
     function logout(){ auth.signOut(); }
 
@@ -669,6 +631,7 @@
       document.getElementById("profile-count").textContent="";
       document.getElementById("broadcast-banner").classList.remove('show');
       document.getElementById("broadcast-overlay").classList.remove('show');
+      stopNotificationListener();
     }
 
     function switchAuthTab(tab){
@@ -703,58 +666,42 @@
     }
     function onCreateButton(){ if(activeSection==="posts") openCreatePostModal(); else openCreateCompanyModal(); }
 
-    // ===== Notifications Dot =====
+    // ===== إشعارات لحظية (بدون orderBy) =====
+    function startNotificationListener(){
+      stopNotificationListener();
+      if(!currentUser) return;
+      notifUnsub = db.collection("notifications")
+        .where("userId","==", currentUser.uid)
+        .where("seen","==", false)
+        .onSnapshot(
+          snap => { notifBtn.classList.toggle("has-unseen", !snap.empty); },
+          err => { console.warn("notif listener error:", err); notifBtn.classList.remove("has-unseen"); }
+        );
+    }
+    function stopNotificationListener(){
+      if(notifUnsub){ try{ notifUnsub(); }catch{} }
+      notifUnsub = null;
+      notifBtn.classList.remove("has-unseen");
+    }
+
+    // ===== Notifications Dot (fallback) =====
     async function refreshNotifDot(){
       if(!currentUser) return;
       try{
         const q = await db.collection("notifications")
           .where("userId","==",currentUser.uid)
           .where("seen","==",false)
-          .orderBy("createdAt","desc")
-          .limit(1)
-          .get();
+          .limit(1).get();
         notifBtn.classList.toggle("has-unseen", !q.empty);
-      }catch(err){ console.error("notif dot err:", err); }
+      }catch(err){ console.error("notif dot err:", err); notifBtn.classList.remove("has-unseen"); }
     }
-    async function renderNotificationsPage(){
-      notificationsContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
-      if(!currentUser) return;
-      try{
-        const q = await db.collection("notifications")
-          .where("userId","==",currentUser.uid)
-          .orderBy("createdAt","desc").limit(50).get();
-        const items = q.docs.map(d=>({id:d.id, ...d.data()}));
-        if(items.length===0){ notificationsContainer.innerHTML = "<div class='post'><p>لا توجد إشعارات</p></div>"; return; }
-        const out = items.map(n => {
-          const dateTxt = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-IQ') : "";
-          const typeTxt = n.type==='comment'?'تعليق جديد':(n.type==='report'?'بلاغ جديد':'إشعار');
-          const postIdSafe = escapeHTML(n.postId || '');
-          return `<div class="post">
-            <div class="post-header">
-              <div class="post-username"><span>${typeTxt}</span></div>
-              <div class="post-price" style="color:#888">${dateTxt}</div>
-              <div class="post-title">${postIdSafe}</div>
-            </div>
-            <div class="post-actions">
-              ${n.postId?`<button class="btn btn-secondary" onclick="openPostFromNotif('${n.postId}','${n.type}')">فتح</button>`:""}
-              ${n.seen===false?`<button class="btn" onclick="markNotifSeen('${n.id}')">تم</button>`:""}
-            </div>
-          </div>`;
-        });
-        notificationsContainer.innerHTML = out.join("");
-      }catch(err){ console.error(err); notificationsContainer.innerHTML = "<div class='post'><p>تعذّر تحميل الإشعارات</p></div>"; }
-      await refreshNotifDot();
-    }
-    async function markNotifSeen(id){ await db.collection("notifications").doc(id).update({seen:true}); await renderNotificationsPage(); }
-    function openPostFromNotif(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
 
     // ===== Posts =====
     async function loadPostsFromFirestore(){
       try{
-        const snap = await db.collection("posts").orderBy("createdAt","desc").get();
+        const snap = await db.collection("posts").get();
         posts = snap.docs.map(d=>{
-          const data=d.data();
-          const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : null; // لا نستخدم new Date() افتراضي
+          const data=d.data(); const createdAt=data.createdAt?.toDate?data.createdAt.toDate():new Date(0);
           return { id:d.id, isPinned: !!data.isPinned, ...data, createdAt };
         });
         renderPosts();
@@ -773,48 +720,30 @@
 
     function filterPosts(material){ renderPosts(material); }
 
-    // ترتيب صحيح: نحافظ على ترتيب Firestore ونقدّم المثبّتة أعلى
     async function renderPosts(filterMaterial=""){
       postsContainer.innerHTML="";
-      const visible = posts.filter(p=>p.status!=='sold');
+      const sorted=[...posts].sort((a,b)=>{
+        if(a.isPinned && !b.isPinned) return -1;
+        if(!a.isPinned && b.isPinned) return 1;
+        return (b.createdAt?.getTime?.()||0)-(a.createdAt?.getTime?.()||0);
+      });
+      const visible = sorted.filter(p=>p.status!=='sold');
       const filtered = filterMaterial ? visible.filter(p=>p.material===filterMaterial) : visible;
+      if(filtered.length===0){ postsContainer.innerHTML='<div class="post"><p>لا توجد منشورات متاحة</p></div>'; return; }
 
-      if(filtered.length===0){
-        postsContainer.innerHTML='<div class="post"><p>لا توجد منشورات متاحة</p></div>';
-        return;
-      }
-
-      const pinned = filtered.filter(p=>p.isPinned);
-      const normal = filtered.filter(p=>!p.isPinned);
-      const finalList = [...pinned, ...normal];
-
-      const metas = await Promise.all(finalList.map(p => getUserMeta(p.userId)));
-      const frag = document.createDocumentFragment();
-
-      finalList.forEach((post, idx) => {
+      for(const post of filtered){
+        const meta = await getUserMeta(post.userId);
         const card = document.createElement("div");
         card.className = `post ${post.isPinned?'pinned':''}`;
-        card.innerHTML = generatePostHTML(post, metas[idx], 'list');
-        frag.appendChild(card);
-      });
-
-      postsContainer.appendChild(frag);
+        card.innerHTML = generatePostHTML(post, meta, 'list');
+        postsContainer.appendChild(card);
+      }
     }
 
-    // ===== Post HTML Generator (مع تهريب HTML) =====
+    // ===== Post HTML Generator =====
     function generatePostHTML(post, meta, context = 'list') {
-      const userName = escapeHTML(post.userName || 'مستخدم');
-      const subject  = escapeHTML(post.subject || '');
-      const desc     = escapeHTML(post.description || '');
-      const priceTxt = escapeHTML(String(post.price ?? '—'));
-
-      const badge = meta.isVerified
-        ? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>`
-        : '';
-
-      const pinRibbon = post.isPinned
-        ? '<div class="pin-ribbon"><i class="fa-solid fa-thumbtack"></i> مثبت</div>'
-        : '';
+      const badge = meta.isVerified ? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>` : '';
+      const pinRibbon = post.isPinned ? '<div class="pin-ribbon"><i class="fa-solid fa-thumbtack"></i> مثبت</div>' : '';
 
       // Owner tools
       let ownerTools = '';
@@ -831,11 +760,10 @@
           </div>`;
       }
 
-      // Contact
-      let contactBtn = "";
+      // Action buttons
+      let contactBtn="";
       if (post.contactMethod === "whatsapp" && post.whatsapp) {
-        const wa = formatWhatsApp(post.whatsapp);
-        if (wa) contactBtn = `<a class="btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">التواصل (واتساب)</a>`;
+        contactBtn = `<a class="btn" href="https://wa.me/${sanitizeWhatsApp(post.whatsapp)}" target="_blank" rel="noopener">التواصل (واتساب)</a>`;
       } else if (post.contactMethod === "telegram" && post.telegram) {
         contactBtn = `<button class="btn" onclick="openTelegram('${sanitizeTelegram(post.telegram)}')">التواصل (تلكرام)</button>`;
       } else if (post.contactMethod === "comments") {
@@ -848,12 +776,11 @@
       } else if (context === 'details') {
         actionButtons = `<button class="btn btn-secondary" onclick="reportPost('${post.id}')"><i class="fas fa-flag"></i> إبلاغ عن المنشور</button>${contactBtn}`;
       } else if (context === 'user-posts') {
-        const sold = post.status === 'sold';
         actionButtons = `
           <button class="btn btn-secondary" onclick="openDetailsPage('${post.id}')">تفاصيل</button>
           ${contactBtn}
           <button class="btn" onclick="repost('${post.id}')"><i class="fas fa-rotate-right"></i> إعادة نشر</button>
-          <button class="btn btn-warning" onclick="markSold('${post.id}', ${sold ? 'true' : 'false'})">${sold ? 'إلغاء تم بيعه' : 'تم بيعه'}</button>
+          <button class="btn btn-warning" onclick="markSold('${post.id}', ${post.status === 'sold' ? 'true' : 'false'})">${post.status === 'sold' ? 'إلغاء تم بيعه' : 'تم بيعه'}</button>
           <button class="btn btn-danger" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> حذف</button>`;
       }
 
@@ -861,11 +788,11 @@
         ${pinRibbon}
         ${ownerTools}
         <div class="post-header">
-          <div class="post-username"><span>${userName}</span> ${badge}</div>
-          <div class="post-price">${priceTxt} دينار</div>
-          <div class="post-title">${subject}</div>
+          <div class="post-username"><span>${post.userName || 'مستخدم'}</span> ${badge}</div>
+          <div class="post-price">${post.price} دينار</div>
+          <div class="post-title">${post.subject}</div>
         </div>
-        <div class="post-description">${desc}</div>
+        <div class="post-description">${post.description}</div>
         <div class="post-actions">${actionButtons}</div>`;
     }
 
@@ -879,23 +806,8 @@
     function openDetailsPage(postId){ currentDetailsPostId = postId; showPage("details"); renderDetails(postId); }
     async function renderDetails(postId){
       detailsContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
-      let post = posts.find(p=>p.id===postId);
-      if(!post){
-        try{
-          const doc = await db.collection("posts").doc(postId).get();
-          if(doc.exists){
-            const data = doc.data();
-            post = {
-              id: doc.id,
-              ...data,
-              createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : null
-            };
-          }
-        }catch(e){
-          console.error(e);
-        }
-      }
-      if(!post){ detailsContainer.innerHTML="<div class='post'><p>تعذّر تحميل التفاصيل</p></div>"; return; }
+      const post = posts.find(p=>p.id===postId);
+      if(!post){ detailsContainer.innerHTML="<div class='post'><p>تعذر تحميل التفاصيل</p></div>"; return; }
       const meta = await getUserMeta(post.userId);
       const card = document.createElement("div");
       card.className = `post ${post.isPinned?'pinned':''}`;
@@ -930,7 +842,7 @@
       }catch(e){ console.error("addComment error:", e); showNotification("خطأ أثناء إضافة التعليق: "+(e.message||e),"error"); }
     }
     async function renderCommentsPage(postId){
-      commentsList.innerHTML = "<div class='post'><p>ج جاري تحميل التعليقات...</p></div>";
+      commentsList.innerHTML = "<div class='post'><p>جاري تحميل التعليقات...</p></div>";
       try{
         const postDoc = await db.collection("posts").doc(postId).get();
         const post = postDoc.exists ? { id: postDoc.id, ...postDoc.data() } : posts.find(p=>p.id===postId);
@@ -941,16 +853,14 @@
         const frags = cSnap.docs.map(doc => {
           const c = doc.data();
           const dateTxt = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString('ar-IQ') : "";
-          const name = escapeHTML(c.userName || 'مستخدم');
-          const text = escapeHTML(c.text || '');
           const banBtn = (isOwnerOfPost && c.userId !== currentUser.uid)
             ? `<button class="btn btn-danger btn-xs" style="margin-top:8px" onclick="banUserFromPost('${postId}','${c.userId}')"><i class="fas fa-ban"></i> حظر المستخدم</button>` : ``;
           return `<div class="post">
             <div class="post-header">
-              <div class="post-username"><span>${name}</span></div>
+              <div class="post-username"><span>${c.userName||'مستخدم'}</span></div>
               <div class="post-price" style="color:#888">${dateTxt}</div>
             </div>
-            <div class="post-description">${text}</div>
+            <div class="post-description">${c.text||''}</div>
             ${banBtn}
           </div>`;
         });
@@ -994,9 +904,9 @@
       try{
         let snap;
         if(isOwner()){
-          snap = await db.collection("reports").orderBy("createdAt","desc").get();
+          snap = await db.collection("reports").get();
         }else{
-          snap = await db.collection("reports").where("reporterId","==",currentUser.uid).orderBy("createdAt","desc").get();
+          snap = await db.collection("reports").where("reporterId","==",currentUser.uid).get();
         }
         if(snap.empty){ inboxContainer.innerHTML = "<div class='post'><p>لا توجد عناصر</p></div>"; return; }
         const rows = snap.docs.map(d => ({id:d.id, ...d.data()}))
@@ -1004,8 +914,6 @@
           .map(r => {
             const timeTxt = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString('ar-IQ') : "";
             const statusColor = r.status==="action_taken" ? "var(--success-color)" : (r.status==="rejected" ? "var(--danger-color)" : "#999");
-            const reason = escapeHTML(r.reason || "—");
-            const notes  = r.reviewerNotes ? (' — ملاحظة: ' + escapeHTML(r.reviewerNotes)) : '';
             const controls = isOwner() ? `
               <div class="row" style="margin-top:10px;">
                 <input id="note-${r.id}" class="form-control" style="flex:1" placeholder="ملاحظة..." value="${(r.reviewerNotes||"").replace(/"/g,'&quot;')}">
@@ -1013,15 +921,15 @@
                 <button class="btn btn-warning btn-xs" onclick="ownerBanReporter('${r.id}')">حظر المُبلّغ</button>
                 <button class="btn btn-secondary btn-xs" onclick="ownerRejectReport('${r.id}')">رفض البلاغ</button>
               </div>` :
-              `<div class="muted">الحالة: <b style="color:${statusColor}">${reportStatusLabel(r.status)}</b>${notes}</div>`;
+              `<div class="muted">الحالة: <b style="color:${statusColor}">${reportStatusLabel(r.status)}</b>${r.reviewerNotes?(' — ملاحظة: '+r.reviewerNotes):''}</div>`;
             return `
               <div class="post">
                 <div class="post-header">
-                  <div class="post-username"><span>بلاغ على منشور: ${escapeHTML(r.postId || '')}</span></div>
+                  <div class="post-username"><span>بلاغ على منشور: ${r.postId}</span></div>
                   <div class="post-price" style="color:#888">${timeTxt}</div>
                   <div class="post-title">حالته: <b style="color:${statusColor}">${reportStatusLabel(r.status)}</b></div>
                 </div>
-                <div class="post-description">السبب: ${reason}</div>
+                <div class="post-description">السبب: ${r.reason || "—"}</div>
                 ${controls}
                 <div class="post-actions" style="margin-top:10px;">
                   <button class="btn btn-secondary" onclick="openDetailsPage('${r.postId}')">عرض تفاصيل المنشور</button>
@@ -1137,11 +1045,15 @@
       fromSel.innerHTML = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
       toSel.innerHTML = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
       fromSel.value="بغداد"; toSel.value="كل المحافظات";
+
+      // لحقول التعديل أيضًا
+      document.getElementById("edit-company-from").innerHTML = fromSel.innerHTML;
+      document.getElementById("edit-company-to").innerHTML = toSel.innerHTML;
     }
     async function loadCompanies(){
       companiesContainer.innerHTML = "<div class='post'><p>جاري تحميل الشركات...</p></div>";
       try{
-        const snap = await db.collection("companies").orderBy("createdAt","desc").get();
+        const snap = await db.collection("companies").get();
         companies = snap.docs.map(d=>({id:d.id, ...d.data()}));
         renderCompanies();
       }catch(e){
@@ -1155,9 +1067,15 @@
       }
       const html = companies.map(c=>`
         <div class="company">
-          <div class="name">${escapeHTML(c.name||'شركة')}</div>
-          <div class="phone"><i class="fa-solid fa-phone"></i> ${c.phone?('0'+String(c.phone).replace(/^0+/,'')):'—'}</div>
-          <div class="route">النطاق: من <b>${escapeHTML(c.fromGov||'—')}</b> إلى <b>${escapeHTML(c.toGov||'—')}</b></div>
+          <div class="name">${(c.name||'شركة')}</div>
+          <div class="route">النطاق: من <b>${c.fromGov||'—'}</b> إلى <b>${c.toGov||'—'}</b></div>
+          <div class="phone"><i class="fa-solid fa-phone"></i> ${c.phone?('0'+c.phone.replace(/^0+/,'')):'—'}</div>
+          ${c.desc?`<div class="desc">${c.desc}</div>`:""}
+          ${isOwner()?`
+            <div class="post-actions" style="margin-top:10px">
+              <button class="btn btn-secondary btn-xs" onclick="openEditCompany('${c.id}')"><i class="fa-solid fa-pen"></i> تعديل</button>
+              <button class="btn btn-danger btn-xs" onclick="deleteCompany('${c.id}')"><i class="fa-solid fa-trash"></i> حذف</button>
+            </div>`:""}
         </div>`).join("");
       companiesContainer.innerHTML = html;
     }
@@ -1168,15 +1086,61 @@
       const phone=(document.getElementById("company-phone").value||"").trim();
       const fromGov=document.getElementById("company-from").value;
       const toGov=document.getElementById("company-to").value;
+      const desc=(document.getElementById("company-desc").value||"").trim();
       if(!name||!phone) return showNotification("يرجى إدخال اسم ورقم الشركة","error");
       createCompanyBusy=true; const btn=document.getElementById("company-submit-btn"); btn.disabled=true;
       try{
-        await db.collection("companies").add({ name, phone, fromGov, toGov, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        await db.collection("companies").add({ name, phone, fromGov, toGov, desc, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
         closeCreateCompanyModal();
         await loadCompanies();
         showNotification("تمت إضافة الشركة","success");
       }catch(e){ console.error(e); showNotification("تعذر إضافة الشركة: "+(e.message||e),"error"); }
       finally{ createCompanyBusy=false; btn.disabled=false; }
+    }
+    function openEditCompany(id){
+      if(!isOwner()) return showNotification("غير مصرح","warning");
+      const c = companies.find(x=>x.id===id); if(!c) return;
+      fillGovOptions();
+      document.getElementById("edit-company-id").value = id;
+      document.getElementById("edit-company-name").value = c.name||"";
+      document.getElementById("edit-company-from").value = c.fromGov||"بغداد";
+      document.getElementById("edit-company-to").value = c.toGov||"كل المحافظات";
+      document.getElementById("edit-company-phone").value = c.phone||"";
+      document.getElementById("edit-company-desc").value = c.desc||"";
+      document.getElementById("edit-company-modal").style.display="block";
+    }
+    function closeEditCompanyModal(){ document.getElementById("edit-company-modal").style.display="none"; }
+    async function saveCompanyEdits(){
+      const id = document.getElementById("edit-company-id").value;
+      if(!id) return closeEditCompanyModal();
+      try{
+        await db.collection("companies").doc(id).set({
+          name: document.getElementById("edit-company-name").value.trim(),
+          fromGov: document.getElementById("edit-company-from").value,
+          toGov: document.getElementById("edit-company-to").value,
+          phone: document.getElementById("edit-company-phone").value.trim(),
+          desc: document.getElementById("edit-company-desc").value.trim()
+        }, {merge:true});
+        showNotification("تم حفظ التعديلات","success");
+        closeEditCompanyModal();
+        await loadCompanies();
+      }catch(e){ console.error(e); showNotification("تعذّر حفظ التعديلات: "+(e.message||e),"error"); }
+    }
+    async function deleteCompanyConfirmed(){
+      const id = document.getElementById("edit-company-id").value;
+      if(!id) return closeEditCompanyModal();
+      if(!confirm("حذف الشركة؟")) return;
+      try{
+        await db.collection("companies").doc(id).delete();
+        showNotification("تم حذف الشركة","success");
+        closeEditCompanyModal(); await loadCompanies();
+      }catch(e){ console.error(e); showNotification("تعذّر الحذف: "+(e.message||e),"error"); }
+    }
+    async function deleteCompany(id){
+      if(!isOwner()) return showNotification("غير مصرح","warning");
+      if(!confirm("حذف الشركة؟")) return;
+      try{ await db.collection("companies").doc(id).delete(); showNotification("تم حذف الشركة","success"); await loadCompanies(); }
+      catch(e){ console.error(e); showNotification("تعذّر الحذف: "+(e.message||e),"error"); }
     }
 
     // ===== Profile: Avatar & Name =====
@@ -1204,29 +1168,37 @@
       }catch(e){ console.error(e); showNotification("فشل حفظ الاسم: "+(e.message||e),"error"); }
     }
 
-    // ===== Stats (modal) =====
+    // ===== Stats (modal): الآن + اليوم =====
     async function openUserStats(){
       document.getElementById("stats-modal").style.display="block";
       try{
         const qAll = await db.collection("users").get();
         const all = qAll.size || qAll.docs.length;
-        const since = new Date(); since.setDate(since.getDate()-7);
-        let active = 0;
-        try{
-          const qActive = await db.collection("users").where("lastSeen",">=",firebase.firestore.Timestamp.fromDate(since)).get();
-          active = qActive.size || qActive.docs.length;
-        }catch(e){
-          active = qAll.docs.filter(d=>{ const t=d.data().lastSeen; const ts=t?.toDate? t.toDate(): null; return ts && ts >= since; }).length;
+
+        const now = new Date();
+        const fiveMinAgo = new Date(now.getTime() - 5*60*1000);
+        const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+
+        // قد لا تعمل where على lastSeen بسهولة لكل الحالات، نوفّر بديل محلي
+        let activeNow = 0, activeToday = 0;
+        for(const d of qAll.docs){
+          const t = d.data().lastSeen;
+          const ts = t?.toDate ? t.toDate() : null;
+          if(!ts) continue;
+          if(ts >= fiveMinAgo) activeNow++;
+          if(ts >= startOfDay) activeToday++;
         }
+
         const qPosts = await db.collection("posts").get();
-        document.getElementById("stat-active").textContent = active;
+        document.getElementById("stat-active-now").textContent = activeNow;
+        document.getElementById("stat-active-today").textContent = activeToday;
         document.getElementById("stat-users").textContent  = all;
         document.getElementById("stat-posts").textContent = qPosts.size || qPosts.docs.length;
       }catch(e){ console.error(e); showNotification("تعذّر جلب الإحصائيات","error"); }
     }
     function closeStatsModal(){ document.getElementById("stats-modal").style.display="none"; }
 
-    // ===== Broadcast (owner) + عرض للمستخدم =====
+    // ===== Broadcast (owner) + عرض للمستخدم (مرة واحدة) =====
     function openBroadcastModal(){ if(!isOwner()) return showNotification("هذا الخيار للمالك فقط","warning"); document.getElementById("broadcast-modal").style.display="block"; }
     function closeBroadcastModal(){ document.getElementById("broadcast-modal").style.display="none"; }
 
@@ -1250,7 +1222,6 @@
       }
     }
 
-    // يظهر الإشعار مرّة واحدة لكل مستخدم لكل إشعار
     async function fetchLatestBroadcast(forceShow=false){
       try{
         const q = await db.collection("broadcasts").orderBy("createdAt","desc").limit(1).get();
@@ -1275,6 +1246,7 @@
       }
       banner.classList.remove('show'); overlay.classList.remove('show');
     }
+    document.getElementById("broadcast-overlay").addEventListener("click", dismissBroadcast);
 
     // ===== Owner resolve =====
     async function resolveAppOwnerUid(){
@@ -1319,10 +1291,44 @@
       });
     })();
 
-    // ===== إغلاق الإشعار العام بالنقر على الخلفية أو زر ESC =====
-    document.getElementById('broadcast-overlay').addEventListener('click', dismissBroadcast);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dismissBroadcast(); });
+    // ===== إشعارات: صفحة الإشعارات (جلب + ترتيب محلي) =====
+    async function renderNotificationsPage(){
+      notificationsContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
+      if(!currentUser) return;
+      try{
+        const q = await db.collection("notifications")
+          .where("userId","==",currentUser.uid)
+          .limit(200).get();
 
+        const items = q.docs.map(d=>({id:d.id, ...d.data()}))
+          .sort((a,b)=> (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
+
+        if(items.length===0){ notificationsContainer.innerHTML = "<div class='post'><p>لا توجد إشعارات</p></div>"; return; }
+
+        const out = items.map(n => {
+          const dateTxt = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-IQ') : "";
+          const kind = n.type==='comment'?'تعليق جديد':(n.type==='report'?'بلاغ جديد':'إشعار');
+          return `<div class="post">
+            <div class="post-header">
+              <div class="post-username"><span>${kind}</span></div>
+              <div class="post-price" style="color:#888">${dateTxt}</div>
+              <div class="post-title">${n.postId||''}</div>
+            </div>
+            <div class="post-actions">
+              ${n.postId?`<button class="btn btn-secondary" onclick="openPostFromNotif('${n.postId}','${n.type}')">فتح</button>`:""}
+              ${n.seen===false?`<button class="btn" onclick="markNotifSeen('${n.id}')">تم</button>`:""}
+            </div>
+          </div>`;
+        }).join("");
+        notificationsContainer.innerHTML = out;
+      }catch(err){
+        console.error("render notif error:", err);
+        notificationsContainer.innerHTML = "<div class='post'><p>تعذّر تحميل الإشعارات</p></div>";
+      }
+      await refreshNotifDot();
+    }
+    async function markNotifSeen(id){ try{ await db.collection("notifications").doc(id).update({seen:true}); }catch{} await renderNotificationsPage(); }
+    function openPostFromNotif(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
   </script>
 </body>
 </html>
