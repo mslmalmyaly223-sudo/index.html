@@ -5,15 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
   <title>سوق الطلاب</title>
 
-  <!-- PWA / iOS -->
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#4a6bff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="سوق الطلاب">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-
-  <!-- UI deps -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
 
@@ -124,7 +115,7 @@
     .select-group{margin-bottom:15px}
     .select-group label{display:block;margin-bottom:5px;font-weight:500}
     .select-control{width:100%;padding:12px 15px;border:1px solid var(--border-color);border-radius:8px;font-size:16px;background:#fff}
-    .modal-footer{display:flex;justify-content:flex-end;gap:10px}
+    .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
 
     /* Profile */
     .profile-shell{padding:16px}
@@ -157,7 +148,6 @@
     .nav-item{display:flex;flex-direction:column;align-items:center;color:var(--light-text);font-size:12px;cursor:pointer}
     .nav-item.active{color:var(--primary-color)}
 
-    /* توست */
     .notification{
       position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
       background:var(--success-color);color:#fff;padding:16px 22px;border-radius:12px;
@@ -165,10 +155,10 @@
     }
   </style>
 
-  <!-- Firebase (مؤجلة) -->
-  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <!-- Firebase (بدون defer حتى تجهز قبل سكربت التطبيق) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body>
 
@@ -441,9 +431,8 @@
     </div>
   </div>
 
-  <!-- ====== التطبيق: كل الجافاسكربت داخل onload لضمان جاهزية Firebase ====== -->
+  <!-- ===== App Logic ===== -->
   <script>
-  window.addEventListener('load', function appBoot() {
     // ===== Firebase Config =====
     const firebaseConfig = {
       apiKey:"AIzaSyBkoSz3ZUy4qKBTeLx42Oo-TlTtvFtF2vY",
@@ -455,9 +444,6 @@
       appId:"1:862363949793:web:e0dc01a4eb139da43f75a0",
       measurementId:"G-CT6WFGXRHH"
     };
-    if (!window.firebase || !firebase.apps || !firebase.initializeApp) {
-      console.error('Firebase لم يُحمَّل بعد'); return;
-    }
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
@@ -602,11 +588,20 @@
         .then(()=>{ showNotification("تم إنشاء الحساب. سجّل الدخول الآن.","success"); switchAuthTab('login'); })
         .catch(handleAuthError);
     }
+
     function login(){
       const email=document.getElementById("login-email").value.trim();
       const password=document.getElementById("login-password").value;
       if(!email||!password) return showNotification("يرجى ملء جميع الحقول","error");
-      auth.signInWithEmailAndPassword(email,password).catch(handleAuthError);
+
+      const btn = document.querySelector('#login-form button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = "جاري تسجيل الدخول…"; }
+
+      auth.signInWithEmailAndPassword(email,password)
+        .catch(handleAuthError)
+        .finally(()=>{
+          if (btn) { btn.disabled = false; btn.textContent = "تسجيل الدخول"; }
+        });
     }
     function logout(){ auth.signOut(); }
 
@@ -698,7 +693,6 @@
       notifUnsub = null;
       notifBtn.classList.remove("has-unseen");
     }
-
     async function refreshNotifDot(){
       if(!currentUser) return;
       try{
@@ -1053,12 +1047,12 @@
       const fromSel=document.getElementById("company-from");
       const toSel=document.getElementById("company-to");
       if(fromSel.options.length > 1) return;
-      const opts = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
-      fromSel.innerHTML = opts; toSel.innerHTML = opts;
+      fromSel.innerHTML = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
+      toSel.innerHTML = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
       fromSel.value="بغداد"; toSel.value="كل المحافظات";
 
-      document.getElementById("edit-company-from").innerHTML = opts;
-      document.getElementById("edit-company-to").innerHTML = opts;
+      document.getElementById("edit-company-from").innerHTML = fromSel.innerHTML;
+      document.getElementById("edit-company-to").innerHTML = toSel.innerHTML;
     }
     async function loadCompanies(){
       companiesContainer.innerHTML = "<div class='post'><p>جاري تحميل الشركات...</p></div>";
@@ -1270,7 +1264,7 @@
     function handleAuthError(error){ const code=error?.code||""; showNotification("خطأ مصادقة: "+code+" "+(error.message||""),"error"); console.error("Auth error:", error); }
 
     // ===== Pull to refresh =====
-    (function initPullToRefresh(){
+    ;(function initPullToRefresh(){
       const bubble = document.getElementById("pull-bubble");
       let startY = 0, pulling = false, threshold = 80;
       window.addEventListener("touchstart", (e)=>{
@@ -1300,7 +1294,7 @@
       });
     })();
 
-    // ===== إشعارات: صفحة الإشعارات =====
+    // ===== Notifications Page =====
     async function renderNotificationsPage(){
       notificationsContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
       if(!currentUser) return;
@@ -1337,77 +1331,43 @@
       await refreshNotifDot();
     }
     async function markNotifSeen(id){ try{ await db.collection("notifications").doc(id).update({seen:true}); }catch{} await renderNotificationsPage(); }
-    window.openPostFromNotif = function(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
-
-    // تعريض الدوال العامة للاستخدام من الأزرار
-    window.switchAuthTab = switchAuthTab;
-    window.showNotificationsPage = showNotificationsPage;
-    window.backToMainFromNotifications = backToMainFromNotifications;
-    window.openCommentsPage = openCommentsPage;
-    window.reportPost = reportPost;
-    window.ownerTogglePin = ownerTogglePin;
-    window.ownerDeletePost = ownerDeletePost;
-    window.ownerToggleVerify = ownerToggleVerify;
-    window.ownerToggleUserBanById = ownerToggleUserBanById;
-    window.openDetailsPage = openDetailsPage;
-    window.showMainPage = showMainPage;
-    window.showProfilePage = showProfilePage;
-    window.showUserPosts = showUserPosts;
-    window.backToProfile = backToProfile;
-    window.backToMainFromDetails = backToMainFromDetails;
-    window.backToMainFromComments = backToMainFromComments;
-    window.addCommentFromPage = addCommentFromPage;
-    window.banUserFromPost = banUserFromPost;
-    window.repost = repost;
-    window.markSold = markSold;
-    window.deletePost = deletePost;
-    window.openTelegram = openTelegram;
-    window.openCreatePostModal = openCreatePostModal;
-    window.closeCreatePostModal = closeCreatePostModal;
-    window.changeContactMethod = changeContactMethod;
-    window.createPost = createPost;
-    window.openCreateCompanyModal = openCreateCompanyModal;
-    window.closeCreateCompanyModal = closeCreateCompanyModal;
-    window.createCompany = createCompany;
-    window.openEditCompany = openEditCompany;
-    window.closeEditCompanyModal = closeEditCompanyModal;
-    window.saveCompanyEdits = saveCompanyEdits;
-    window.deleteCompany = deleteCompany;
-    window.deleteCompanyConfirmed = deleteCompanyConfirmed;
-    window.openAvatarModal = openAvatarModal;
-    window.closeAvatarModal = closeAvatarModal;
-    window.setAvatar = setAvatar;
-    window.editProfileName = editProfileName;
-    window.closeEditNameModal = closeEditNameModal;
-    window.saveProfileName = saveProfileName;
-    window.openUserStats = openUserStats;
-    window.closeStatsModal = closeStatsModal;
-    window.openBroadcastModal = openBroadcastModal;
-    window.closeBroadcastModal = closeBroadcastModal;
-    window.sendBroadcast = sendBroadcast;
-    window.dismissBroadcast = dismissBroadcast;
-    window.logout = logout;
-    window.filterPosts = filterPosts;
-    window.switchSection = switchSection;
-    window.onCreateButton = onCreateButton;
-
-    // تسجيل Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
-    }
-  });
+    function openPostFromNotif(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
   </script>
 
-  <!-- إخفاء السبلش حتى لو صار خطأ عام -->
+  <!-- حقن الـ manifest وأيقونات iOS + تسجيل SW -->
+  <script>
+  (function(){
+    function add(tag, attrs, keyAttr){
+      const sel = keyAttr ? `${tag}[${keyAttr}="${attrs[keyAttr]}"]` : null;
+      let el = sel ? document.querySelector(sel) : null;
+      if(!el){ el = document.createElement(tag); document.head.appendChild(el); }
+      Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+    }
+
+    add('link', { rel:'manifest', href:'manifest.webmanifest' }, 'rel');
+    add('meta', { name:'theme-color', content:'#4a6bff' }, 'name');
+
+    add('meta', { name:'apple-mobile-web-app-capable', content:'yes' }, 'name');
+    add('meta', { name:'apple-mobile-web-app-status-bar-style', content:'black-translucent' }, 'name');
+    add('meta', { name:'apple-mobile-web-app-title', content:'سوق الطلاب' }, 'name');
+    add('link', { rel:'apple-touch-icon', href:'icons/icon-192.png' }, 'rel');
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  })();
+  </script>
+
+  <!-- إخفاء السبلش تلقائياً كـ fallback (لا يفتح صفحات) -->
   <script>
     (function () {
       function hideSplash() {
         var sp = document.getElementById('splash');
         if (sp) { sp.style.opacity = '0'; setTimeout(function(){ sp.remove(); }, 400); }
-        var auth = document.getElementById('auth-page'); if (auth) auth.style.display = 'flex';
-        var main = document.getElementById('main-page'); if (main && !auth) main.style.display = 'block';
       }
-      // ضمان الإخفاء بعد 7 ثواني
       window.addEventListener('load', function () { setTimeout(hideSplash, 7000); });
       window.addEventListener('error', hideSplash);
       window.addEventListener('unhandledrejection', hideSplash);
