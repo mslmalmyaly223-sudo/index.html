@@ -4,8 +4,19 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
   <title>سوق الطلاب</title>
+
+  <!-- PWA / iOS -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#4a6bff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="سوق الطلاب">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- UI deps -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --primary-color:#4a6bff;--secondary-color:#f8f9fa;--accent-color:#ff6b6b;
@@ -113,7 +124,7 @@
     .select-group{margin-bottom:15px}
     .select-group label{display:block;margin-bottom:5px;font-weight:500}
     .select-control{width:100%;padding:12px 15px;border:1px solid var(--border-color);border-radius:8px;font-size:16px;background:#fff}
-    .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+    .modal-footer{display:flex;justify-content:flex-end;gap:10px}
 
     /* Profile */
     .profile-shell{padding:16px}
@@ -129,7 +140,7 @@
     .menu-item:hover{transform:translateY(-2px)}
     .muted{color:#777;font-size:13px}
 
-    /* ===== Broadcast popup (طولي) أزرق ===== */
+    /* ===== Broadcast popup ===== */
     #broadcast-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:210}
     #broadcast-overlay.show{display:block}
     #broadcast-banner{
@@ -146,7 +157,7 @@
     .nav-item{display:flex;flex-direction:column;align-items:center;color:var(--light-text);font-size:12px;cursor:pointer}
     .nav-item.active{color:var(--primary-color)}
 
-    /* توست في منتصف الشاشة */
+    /* توست */
     .notification{
       position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
       background:var(--success-color);color:#fff;padding:16px 22px;border-radius:12px;
@@ -154,9 +165,10 @@
     }
   </style>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <!-- Firebase (مؤجلة) -->
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body>
 
@@ -176,14 +188,14 @@
         <div class="auth-tab" onclick="switchAuthTab('register')">إنشاء حساب</div>
       </div>
 
-      <!-- تسجيل الدخول (بدون اختيار صورة) -->
+      <!-- تسجيل الدخول -->
       <form id="login-form" class="auth-form active" onsubmit="event.preventDefault(); login();">
         <div class="form-group"><label for="login-email">البريد الإلكتروني</label><input type="email" id="login-email" class="form-control" required></div>
         <div class="form-group"><label for="login-password">كلمة المرور</label><input type="password" id="login-password" class="form-control" required></div>
         <button type="submit" class="btn btn-block">تسجيل الدخول</button>
       </form>
 
-      <!-- إنشاء حساب (إجباري اختيار 👨🏻‍💼/👩🏻‍💼) -->
+      <!-- إنشاء حساب -->
       <form id="register-form" class="auth-form" onsubmit="event.preventDefault(); register();">
         <div class="form-group"><label for="register-name">الاسم الكامل</label><input type="text" id="register-name" class="form-control" required></div>
         <div class="form-group"><label for="register-email">البريد الإلكتروني</label><input type="email" id="register-email" class="form-control" required></div>
@@ -342,7 +354,6 @@
 
       <div class="form-group"><label for="company-name">اسم الشركة</label><input type="text" id="company-name" class="form-control" required></div>
 
-      <!-- من / إلى بين الاسم والرقم -->
       <div class="select-group">
         <label for="company-from">من محافظة</label>
         <select id="company-from" class="select-control"></select>
@@ -361,7 +372,7 @@
     </div>
   </div>
 
-  <!-- Edit Company (Owner) -->
+  <!-- Edit Company -->
   <div id="edit-company-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header"><h2>تعديل شركة توصيل</h2><button class="close-modal" onclick="closeEditCompanyModal()">&times;</button></div>
@@ -430,7 +441,9 @@
     </div>
   </div>
 
+  <!-- ====== التطبيق: كل الجافاسكربت داخل onload لضمان جاهزية Firebase ====== -->
   <script>
+  window.addEventListener('load', function appBoot() {
     // ===== Firebase Config =====
     const firebaseConfig = {
       apiKey:"AIzaSyBkoSz3ZUy4qKBTeLx42Oo-TlTtvFtF2vY",
@@ -442,13 +455,16 @@
       appId:"1:862363949793:web:e0dc01a4eb139da43f75a0",
       measurementId:"G-CT6WFGXRHH"
     };
+    if (!window.firebase || !firebase.apps || !firebase.initializeApp) {
+      console.error('Firebase لم يُحمَّل بعد'); return;
+    }
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
 
     const APP_OWNER_EMAIL = "mslmalmyaly223@gmail.com";
     let APP_OWNER_UID = null;
-    let pendingChosenAvatar = null;           // يُملأ فقط من فورم التسجيل
+    let pendingChosenAvatar = null;
     let lastBroadcast = null;
 
     // ===== Splash timings =====
@@ -515,7 +531,7 @@
     let companies = [];
     let currentDetailsPostId = null;
     let currentCommentsPostId = null;
-    const userMetaCache = {}; // {uid: {isVerified, blockedFromPosting}}
+    const userMetaCache = {};
     let activeSection = "posts";
     let notifUnsub = null;
 
@@ -542,7 +558,6 @@
           },{merge:true});
           doc = await db.collection("users").doc(user.uid).get();
         }else{
-          // تحديث آخر ظهور
           db.collection("users").doc(user.uid).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
         }
 
@@ -562,7 +577,7 @@
       startNotificationListener();
       await Promise.all([loadPostsFromFirestore(), refreshNotifDot(), loadCompanies(), fetchLatestBroadcast()]);
       setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
-      pendingChosenAvatar = null; // انتهى
+      pendingChosenAvatar = null;
     });
 
     function isOwner(){ return currentUser && (currentUser.email===APP_OWNER_EMAIL || currentUser.isOwner===true); }
@@ -666,7 +681,7 @@
     }
     function onCreateButton(){ if(activeSection==="posts") openCreatePostModal(); else openCreateCompanyModal(); }
 
-    // ===== إشعارات لحظية (بدون orderBy) =====
+    // ===== إشعارات لحظية =====
     function startNotificationListener(){
       stopNotificationListener();
       if(!currentUser) return;
@@ -684,7 +699,6 @@
       notifBtn.classList.remove("has-unseen");
     }
 
-    // ===== Notifications Dot (fallback) =====
     async function refreshNotifDot(){
       if(!currentUser) return;
       try{
@@ -740,12 +754,10 @@
       }
     }
 
-    // ===== Post HTML Generator =====
     function generatePostHTML(post, meta, context = 'list') {
       const badge = meta.isVerified ? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>` : '';
       const pinRibbon = post.isPinned ? '<div class="pin-ribbon"><i class="fa-solid fa-thumbtack"></i> مثبت</div>' : '';
 
-      // Owner tools
       let ownerTools = '';
       if (isOwner()) {
         const pinTxt = post.isPinned ? 'إلغاء التثبيت' : 'تثبيت';
@@ -760,7 +772,6 @@
           </div>`;
       }
 
-      // Action buttons
       let contactBtn="";
       if (post.contactMethod === "whatsapp" && post.whatsapp) {
         contactBtn = `<a class="btn" href="https://wa.me/${sanitizeWhatsApp(post.whatsapp)}" target="_blank" rel="noopener">التواصل (واتساب)</a>`;
@@ -1041,14 +1052,13 @@
     function fillGovOptions(){
       const fromSel=document.getElementById("company-from");
       const toSel=document.getElementById("company-to");
-      if(fromSel.options.length > 1) return; // Avoid re-filling
-      fromSel.innerHTML = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
-      toSel.innerHTML = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
+      if(fromSel.options.length > 1) return;
+      const opts = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
+      fromSel.innerHTML = opts; toSel.innerHTML = opts;
       fromSel.value="بغداد"; toSel.value="كل المحافظات";
 
-      // لحقول التعديل أيضًا
-      document.getElementById("edit-company-from").innerHTML = fromSel.innerHTML;
-      document.getElementById("edit-company-to").innerHTML = toSel.innerHTML;
+      document.getElementById("edit-company-from").innerHTML = opts;
+      document.getElementById("edit-company-to").innerHTML = opts;
     }
     async function loadCompanies(){
       companiesContainer.innerHTML = "<div class='post'><p>جاري تحميل الشركات...</p></div>";
@@ -1168,7 +1178,7 @@
       }catch(e){ console.error(e); showNotification("فشل حفظ الاسم: "+(e.message||e),"error"); }
     }
 
-    // ===== Stats (modal): الآن + اليوم =====
+    // ===== Stats =====
     async function openUserStats(){
       document.getElementById("stats-modal").style.display="block";
       try{
@@ -1179,7 +1189,6 @@
         const fiveMinAgo = new Date(now.getTime() - 5*60*1000);
         const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
 
-        // قد لا تعمل where على lastSeen بسهولة لكل الحالات، نوفّر بديل محلي
         let activeNow = 0, activeToday = 0;
         for(const d of qAll.docs){
           const t = d.data().lastSeen;
@@ -1198,7 +1207,7 @@
     }
     function closeStatsModal(){ document.getElementById("stats-modal").style.display="none"; }
 
-    // ===== Broadcast (owner) + عرض للمستخدم (مرة واحدة) =====
+    // ===== Broadcast =====
     function openBroadcastModal(){ if(!isOwner()) return showNotification("هذا الخيار للمالك فقط","warning"); document.getElementById("broadcast-modal").style.display="block"; }
     function closeBroadcastModal(){ document.getElementById("broadcast-modal").style.display="none"; }
 
@@ -1261,7 +1270,7 @@
     function handleAuthError(error){ const code=error?.code||""; showNotification("خطأ مصادقة: "+code+" "+(error.message||""),"error"); console.error("Auth error:", error); }
 
     // ===== Pull to refresh =====
-    ;(function initPullToRefresh(){
+    (function initPullToRefresh(){
       const bubble = document.getElementById("pull-bubble");
       let startY = 0, pulling = false, threshold = 80;
       window.addEventListener("touchstart", (e)=>{
@@ -1291,7 +1300,7 @@
       });
     })();
 
-    // ===== إشعارات: صفحة الإشعارات (جلب + ترتيب محلي) =====
+    // ===== إشعارات: صفحة الإشعارات =====
     async function renderNotificationsPage(){
       notificationsContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
       if(!currentUser) return;
@@ -1328,61 +1337,81 @@
       await refreshNotifDot();
     }
     async function markNotifSeen(id){ try{ await db.collection("notifications").doc(id).update({seen:true}); }catch{} await renderNotificationsPage(); }
-    function openPostFromNotif(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
-<script>
-(function(){
-  function add(tag, attrs, keyAttr){
-    const sel = keyAttr ? `${tag}[${keyAttr}="${attrs[keyAttr]}"]` : null;
-    let el = sel ? document.querySelector(sel) : null;
-    if(!el){ el = document.createElement(tag); document.head.appendChild(el); }
-    Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
-  }
+    window.openPostFromNotif = function(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
 
-  // manifest + لون الشريط
-  add('link', { rel:'manifest', href:'manifest.webmanifest' }, 'rel');
-  add('meta', { name:'theme-color', content:'#4a6bff' }, 'name');
+    // تعريض الدوال العامة للاستخدام من الأزرار
+    window.switchAuthTab = switchAuthTab;
+    window.showNotificationsPage = showNotificationsPage;
+    window.backToMainFromNotifications = backToMainFromNotifications;
+    window.openCommentsPage = openCommentsPage;
+    window.reportPost = reportPost;
+    window.ownerTogglePin = ownerTogglePin;
+    window.ownerDeletePost = ownerDeletePost;
+    window.ownerToggleVerify = ownerToggleVerify;
+    window.ownerToggleUserBanById = ownerToggleUserBanById;
+    window.openDetailsPage = openDetailsPage;
+    window.showMainPage = showMainPage;
+    window.showProfilePage = showProfilePage;
+    window.showUserPosts = showUserPosts;
+    window.backToProfile = backToProfile;
+    window.backToMainFromDetails = backToMainFromDetails;
+    window.backToMainFromComments = backToMainFromComments;
+    window.addCommentFromPage = addCommentFromPage;
+    window.banUserFromPost = banUserFromPost;
+    window.repost = repost;
+    window.markSold = markSold;
+    window.deletePost = deletePost;
+    window.openTelegram = openTelegram;
+    window.openCreatePostModal = openCreatePostModal;
+    window.closeCreatePostModal = closeCreatePostModal;
+    window.changeContactMethod = changeContactMethod;
+    window.createPost = createPost;
+    window.openCreateCompanyModal = openCreateCompanyModal;
+    window.closeCreateCompanyModal = closeCreateCompanyModal;
+    window.createCompany = createCompany;
+    window.openEditCompany = openEditCompany;
+    window.closeEditCompanyModal = closeEditCompanyModal;
+    window.saveCompanyEdits = saveCompanyEdits;
+    window.deleteCompany = deleteCompany;
+    window.deleteCompanyConfirmed = deleteCompanyConfirmed;
+    window.openAvatarModal = openAvatarModal;
+    window.closeAvatarModal = closeAvatarModal;
+    window.setAvatar = setAvatar;
+    window.editProfileName = editProfileName;
+    window.closeEditNameModal = closeEditNameModal;
+    window.saveProfileName = saveProfileName;
+    window.openUserStats = openUserStats;
+    window.closeStatsModal = closeStatsModal;
+    window.openBroadcastModal = openBroadcastModal;
+    window.closeBroadcastModal = closeBroadcastModal;
+    window.sendBroadcast = sendBroadcast;
+    window.dismissBroadcast = dismissBroadcast;
+    window.logout = logout;
+    window.filterPosts = filterPosts;
+    window.switchSection = switchSection;
+    window.onCreateButton = onCreateButton;
 
-  // دعم iOS
-  add('meta', { name:'apple-mobile-web-app-capable', content:'yes' }, 'name');
-  add('meta', { name:'apple-mobile-web-app-status-bar-style', content:'black-translucent' }, 'name');
-  add('meta', { name:'apple-mobile-web-app-title', content:'سوق الطلاب' }, 'name');
-  add('link', { rel:'apple-touch-icon', href:'icons/icon-192.png' }, 'rel');
-
-  // تسجيل Service Worker
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .catch(err => console.log('SW registration failed:', err));
-    });
-  }
-})();
-</script>
-
-<!-- أخفاء شاشة البداية تلقائيًا حتى لو صار خطأ -->
-<script>
-  (function () {
-    function hideSplash() {
-      var sp = document.getElementById('splash');
-      if (sp) {
-        sp.style.opacity = '0';
-        setTimeout(function(){ sp.style.display = 'none'; }, 300);
-      }
-      // اظهر صفحة الدخول أو الرئيسية إذا كانت مخفية
-      var auth = document.getElementById('auth-page');
-      if (auth) auth.style.display = 'block';
-      var home = document.getElementById('home');
-      if (home) home.style.display = 'block';
+    // تسجيل Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
     }
+  });
+  </script>
 
-    // ضمان إخفاء السبلش بعد 7 ثواني حتى لو تعطل شيء
-    window.addEventListener('load', function () {
-      setTimeout(hideSplash, 7000);
-    });
-
-    // أي أخطاء عامة → أخفي السبلش بدل ما تبقى الشاشة متجمدة
-    window.addEventListener('error', hideSplash);
-    window.addEventListener('unhandledrejection', hideSplash);
-  })();
-</script>
+  <!-- إخفاء السبلش حتى لو صار خطأ عام -->
+  <script>
+    (function () {
+      function hideSplash() {
+        var sp = document.getElementById('splash');
+        if (sp) { sp.style.opacity = '0'; setTimeout(function(){ sp.remove(); }, 400); }
+        var auth = document.getElementById('auth-page'); if (auth) auth.style.display = 'flex';
+        var main = document.getElementById('main-page'); if (main && !auth) main.style.display = 'block';
+      }
+      // ضمان الإخفاء بعد 7 ثواني
+      window.addEventListener('load', function () { setTimeout(hideSplash, 7000); });
+      window.addEventListener('error', hideSplash);
+      window.addEventListener('unhandledrejection', hideSplash);
+    })();
+  </script>
 </body>
 </html>
