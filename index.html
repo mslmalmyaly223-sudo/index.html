@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+  <title>سوق الطلاب</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary-color:#4a6bff;--secondary-color:#f8f9fa;--accent-color:#ff6b6b;
+      --text-color:#222;--light-text:#6c757d;--border-color:#dee2e6;
+      --success-color:#28a745;--warning-color:#ffc107;--danger-color:#dc3545;
+      --sky:#e9f0ff;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Tajawal','Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+    html,body{height:100%}
+    body{background:#f5f5f5;color:var(--text-color);overscroll-behavior-y:contain;-webkit-text-size-adjust:100%;touch-action:manipulation}
+    .container{max-width:100%;min-height:100vh;background:#fff;padding-bottom:70px}
+
+    /* ===== Splash ===== */
+    .splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:
+      radial-gradient(60% 90% at 20% 10%, rgba(16,209,255,.20), transparent 60%),
+      radial-gradient(70% 80% at 90% 90%, rgba(106,17,203,.18), transparent 60%),
+      linear-gradient(135deg,#0d0f1a 0%, #0f1330 100%);z-index:1200;overflow:hidden;transition:opacity .6s ease}
+    .splash.fade-out{opacity:0;pointer-events:none}
+
+    /* الحروف تبقى في منتصف الشاشة (تنقّل قصير فقط) */
+    .runner{
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      gap:.08em;filter:drop-shadow(0 10px 28px rgba(0,0,0,.45));
+      pointer-events:none;
+    }
+    .runner span{
+      font-weight:900;font-size:clamp(40px,9vw,74px);color:#e6ebff;display:inline-block;
+      opacity:0; transform:translateX(6vw) scale(.96);
+      animation:runCentered .8s cubic-bezier(.2,.8,.2,1) forwards;
+      will-change:transform,opacity;
+    }
+    .runner span:nth-child(1){animation-delay:.00s}
+    .runner span:nth-child(2){animation-delay:.05s}
+    .runner span:nth-child(3){animation-delay:.10s}
+    .runner span:nth-child(4){animation-delay:.15s}
+    .runner span:nth-child(5){animation-delay:.20s}
+    .runner span:nth-child(6){animation-delay:.25s}
+    .runner span:nth-child(7){animation-delay:.30s}
+    .runner span:nth-child(8){animation-delay:.35s}
+    .runner span:nth-child(9){animation-delay:.40s}
+    .runner span:nth-child(10){animation-delay:.45s}
+
+    @keyframes runCentered{
+      0%   {opacity:0; transform:translateX(6vw) scale(.96)}
+      18%  {opacity:1}
+      55%  {transform:translateX(-6vw) scale(1.02)}
+      100% {opacity:0; transform:translateX(-6vw) scale(.98)}
+    }
+
+    .final-logo{
+      position:relative;z-index:2;opacity:0;font-weight:900;
+      font-size:clamp(42px,9.5vw,72px);color:#eef2ff;
+      text-shadow:0 14px 40px rgba(16,209,255,.22),0 4px 10px rgba(0,0,0,.5);
+      white-space:nowrap;line-height:1;direction:rtl;unicode-bidi:plaintext;
+      animation:logoMerge .55s cubic-bezier(.2,.9,.1,1) var(--merge-delay,1.35s) forwards
+    }
+    @keyframes logoMerge{0%{opacity:0;transform:translateY(18px) scale(.94)}100%{opacity:1;transform:translateY(0) scale(1)}}
+
+    /* Auth */
+    .auth-container{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:20px;background:linear-gradient(135deg,#4a6bff,#6a11cb)}
+    .auth-box{background:#fff;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,.1);padding:30px;width:100%;max-width:420px;text-align:center}
+    .auth-tabs{display:flex;margin-bottom:20px;border-bottom:1px solid var(--border-color)}
+    .auth-tab{flex:1;padding:10px;cursor:pointer;font-weight:500;color:var(--light-text);transition:.3s}
+    .auth-tab.active{color:var(--primary-color);border-bottom:2px solid var(--primary-color)}
+    .auth-form{display:none}.auth-form.active{display:block}
+    .form-group{margin-bottom:15px;text-align:right}
+    .form-group label{display:block;margin-bottom:5px;font-weight:500}
+    .form-control{width:100%;padding:12px 15px;border:1px solid var(--border-color);border-radius:8px;font-size:16px;transition:.3s}
+    .form-control:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(74,107,255,.2)}
+    .row{display:flex;gap:8px;align-items:center}
+
+    /* اختيار الصورة في التسجيل/الدخول */
+    .choose-avatar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .choose-avatar label{display:flex;align-items:center;gap:8px;background:#f2f4ff;border:1px solid #dfe4ff;padding:8px 10px;border-radius:12px;cursor:pointer}
+    .choose-avatar input{display:none}
+    .choose-avatar input:checked + span{outline:3px solid #3a5bef;border-radius:10px}
+    .choose-avatar .emo{font-size:22px;line-height:1}
+
+    /* Buttons */
+    .btn{display:inline-block;padding:10px 14px;background:var(--primary-color);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;width:auto}
+    .btn:hover{transform:translateY(-1px)}
+    .btn[disabled]{opacity:.65;cursor:not-allowed;transform:none}
+    .btn-block{width:100%}
+    .btn-secondary{background:var(--secondary-color);color:var(--text-color)}
+    .btn-danger{background:var(--danger-color)}
+    .btn-success{background:var(--success-color)}
+    .btn-warning{background:var(--warning-color);color:#111}
+    .btn-xs{padding:6px 8px;font-size:12px;border-radius:8px}
+
+    /* Header */
+    .header{position:sticky;top:0;background:#fff;padding:12px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);z-index:100}
+    .brand{display:flex;align-items:center;gap:8px}
+    .section-switch{display:inline-flex;background:#f2f4ff;border:1px solid #dfe4ff;border-radius:999px;overflow:hidden;margin-inline-start:10px}
+    .section-pill{padding:6px 10px;font-size:12px;font-weight:800;color:#3a5bef;cursor:pointer;border:none;background:transparent}
+    .section-pill.active{background:#3a5bef;color:#fff}
+
+    .icon-btn{position:relative;background:transparent;border:none;cursor:pointer;font-size:20px}
+    .icon-btn .dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#ff3b3b;border-radius:50%;display:none}
+    .icon-btn.has-unseen .dot{display:block}
+
+    .filter-container{padding:15px;background:#fff;border-bottom:1px solid var(--border-color)}
+    .filter-select{width:100%;padding:10px;border:1px solid var(--border-color);border-radius:5px}
+    .posts-container{padding:15px 15px 90px}
+    .pull-indicator{position:relative;height:0;overflow:visible}
+    .pull-indicator .bubble{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:#e9f0ff;border:1px solid #d0dcff;border-radius:999px;padding:4px 10px;font-size:12px;color:#3a5bef;display:none}
+
+    .post{background:#fff;border-radius:14px;box-shadow:0 2px 5px rgba(0,0,0,.05);padding:15px;margin-bottom:15px;border:1px solid var(--border-color);position:relative}
+    .post.pinned{box-shadow:0 4px 14px rgba(255,199,0,.25)}
+    .post .pin-ribbon{position:absolute;top:-8px;right:-8px;background:#ffc107;color:#111;font-weight:800;padding:4px 8px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:11px}
+    .post.sold{opacity:.85;position:relative}
+    .post.sold::after{content:"تم بيعه";position:absolute;top:10px;left:10px;background:var(--success-color);color:#fff;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800}
+    .post-header{display:grid;grid-template-columns:1fr auto;grid-row-gap:6px;align-items:center;margin-bottom:10px}
+    .post-username{display:flex;align-items:center;gap:10px;font-weight:900;color:#111;font-size:17px}
+    .badge-verified{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:linear-gradient(135deg,#f7d774,#e7b10a,#ffdf85,#e7b10a);color:#5a4600;font-size:12px;font-weight:900;border:1px solid rgba(128,96,0,.35);box-shadow:0 2px 10px rgba(231,177,10,.35), inset 0 0 10px rgba(255,255,255,.35)}
+    .badge-verified i{font-size:14px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.15))}
+    .post-title{font-weight:800;font-size:15px;color:var(--primary-color)}
+    .post-price{justify-self:end;font-weight:900;color:var(--success-color)}
+    .post-description{margin:10px 0 15px;line-height:1.8;color:#222;white-space:pre-wrap}
+    .post-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    .owner-tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;border-bottom:1px dashed #eee;padding-bottom:8px}
+
+    /* Companies */
+    .company{background:#fff;border-radius:14px;box-shadow:0 2px 5px rgba(0,0,0,.05);padding:15px;margin-bottom:12px;border:1px solid var(--border-color)}
+    .company .name{font-weight:900;color:#111;font-size:16px}
+    .company .phone{color:#0c7a43;font-weight:800;margin-top:6px}
+    .company .route{color:#555;margin-top:6px;font-size:13px}
+
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;overflow-y:auto}
+    .modal-content{background:#fff;margin:20px auto;padding:20px;border-radius:12px;width:90%;max-width:520px;animation:modalOpen .25s}
+    @keyframes modalOpen{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border-color)}
+    .modal-header h2{font-size:18px;margin:0}
+    .close-modal{background:none;border:none;font-size:24px;cursor:pointer;color:var(--light-text)}
+    .select-group{margin-bottom:15px}
+    .select-group label{display:block;margin-bottom:5px;font-weight:500}
+    .select-control{width:100%;padding:12px 15px;border:1px solid var(--border-color);border-radius:8px;font-size:16px;background:#fff}
+    .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+
+    /* Profile */
+    .profile-shell{padding:16px}
+    .profile-card{background:var(--sky);border:1px solid #d0dcff;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:#d7e4ff;color:#2740b9;font-size:28px;cursor:pointer;border:2px solid #c9d7ff;overflow:hidden}
+    .profile-meta{display:flex;flex-direction:column;gap:4px}
+    .profile-name-row{display:flex;align-items:center;gap:8px;font-weight:900;font-size:18px;color:#0f235f}
+    .profile-count{font-size:13px;color:#2b3f8c;font-weight:700}
+    .profile-email{font-size:12px;color:#3c4c7f;word-break:break-all}
+    .profile-actions-card{margin-top:20px;background:#fff;border:1px solid var(--border-color);border-radius:14px;padding:10px}
+    .profile-menu{padding:5px}
+    .menu-item{display:flex;align-items:center;gap:10px;padding:14px;margin-bottom:10px;background:var(--secondary-color);border-radius:12px;cursor:pointer;transition:.2s}
+    .menu-item:hover{transform:translateY(-2px)}
+    .muted{color:#777;font-size:13px}
+
+    /* ===== Broadcast popup (طولي) ===== */
+    #broadcast-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:210}
+    #broadcast-overlay.show{display:block}
+
+    #broadcast-banner{
+      display:none;
+      position:fixed;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%) scale(.98);
+      width:min(92%, 380px);
+      max-height:70vh;
+      overflow:auto;
+      z-index:220;
+      background:#fff7d1;
+      border:1px solid #f0d36a;
+      border-radius:16px;
+      padding:16px 46px 16px 16px;
+      box-shadow:0 20px 40px rgba(0,0,0,.28);
+      opacity:0;
+    }
+    /* إصلاح: العرض عند إضافة .show */
+    #broadcast-banner.show{
+      display:block; /* مهم جدًا */
+      animation:bannerIn .32s cubic-bezier(.2,.8,.2,1) forwards
+    }
+    @keyframes bannerIn{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+    #broadcast-banner .x{position:absolute;top:10px;right:12px;background:#0000;border:none;font-size:22px;cursor:pointer;color:#6b5a00}
+
+    .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid var(--border-color);z-index:120}
+    .nav-item{display:flex;flex-direction:column;align-items:center;color:var(--light-text);font-size:12px;cursor:pointer}
+    .nav-item.active{color:var(--primary-color)}
+
+    .notification{position:fixed;top:20px;right:20px;background:var(--success-color);color:#fff;padding:15px 20px;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:300;display:none;font-size:12px}
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+</head>
+<body>
+
+  <!-- Splash -->
+  <div id="splash" class="splash" aria-label="سوق الطلاب">
+    <div class="runner" dir="rtl" aria-hidden="true">
+      <span>س</span><span>و</span><span>ق</span><span>&nbsp;</span><span>ا</span><span>ل</span><span>ط</span><span>ل</span><span>ا</span><span>ب</span>
+    </div>
+    <div class="final-logo" id="final-logo" dir="rtl">سوق الطلاب</div>
+  </div>
+
+  <!-- Auth -->
+  <div id="auth-page" class="auth-container page" style="display:none">
+    <div class="auth-box">
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab('login')">تسجيل الدخول</div>
+        <div class="auth-tab" onclick="switchAuthTab('register')">إنشاء حساب</div>
+      </div>
+
+      <form id="login-form" class="auth-form active" onsubmit="event.preventDefault(); login();">
+        <div class="form-group"><label for="login-email">البريد الإلكتروني</label><input type="email" id="login-email" class="form-control" required></div>
+        <div class="form-group"><label for="login-password">كلمة المرور</label><input type="password" id="login-password" class="form-control" required></div>
+        <div class="form-group">
+          <label>اختر الصورة</label>
+          <div class="choose-avatar">
+            <label><input type="radio" name="login-avatar" value="male" checked><span class="emo">👨🏻‍🦰</span> ولد</label>
+            <label><input type="radio" name="login-avatar" value="female"><span class="emo">👩🏻‍🦰</span> بنت</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-block">تسجيل الدخول</button>
+      </form>
+
+      <form id="register-form" class="auth-form" onsubmit="event.preventDefault(); register();">
+        <div class="form-group"><label for="register-name">الاسم الكامل</label><input type="text" id="register-name" class="form-control" required></div>
+        <div class="form-group"><label for="register-email">البريد الإلكتروني</label><input type="email" id="register-email" class="form-control" required></div>
+        <div class="form-group"><label for="register-password">كلمة المرور</label><input type="password" id="register-password" class="form-control" required></div>
+        <div class="form-group">
+          <label>اختر الصورة</label>
+          <div class="choose-avatar">
+            <label><input type="radio" name="register-avatar" value="male" checked><span class="emo">👨🏻‍🦰</span> ولد</label>
+            <label><input type="radio" name="register-avatar" value="female"><span class="emo">👩🏻‍🦰</span> بنت</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-block">إنشاء حساب</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div id="main-page" class="container page" style="display:none">
+    <div class="header">
+      <div class="brand">
+        <button id="create-btn" class="btn" onclick="onCreateButton()"><i class="fas fa-plus"></i> <span id="create-btn-label">إنشاء منشور</span></button>
+        <div class="section-switch" role="tablist" aria-label="الأقسام">
+          <button id="pill-posts" class="section-pill active" onclick="switchSection('posts')" role="tab" aria-selected="true">المنشورات</button>
+          <button id="pill-companies" class="section-pill" onclick="switchSection('companies')" role="tab" aria-selected="false">شركات التوصيل</button>
+        </div>
+      </div>
+      <button class="icon-btn" id="notif-button" onclick="showNotificationsPage()" aria-label="الإشعارات">
+        <i class="fa-regular fa-bell"></i>
+        <span class="dot" id="notif-dot"></span>
+      </button>
+    </div>
+
+    <div id="filter-container" class="filter-container">
+      <select class="filter-select" onchange="filterPosts(this.value)">
+        <option value="">كل المواد</option>
+        <option value="اسلامية">اسلامية</option><option value="عربي">عربي</option><option value="انكليزي">انكليزي</option>
+        <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="كيمياء">كيمياء</option>
+        <option value="فيزياء">فيزياء</option><option value="اجتماعيات">اجتماعيات</option><option value="تاريخ">تاريخ</option>
+        <option value="جغرافية">جغرافية</option><option value="اقتصاد">اقتصاد</option><option value="علوم">علوم</option>
+      </select>
+    </div>
+
+    <!-- طبقة التعتيم + نافذة الإشعار الطولية -->
+    <div id="broadcast-overlay"></div>
+    <div id="broadcast-banner">
+      <button class="x" onclick="dismissBroadcast()">×</button>
+      <div style="font-weight:900;color:#6b5a00" id="broadcast-title-display"></div>
+      <div id="broadcast-text-display" style="margin-top:4px;color:#4c3f00"></div>
+    </div>
+
+    <div class="pull-indicator"><div id="pull-bubble" class="bubble">اسحب للتحديث…</div></div>
+    <div class="posts-container" id="posts-container"></div>
+    <div class="posts-container" id="companies-container" style="display:none"></div>
+  </div>
+
+  <!-- Profile -->
+  <div id="profile-page" class="container page" style="display:none">
+    <div class="profile-shell">
+      <div class="profile-card">
+        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal"></div>
+        <div class="profile-meta">
+          <div class="profile-name-row">
+            <span id="profile-name"></span>
+            <span id="profile-verified"></span>
+            <i class="fas fa-pencil-alt" style="color:var(--primary-color);cursor:pointer" onclick="editProfileName()"></i>
+          </div>
+          <div id="profile-count" class="profile-count"></div>
+          <div id="profile-email" class="profile-email"></div>
+        </div>
+      </div>
+      <div class="profile-actions-card">
+        <div class="profile-menu">
+          <div class="menu-item" onclick="showUserPosts()"><i class="fas fa-book"></i><span>منشوراتي</span></div>
+          <div class="menu-item" onclick="showInbox()"><i class="fas fa-inbox"></i><span>البريد الوارد</span></div>
+          <div class="menu-item" onclick="openTelegram('MSLM_ALMYALY')"><i class="fas fa-thumbtack"></i><span>تثبيت المنشور بـ 1$</span></div>
+          <div class="menu-item" onclick="openTelegram('IbnalKufa')"><i class="fab fa-telegram"></i><span>قناة ابن الكوفة</span></div>
+          <div class="menu-item" onclick="openUserStats()"><i class="fas fa-chart-pie"></i><span>إحصائيات المستخدمين</span></div>
+          <div class="menu-item owner-only" style="display:none" onclick="openBroadcastModal()"><i class="fas fa-bullhorn"></i><span>إشعار عام</span></div>
+          <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Posts / Inbox / Notifications / Details / Comments -->
+  <div id="user-posts-page" class="container page" style="display:none">
+    <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">منشوراتي</span></div>
+    <div class="posts-container" id="user-posts-container"></div>
+  </div>
+
+  <div id="inbox-page" class="container page" style="display:none">
+    <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">البريد الوارد</span></div>
+    <div class="posts-container" id="inbox-container"></div>
+  </div>
+
+  <div id="notifications-page" class="container page" style="display:none;">
+    <div class="header"><button class="btn btn-secondary" onclick="backToMainFromNotifications()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">الإشعارات</span></div>
+    <div class="posts-container" id="notifications-container"></div>
+  </div>
+
+  <div id="details-page" class="container page" style="display:none">
+    <div class="header"><button class="btn btn-secondary" onclick="backToMainFromDetails()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">تفاصيل المنشور</span></div>
+    <div class="posts-container" id="details-container"></div>
+  </div>
+
+  <div id="comments-page" class="container page" style="display:none">
+    <div class="header"><button class="btn btn-secondary" onclick="backToMainFromComments()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">التعليقات</span></div>
+    <div class="posts-container">
+      <div id="comments-list-page"></div>
+      <div class="row" style="margin-top:10px;">
+        <input type="text" id="comment-text-page" class="form-control grow" placeholder="أضف تعليقًا...">
+        <button class="btn" onclick="addCommentFromPage()">إرسال</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div id="bottom-nav" class="bottom-nav">
+    <div class="nav-item active" data-page="main" onclick="showMainPage()"><i class="fas fa-home"></i><span>الرئيسية</span></div>
+    <div class="nav-item" data-page="profile" onclick="showProfilePage()"><i class="fas fa-user"></i><span>حسابي</span></div>
+  </div>
+
+  <div id="notification" class="notification"></div>
+
+  <!-- Create Post -->
+  <div id="create-post-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>إنشاء منشور جديد</h2><button class="close-modal" onclick="closeCreatePostModal()">&times;</button></div>
+      <div class="form-group"><label for="post-subject">المادة والصف</label><input type="text" id="post-subject" class="form-control" placeholder="مثال: رياضيات - سادس علمي" required></div>
+      <div class="form-group"><label for="post-price">السعر (دينار عراقي)</label><input type="number" id="post-price" class="form-control" placeholder="مثال: 5000" required></div>
+      <div class="select-group">
+        <label for="post-material">المادة</label>
+        <select id="post-material" class="select-control">
+          <option value="اسلامية">اسلامية</option><option value="عربي">عربي</option><option value="انكليزي">انكليزي</option>
+          <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="كيمياء">كيمياء</option>
+          <option value="فيزياء">فيزياء</option><option value="اجتماعيات">اجتماعيات</option><option value="تاريخ">تاريخ</option>
+          <option value="جغرافية">جغرافية</option><option value="اقتصاد">اقتصاد</option><option value="علوم">علوم</option>
+        </select>
+      </div>
+      <div class="form-group"><label for="post-description">وصف الملزمة</label><textarea id="post-description" class="form-control" rows="4" placeholder="اسم الأستاذ، وصف الملزمة..." required></textarea></div>
+      <div class="select-group">
+        <label for="contact-method">طريقة التواصل</label>
+        <select id="contact-method" class="select-control" onchange="changeContactMethod()">
+          <option value="whatsapp">واتساب</option><option value="telegram">تلكرام</option><option value="comments">تعليقات</option>
+        </select>
+      </div>
+      <div class="form-group" id="whatsapp-field"><label for="whatsapp-number">رقم الواتساب</label><input type="text" id="whatsapp-number" class="form-control" placeholder="9641234567890"></div>
+      <div class="form-group" id="telegram-field" style="display:none"><label for="telegram-username">اسم المستخدم في التلكرام</label><input type="text" id="telegram-username" class="form-control" placeholder="@username"></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeCreatePostModal()">إلغاء</button><button id="post-submit-btn" class="btn" onclick="createPost()">نشر</button></div>
+    </div>
+  </div>
+
+  <!-- Create Company (Owner) -->
+  <div id="create-company-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>إضافة شركة توصيل</h2><button class="close-modal" onclick="closeCreateCompanyModal()">&times;</button></div>
+      <div class="form-group"><label for="company-name">اسم الشركة</label><input type="text" id="company-name" class="form-control" required></div>
+      <div class="form-group"><label for="company-phone">رقم الهاتف</label><input type="text" id="company-phone" class="form-control" placeholder="07xxxxxxxxxx" required></div>
+      <div class="select-group">
+        <label for="company-from">من محافظة</label>
+        <select id="company-from" class="select-control"></select>
+        <div class="muted">المحافظة التي <b>تستلم منها</b> الشركة الطلب.</div>
+      </div>
+      <div class="select-group">
+        <label for="company-to">إلى محافظة</label>
+        <select id="company-to" class="select-control"></select>
+        <div class="muted">المحافظات التي <b>تُوصل إليها</b> الشركة (اختر "كل المحافظات" إن كانت عامة).</div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeCreateCompanyModal()">إلغاء</button><button id="company-submit-btn" class="btn" onclick="createCompany()">إضافة</button></div>
+    </div>
+  </div>
+
+  <!-- Avatar chooser modal -->
+  <div id="avatar-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>اختيار صورة</h2><button class="close-modal" onclick="closeAvatarModal()">&times;</button></div>
+      <div class="row" style="justify-content:center;margin-top:10px;">
+        <div class="avatar" onclick="setAvatar('female')" title="بنت" style="background:#ffd7ea;border-color:#ffc2e1"><div style="width:100%;height:100%;font-size:30px;line-height:56px">👩🏻‍🦰</div></div>
+        <div class="avatar" onclick="setAvatar('male')" title="ولد" style="background:#d7e4ff;border-color:#c9d7ff"><div style="width:100%;height:100%;font-size:30px;line-height:56px">👨🏻‍🦰</div></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAvatarModal()">إغلاق</button></div>
+    </div>
+  </div>
+
+  <!-- Edit name -->
+  <div id="edit-name-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>تعديل الاسم</h2><button class="close-modal" onclick="closeEditNameModal()">&times;</button></div>
+      <div class="form-group"><label for="new-name">الاسم الجديد</label><input type="text" id="new-name" class="form-control" required></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeEditNameModal()">إلغاء</button><button class="btn" onclick="saveProfileName()">حفظ</button></div>
+    </div>
+  </div>
+
+  <!-- Broadcast (Owner) -->
+  <div id="broadcast-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>إرسال إشعار عام</h2><button class="close-modal" onclick="closeBroadcastModal()">&times;</button></div>
+      <div class="form-group"><label for="broadcast-title-modal">عنوان الإشعار</label><input id="broadcast-title-modal" class="form-control" placeholder="مثال: الأسعار"></div>
+      <div class="form-group"><label for="broadcast-text-modal">نص الإشعار</label><textarea id="broadcast-text-modal" class="form-control" rows="3" placeholder="اكتب الرسالة التي ستظهر للجميع"></textarea></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeBroadcastModal()">إلغاء</button><button class="btn" onclick="sendBroadcast()">نشر</button></div>
+    </div>
+  </div>
+
+  <!-- Stats modal -->
+  <div id="stats-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>لوحة الإحصائيات</h2><button class="close-modal" onclick="closeStatsModal()">&times;</button></div>
+      <div id="stats-cards" class="row" style="gap:12px;flex-wrap:wrap">
+        <div class="post" style="flex:1;min-width:140px"><div class="post-title">المستخدمون النشطون (7 أيام)</div><div id="stat-active" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
+        <div class="post" style="flex:1;min-width:140px"><div class="post-title">إجمالي المستخدمين</div><div id="stat-users" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
+        <div class="post" style="flex:1;min-width:140px"><div class="post-title">إجمالي المنشورات</div><div id="stat-posts" style="font-size:26px;font-weight:900;margin-top:6px">—</div></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeStatsModal()">إغلاق</button></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Firebase Config =====
+    const firebaseConfig = {
+      apiKey:"AIzaSyBkoSz3ZUy4qKBTeLx42Oo-TlTtvFtF2vY",
+      authDomain:"we-kill-the-sixth.firebaseapp.com",
+      databaseURL:"https://we-kill-the-sixth-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:"we-kill-the-sixth",
+      storageBucket:"we-kill-the-sixth.appspot.com",
+      messagingSenderId:"862363949793",
+      appId:"1:862363949793:web:e0dc01a4eb139da43f75a0",
+      measurementId:"G-CT6WFGXRHH"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const APP_OWNER_EMAIL = "mslmalmyaly223@gmail.com";
+    let APP_OWNER_UID = null;
+    let pendingChosenAvatar = null;           // يُملأ من فورم الدخول/التسجيل
+    let lastBroadcast = null;
+
+    // ===== Splash timings (أسرع) =====
+    (function(){
+      const lastDelay = 0.45;   // آخر حرف يبدأ بعد 0.45s
+      const runDur   = 0.8;     // مدة حركة الحرف
+      const mergeDelay = lastDelay + runDur + .10; // متى يظهر الشعار
+      document.getElementById('final-logo').style.setProperty('--merge-delay', mergeDelay+'s');
+      setTimeout(()=>{ document.querySelector('.runner')?.remove(); }, (mergeDelay+0.4)*1000);
+      const splash=document.getElementById('splash');
+      function skip(){ splash.classList.add('fade-out'); setTimeout(()=>splash.remove(),600); }
+      splash.addEventListener('click', skip);
+      splash.addEventListener('touchstart', skip, {passive:true});
+    })();
+
+    // ===== Helpers =====
+    function showNotification(msg,type="success"){
+      const n=document.getElementById("notification");
+      n.textContent=msg; n.style.display="block";
+      const colors={error:'var(--danger-color)',warning:'var(--warning-color)',info:'var(--primary-color)',success:'var(--success-color)'};
+      n.style.backgroundColor = colors[type]||colors.success;
+      setTimeout(()=>{ n.style.display="none"; },5000);
+    }
+    function validateEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase()); }
+    function sanitizeWhatsApp(v){ return (v||"").toString().replace(/[^\d]/g,""); }
+    function sanitizeTelegram(v){ return (v||"").toString().replace(/^@+/,"").trim(); }
+    function formatWhatsApp(msisdn){
+      const d = sanitizeWhatsApp(msisdn);
+      if (!d) return "";
+      if (d.startsWith("964")) return d;
+      if (d.startsWith("0")) return "964" + d.slice(1);
+      return "964" + d;
+    }
+    function openTelegram(username){ username=sanitizeTelegram(username); if(!username) return; window.location.href = "https://t.me/" + username; }
+    const GOVERNORATES = ["بغداد","نينوى","البصرة","أربيل","النجف","كربلاء","ذي قار","السليمانية","ديالى","الأنبار","بابل","كركوك","واسط","المثنى","القادسية","ميسان","صلاح الدين","دهوك","كل المحافظات"];
+
+    // تهريب HTML لمنع حقن سكربتات
+    function escapeHTML(s){
+      s = (s==null) ? "" : String(s);
+      return s
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#39;");
+    }
+
+    function renderAvatar(kind){
+      const el = document.getElementById("avatar");
+      const bg = kind==="female" ? "#ffd7ea" : "#d7e4ff";
+      const emoji = kind==="female" ? "👩🏻‍🦰" : "👨🏻‍🦰";
+      el.style.background = bg;
+      el.innerHTML = `<div style="font-size:30px;line-height:56px">${emoji}</div>`;
+    }
+
+    // ===== Pages & UI =====
+    const pages = {
+      auth: document.getElementById("auth-page"),
+      main: document.getElementById("main-page"),
+      profile: document.getElementById("profile-page"),
+      userPosts: document.getElementById("user-posts-page"),
+      inbox: document.getElementById("inbox-page"),
+      details: document.getElementById("details-page"),
+      comments: document.getElementById("comments-page"),
+      notifications: document.getElementById("notifications-page"),
+    };
+    const postsContainer = document.getElementById("posts-container");
+    const companiesContainer = document.getElementById("companies-container");
+    const userPostsContainer = document.getElementById("user-posts-container");
+    const detailsContainer = document.getElementById("details-container");
+    const commentsList = document.getElementById("comments-list-page");
+    const inboxContainer = document.getElementById("inbox-container");
+    const notificationsContainer = document.getElementById("notifications-container");
+    const notifBtn = document.getElementById("notif-button");
+    const createBtn = document.getElementById("create-btn");
+    const createBtnLabel = document.getElementById("create-btn-label");
+    const filterBox = document.getElementById("filter-container");
+    const pillPosts = document.getElementById("pill-posts");
+    const pillCompanies = document.getElementById("pill-companies");
+
+    let currentUser = null;
+    let posts = [];
+    let companies = [];
+    let currentDetailsPostId = null;
+    let currentCommentsPostId = null;
+    const userMetaCache = {}; // {uid: {isVerified, blockedFromPosting}}
+    let activeSection = "posts";
+
+    // ===== Auth =====
+    auth.onAuthStateChanged(async (user) => {
+      if(!user){
+        updateUIForLoggedOutUser();
+        setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 900);
+        return;
+      }
+      try{
+        let doc = await db.collection("users").doc(user.uid).get();
+        if(!doc.exists){
+          await db.collection("users").doc(user.uid).set({
+            name: user.email.split("@")[0],
+            email: user.email,
+            avatar: pendingChosenAvatar || "male",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            isVerified:false,
+            isOwner:false,
+            blockedFromPosting:false,
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+          },{merge:true});
+          doc = await db.collection("users").doc(user.uid).get();
+        }else{
+          db.collection("users").doc(user.uid).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
+          if(pendingChosenAvatar){
+            await db.collection("users").doc(user.uid).set({ avatar: pendingChosenAvatar }, {merge:true});
+          }
+        }
+
+        currentUser = { uid:user.uid, ...doc.data() };
+        if (currentUser.email === APP_OWNER_EMAIL && currentUser.isOwner !== true){
+          await db.collection("users").doc(currentUser.uid).set({ isOwner:true }, {merge:true});
+          currentUser.isOwner = true;
+        }
+      }catch(e){
+        console.error("user load error:", e);
+        currentUser = { uid:user.uid, name:user.email.split("@")[0], email:user.email, avatar: pendingChosenAvatar || "male", isVerified:false, blockedFromPosting:false, isOwner:false };
+        if (currentUser.email === APP_OWNER_EMAIL) currentUser.isOwner = true;
+      }
+
+      await resolveAppOwnerUid();
+      updateUIForLoggedInUser();
+      await Promise.all([loadPostsFromFirestore(), refreshNotifDot(), loadCompanies(), fetchLatestBroadcast()]);
+      setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
+      pendingChosenAvatar = null;
+    });
+
+    function isOwner(){ return currentUser && (currentUser.email===APP_OWNER_EMAIL || currentUser.isOwner===true); }
+
+    function register(){
+      const name=document.getElementById("register-name").value.trim();
+      const email=document.getElementById("register-email").value.trim();
+      const password=document.getElementById("register-password").value;
+      const picked=(document.querySelector('input[name="register-avatar"]:checked')?.value)||"male";
+      pendingChosenAvatar = picked;
+      if(!name||!email||!password) return showNotification("يرجى ملء جميع الحقول","error");
+      if(!validateEmail(email)) return showNotification("البريد الإلكتروني غير صالح","error");
+      auth.createUserWithEmailAndPassword(email,password)
+        .then(cred=>{
+          return db.collection("users").doc(cred.user.uid).set({
+            name,email,avatar:picked,
+            createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+            isVerified:false,isOwner:false,blockedFromPosting:false,
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+          },{merge:true});
+        })
+        .then(()=>{ showNotification("تم إنشاء الحساب. سجّل الدخول الآن.","success"); switchAuthTab('login'); })
+        .catch(handleAuthError);
+    }
+    function login(){
+      const email=document.getElementById("login-email").value.trim();
+      const password=document.getElementById("login-password").value;
+      const picked=(document.querySelector('input[name="login-avatar"]:checked')?.value)||null;
+      pendingChosenAvatar = picked;
+      if(!email||!password) return showNotification("يرجى ملء جميع الحقول","error");
+      auth.signInWithEmailAndPassword(email,password)
+        .then(cred=>{
+          if(picked){ return db.collection("users").doc(cred.user.uid).set({ avatar:picked },{merge:true}); }
+        })
+        .catch(handleAuthError);
+    }
+    function logout(){ auth.signOut(); }
+
+    // ===== Navigation =====
+    function showPage(key){
+      Object.values(pages).forEach(p=>p.style.display="none");
+      pages[key].style.display = (key==="auth")?"flex":"block";
+      updateBottomNav(key);
+    }
+    function updateBottomNav(activePageKey) {
+      document.querySelectorAll("#bottom-nav .nav-item").forEach(item => {
+        if (item.dataset.page === activePageKey) item.classList.add("active");
+        else item.classList.remove("active");
+      });
+    }
+    function showMainPage(){ showPage("main"); }
+    function showProfilePage(){ showPage("profile"); }
+    function backToProfile(){ showPage("profile"); }
+    function backToMainFromDetails(){ showPage("main"); }
+    function backToMainFromComments(){ showPage("main"); }
+    function showNotificationsPage(){ showPage("notifications"); renderNotificationsPage(); }
+    function backToMainFromNotifications(){ showPage("main"); }
+
+    function updateUIForLoggedInUser(){
+      showPage("main");
+      document.getElementById("profile-name").textContent = currentUser.name || "";
+      document.getElementById("profile-email").textContent = currentUser.email || "";
+      renderAvatar(currentUser.avatar==="female"?"female":"male");
+      const pv=document.getElementById("profile-verified");
+      pv.innerHTML = currentUser.isVerified? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>` : '';
+      document.querySelectorAll(".owner-only").forEach(el=> el.style.display = isOwner()? "flex":"none");
+      updateCreateButton();
+      updatePostCountInProfile();
+    }
+    function updateUIForLoggedOutUser(){
+      showPage("auth"); postsContainer.innerHTML=""; companiesContainer.innerHTML=""; posts=[]; companies=[]; currentUser=null;
+      document.getElementById("profile-count").textContent="";
+      document.getElementById("broadcast-banner").classList.remove('show');
+      document.getElementById("broadcast-overlay").classList.remove('show');
+    }
+
+    function switchAuthTab(tab){
+      document.querySelectorAll(".auth-tab").forEach(t=>t.classList.remove("active"));
+      document.querySelectorAll(".auth-form").forEach(f=>f.classList.remove("active"));
+      if(tab==="login"){ document.querySelector(".auth-tab:nth-child(1)").classList.add("active"); document.getElementById("login-form").classList.add("active"); }
+      else{ document.querySelector(".auth-tab:nth-child(2)").classList.add("active"); document.getElementById("register-form").classList.add("active"); }
+    }
+
+    // ===== Sections =====
+    function switchSection(section){
+      activeSection = section;
+      if(section==="posts"){
+        pillPosts.classList.add("active"); pillCompanies.classList.remove("active");
+        postsContainer.style.display="block"; companiesContainer.style.display="none";
+        filterBox.style.display="block";
+      }else{
+        pillCompanies.classList.add("active"); pillPosts.classList.remove("active");
+        postsContainer.style.display="none"; companiesContainer.style.display="block";
+        filterBox.style.display="none";
+      }
+      updateCreateButton();
+    }
+    function updateCreateButton(){
+      if(activeSection==="posts"){
+        createBtnLabel.textContent = "إنشاء منشور";
+        createBtn.style.display = currentUser? "inline-flex":"none";
+      }else{
+        createBtnLabel.textContent = "إضافة شركة";
+        createBtn.style.display = isOwner()? "inline-flex":"none";
+      }
+    }
+    function onCreateButton(){ if(activeSection==="posts") openCreatePostModal(); else openCreateCompanyModal(); }
+
+    // ===== Notifications Dot =====
+    async function refreshNotifDot(){
+      if(!currentUser) return;
+      try{
+        const q = await db.collection("notifications")
+          .where("userId","==",currentUser.uid)
+          .where("seen","==",false)
+          .orderBy("createdAt","desc")
+          .limit(1)
+          .get();
+        notifBtn.classList.toggle("has-unseen", !q.empty);
+      }catch(err){ console.error("notif dot err:", err); }
+    }
+    async function renderNotificationsPage(){
+      notificationsContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
+      if(!currentUser) return;
+      try{
+        const q = await db.collection("notifications")
+          .where("userId","==",currentUser.uid)
+          .orderBy("createdAt","desc").limit(50).get();
+        const items = q.docs.map(d=>({id:d.id, ...d.data()}));
+        if(items.length===0){ notificationsContainer.innerHTML = "<div class='post'><p>لا توجد إشعارات</p></div>"; return; }
+        const out = items.map(n => {
+          const dateTxt = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-IQ') : "";
+          const typeTxt = n.type==='comment'?'تعليق جديد':(n.type==='report'?'بلاغ جديد':'إشعار');
+          const postIdSafe = escapeHTML(n.postId || '');
+          return `<div class="post">
+            <div class="post-header">
+              <div class="post-username"><span>${typeTxt}</span></div>
+              <div class="post-price" style="color:#888">${dateTxt}</div>
+              <div class="post-title">${postIdSafe}</div>
+            </div>
+            <div class="post-actions">
+              ${n.postId?`<button class="btn btn-secondary" onclick="openPostFromNotif('${n.postId}','${n.type}')">فتح</button>`:""}
+              ${n.seen===false?`<button class="btn" onclick="markNotifSeen('${n.id}')">تم</button>`:""}
+            </div>
+          </div>`;
+        });
+        notificationsContainer.innerHTML = out.join("");
+      }catch(err){ console.error(err); notificationsContainer.innerHTML = "<div class='post'><p>تعذّر تحميل الإشعارات</p></div>"; }
+      await refreshNotifDot();
+    }
+    async function markNotifSeen(id){ await db.collection("notifications").doc(id).update({seen:true}); await renderNotificationsPage(); }
+    function openPostFromNotif(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
+
+    // ===== Posts =====
+    async function loadPostsFromFirestore(){
+      try{
+        const snap = await db.collection("posts").orderBy("createdAt","desc").get();
+        posts = snap.docs.map(d=>{
+          const data=d.data();
+          const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : null; // لا نستخدم new Date() افتراضي
+          return { id:d.id, isPinned: !!data.isPinned, ...data, createdAt };
+        });
+        renderPosts();
+        updatePostCountInProfile();
+      }catch(e){ console.error(e); showNotification("خطأ في تحميل البيانات: "+(e.message||e),"error"); }
+    }
+
+    async function getUserMeta(uid){
+      if(userMetaCache[uid]) return userMetaCache[uid];
+      try{
+        const u = await db.collection("users").doc(uid).get();
+        const meta = { isVerified: !!u.data()?.isVerified, blockedFromPosting: !!u.data()?.blockedFromPosting };
+        userMetaCache[uid]=meta; return meta;
+      }catch{ return { isVerified:false, blockedFromPosting:false }; }
+    }
+
+    function filterPosts(material){ renderPosts(material); }
+
+    // ترتيب صحيح: نحافظ على ترتيب Firestore ونقدّم المثبّتة أعلى
+    async function renderPosts(filterMaterial=""){
+      postsContainer.innerHTML="";
+      const visible = posts.filter(p=>p.status!=='sold');
+      const filtered = filterMaterial ? visible.filter(p=>p.material===filterMaterial) : visible;
+
+      if(filtered.length===0){
+        postsContainer.innerHTML='<div class="post"><p>لا توجد منشورات متاحة</p></div>';
+        return;
+      }
+
+      const pinned = filtered.filter(p=>p.isPinned);
+      const normal = filtered.filter(p=>!p.isPinned);
+      const finalList = [...pinned, ...normal];
+
+      const metas = await Promise.all(finalList.map(p => getUserMeta(p.userId)));
+      const frag = document.createDocumentFragment();
+
+      finalList.forEach((post, idx) => {
+        const card = document.createElement("div");
+        card.className = `post ${post.isPinned?'pinned':''}`;
+        card.innerHTML = generatePostHTML(post, metas[idx], 'list');
+        frag.appendChild(card);
+      });
+
+      postsContainer.appendChild(frag);
+    }
+
+    // ===== Post HTML Generator (مع تهريب HTML) =====
+    function generatePostHTML(post, meta, context = 'list') {
+      const userName = escapeHTML(post.userName || 'مستخدم');
+      const subject  = escapeHTML(post.subject || '');
+      const desc     = escapeHTML(post.description || '');
+      const priceTxt = escapeHTML(String(post.price ?? '—'));
+
+      const badge = meta.isVerified
+        ? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>`
+        : '';
+
+      const pinRibbon = post.isPinned
+        ? '<div class="pin-ribbon"><i class="fa-solid fa-thumbtack"></i> مثبت</div>'
+        : '';
+
+      // Owner tools
+      let ownerTools = '';
+      if (isOwner()) {
+        const pinTxt = post.isPinned ? 'إلغاء التثبيت' : 'تثبيت';
+        const verTxt = meta.isVerified ? 'إلغاء التوثيق' : 'توثيق';
+        const banTxt = meta.blockedFromPosting ? 'إلغاء حظر النشر' : 'حظر النشر';
+        ownerTools = `
+          <div class="owner-tools">
+            <button class="btn btn-xs" onclick="ownerTogglePin('${post.id}', ${post.isPinned ? 'true' : 'false'})"><i class="fa-solid fa-thumbtack"></i> ${pinTxt}</button>
+            <button class="btn btn-xs" onclick="ownerToggleVerify('${post.userId}')"><i class="fa-solid fa-crown"></i> ${verTxt}</button>
+            <button class="btn btn-xs" onclick="ownerToggleUserBanById('${post.userId}')"><i class="fa-solid fa-ban"></i> ${banTxt}</button>
+            <button class="btn btn-danger btn-xs" onclick="ownerDeletePost('${post.id}')"><i class="fa-solid fa-trash"></i> حذف</button>
+          </div>`;
+      }
+
+      // Contact
+      let contactBtn = "";
+      if (post.contactMethod === "whatsapp" && post.whatsapp) {
+        const wa = formatWhatsApp(post.whatsapp);
+        if (wa) contactBtn = `<a class="btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">التواصل (واتساب)</a>`;
+      } else if (post.contactMethod === "telegram" && post.telegram) {
+        contactBtn = `<button class="btn" onclick="openTelegram('${sanitizeTelegram(post.telegram)}')">التواصل (تلكرام)</button>`;
+      } else if (post.contactMethod === "comments") {
+        contactBtn = `<button class="btn" onclick="openCommentsPage('${post.id}')">التواصل (تعليقات)</button>`;
+      }
+
+      let actionButtons = '';
+      if (context === 'list') {
+        actionButtons = `<button class="btn btn-secondary" onclick="openDetailsPage('${post.id}')">تفاصيل المنشور</button>${contactBtn}`;
+      } else if (context === 'details') {
+        actionButtons = `<button class="btn btn-secondary" onclick="reportPost('${post.id}')"><i class="fas fa-flag"></i> إبلاغ عن المنشور</button>${contactBtn}`;
+      } else if (context === 'user-posts') {
+        const sold = post.status === 'sold';
+        actionButtons = `
+          <button class="btn btn-secondary" onclick="openDetailsPage('${post.id}')">تفاصيل</button>
+          ${contactBtn}
+          <button class="btn" onclick="repost('${post.id}')"><i class="fas fa-rotate-right"></i> إعادة نشر</button>
+          <button class="btn btn-warning" onclick="markSold('${post.id}', ${sold ? 'true' : 'false'})">${sold ? 'إلغاء تم بيعه' : 'تم بيعه'}</button>
+          <button class="btn btn-danger" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> حذف</button>`;
+      }
+
+      return `
+        ${pinRibbon}
+        ${ownerTools}
+        <div class="post-header">
+          <div class="post-username"><span>${userName}</span> ${badge}</div>
+          <div class="post-price">${priceTxt} دينار</div>
+          <div class="post-title">${subject}</div>
+        </div>
+        <div class="post-description">${desc}</div>
+        <div class="post-actions">${actionButtons}</div>`;
+    }
+
+    // ===== Owner tools =====
+    async function ownerTogglePin(postId, current){ if(!isOwner()) return showNotification("غير مصرح","warning"); try{ await db.collection("posts").doc(postId).update({ isPinned: !current }); showNotification(!current? "تم التثبيت":"تم إلغاء التثبيت","success"); await loadPostsFromFirestore(); } catch(e){ console.error(e); showNotification("تعذر العملية: "+(e.message||e),"error"); } }
+    async function ownerDeletePost(postId){ if(!isOwner()) return showNotification("غير مصرح","warning"); if(!confirm("حذف هذا المنشور؟")) return; try{ await db.collection("posts").doc(postId).delete(); showNotification("تم حذف المنشور","success"); await loadPostsFromFirestore(); } catch(e){ console.error(e); showNotification("تعذر الحذف: "+(e.message||e),"error"); } }
+    async function ownerToggleVerify(userId){ if(!isOwner()) return showNotification("غير مصرح","warning"); try{ const u = await db.collection("users").doc(userId).get(); const newVal = !u.data()?.isVerified; await db.collection("users").doc(userId).set({ isVerified:newVal }, {merge:true}); userMetaCache[userId] = { ...(userMetaCache[userId]||{}), isVerified:newVal, blockedFromPosting: !!u.data()?.blockedFromPosting }; showNotification(newVal? "تم التوثيق":"تم إلغاء التوثيق","success"); await loadPostsFromFirestore(); }catch(e){ console.error(e); showNotification("تعذّر تبديل التوثيق: "+(e.message||e),"error"); } }
+    async function ownerToggleUserBanById(userId){ if(!isOwner()) return showNotification("غير مصرح","warning"); try{ const u = await db.collection("users").doc(userId).get(); const newVal = !(u.data()?.blockedFromPosting); await db.collection("users").doc(userId).set({ blockedFromPosting:newVal },{merge:true}); userMetaCache[userId] = { ...(userMetaCache[userId]||{}), blockedFromPosting:newVal, isVerified: !!u.data()?.isVerified }; showNotification(newVal? "تم الحظر":"تم إلغاء الحظر","success"); await loadPostsFromFirestore(); }catch(e){ console.error(e); showNotification("تعذّر تبديل الحظر: "+(e.message||e),"error"); } }
+
+    // ===== Details =====
+    function openDetailsPage(postId){ currentDetailsPostId = postId; showPage("details"); renderDetails(postId); }
+    async function renderDetails(postId){
+      detailsContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
+      let post = posts.find(p=>p.id===postId);
+      if(!post){
+        try{
+          const doc = await db.collection("posts").doc(postId).get();
+          if(doc.exists){
+            const data = doc.data();
+            post = {
+              id: doc.id,
+              ...data,
+              createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : null
+            };
+          }
+        }catch(e){
+          console.error(e);
+        }
+      }
+      if(!post){ detailsContainer.innerHTML="<div class='post'><p>تعذّر تحميل التفاصيل</p></div>"; return; }
+      const meta = await getUserMeta(post.userId);
+      const card = document.createElement("div");
+      card.className = `post ${post.isPinned?'pinned':''}`;
+      card.innerHTML = generatePostHTML(post, meta, 'details');
+      detailsContainer.innerHTML = '';
+      detailsContainer.appendChild(card);
+    }
+
+    // ===== Comments =====
+    async function openCommentsPage(postId){ currentCommentsPostId = postId; showPage("comments"); await renderCommentsPage(postId); }
+    async function isUserBannedFromPost(postId, userId){ try{ const doc = await db.collection("posts").doc(postId).collection("bans").doc(userId).get(); return doc.exists && doc.data()?.banned===true; } catch{ return false; } }
+    async function addCommentFromPage(){
+      if(!currentUser) return showNotification("يرجى تسجيل الدخول للتعليق","error");
+      const postId = currentCommentsPostId;
+      const input = document.getElementById("comment-text-page");
+      const text = (input.value||"").trim();
+      if(!text) return showNotification("يرجى كتابة تعليق","warning");
+      if(await isUserBannedFromPost(postId, currentUser.uid)) return showNotification("أنت محظور من التعليق على هذا المنشور","error");
+
+      const newComment = { userId: currentUser.uid, userName: currentUser.name, text, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+      try{
+        await db.collection("posts").doc(postId).collection("comments").add(newComment);
+        const pdoc = await db.collection("posts").doc(postId).get();
+        const ownerId = pdoc.data()?.userId;
+        if(ownerId && ownerId !== currentUser.uid){
+          await db.collection("notifications").add({ userId: ownerId, type: "comment", postId, seen: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+        input.value = "";
+        await renderCommentsPage(postId);
+        await refreshNotifDot();
+        showNotification("تم إضافة التعليق","success");
+      }catch(e){ console.error("addComment error:", e); showNotification("خطأ أثناء إضافة التعليق: "+(e.message||e),"error"); }
+    }
+    async function renderCommentsPage(postId){
+      commentsList.innerHTML = "<div class='post'><p>ج جاري تحميل التعليقات...</p></div>";
+      try{
+        const postDoc = await db.collection("posts").doc(postId).get();
+        const post = postDoc.exists ? { id: postDoc.id, ...postDoc.data() } : posts.find(p=>p.id===postId);
+        const isOwnerOfPost = currentUser && post && post.userId===currentUser.uid;
+        const cSnap = await db.collection("posts").doc(postId).collection("comments").orderBy("createdAt","desc").get();
+        if(cSnap.empty){ commentsList.innerHTML = "<div class='post'><p>لا توجد تعليقات بعد</p></div>"; return; }
+
+        const frags = cSnap.docs.map(doc => {
+          const c = doc.data();
+          const dateTxt = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString('ar-IQ') : "";
+          const name = escapeHTML(c.userName || 'مستخدم');
+          const text = escapeHTML(c.text || '');
+          const banBtn = (isOwnerOfPost && c.userId !== currentUser.uid)
+            ? `<button class="btn btn-danger btn-xs" style="margin-top:8px" onclick="banUserFromPost('${postId}','${c.userId}')"><i class="fas fa-ban"></i> حظر المستخدم</button>` : ``;
+          return `<div class="post">
+            <div class="post-header">
+              <div class="post-username"><span>${name}</span></div>
+              <div class="post-price" style="color:#888">${dateTxt}</div>
+            </div>
+            <div class="post-description">${text}</div>
+            ${banBtn}
+          </div>`;
+        });
+        commentsList.innerHTML = frags.join("");
+      }catch(e){ console.error(e); commentsList.innerHTML = "<div class='post'><p>حدث خطأ في تحميل التعليقات</p></div>"; }
+    }
+    async function banUserFromPost(postId, userId){
+      if(!currentUser) return;
+      try{
+        const postDoc = await db.collection("posts").doc(postId).get();
+        if(!postDoc.exists) return;
+        if(postDoc.data().userId !== currentUser.uid) return showNotification("غير مصرح","warning");
+        await db.collection("posts").doc(postId).collection("bans").doc(userId).set({ banned:true, at: firebase.firestore.FieldValue.serverTimestamp() });
+        showNotification("تم حظر المستخدم من هذا المنشور","success");
+        await renderCommentsPage(postId);
+      }catch(e){ console.error(e); showNotification("تعذّر الحظر: "+(e.message||e),"error"); }
+    }
+
+    // ===== Reports =====
+    async function reportPost(postId){
+      if(!currentUser) return showNotification("يرجى تسجيل الدخول","warning");
+      const pdoc = await db.collection("posts").doc(postId).get();
+      if(!pdoc.exists) return showNotification("المنشور غير موجود","error");
+      const reason = prompt("سبب الإبلاغ (إلزامي):","");
+      if(!reason || !reason.trim()) return showNotification("يجب كتابة سبب واضح للإبلاغ","warning");
+      const payload = { postId, ownerId: pdoc.data().userId || null, reporterId: currentUser.uid, reporterName: currentUser.name, reason: reason.trim(), status: "open", createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+      try{
+        await db.collection("reports").add(payload);
+        if(payload.ownerId){ await db.collection("notifications").add({ userId: payload.ownerId, type: "report", postId, seen: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); }
+        const ownerUid = await resolveAppOwnerUid();
+        if(ownerUid){ await db.collection("notifications").add({ userId: ownerUid, type: "report", postId, seen: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); }
+        showNotification("تم إرسال البلاغ","success");
+        await refreshNotifDot();
+      }catch(e){ console.error("report error:", e); showNotification("تعذّر إرسال البلاغ: "+(e.message||e),"error"); }
+    }
+
+    // ===== Inbox =====
+    function showInbox(){ if(!currentUser) return showNotification("يرجى تسجيل الدخول","warning"); showPage("inbox"); renderInbox(); }
+    async function renderInbox(){
+      inboxContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
+      try{
+        let snap;
+        if(isOwner()){
+          snap = await db.collection("reports").orderBy("createdAt","desc").get();
+        }else{
+          snap = await db.collection("reports").where("reporterId","==",currentUser.uid).orderBy("createdAt","desc").get();
+        }
+        if(snap.empty){ inboxContainer.innerHTML = "<div class='post'><p>لا توجد عناصر</p></div>"; return; }
+        const rows = snap.docs.map(d => ({id:d.id, ...d.data()}))
+          .sort((a,b)=> (b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0))
+          .map(r => {
+            const timeTxt = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString('ar-IQ') : "";
+            const statusColor = r.status==="action_taken" ? "var(--success-color)" : (r.status==="rejected" ? "var(--danger-color)" : "#999");
+            const reason = escapeHTML(r.reason || "—");
+            const notes  = r.reviewerNotes ? (' — ملاحظة: ' + escapeHTML(r.reviewerNotes)) : '';
+            const controls = isOwner() ? `
+              <div class="row" style="margin-top:10px;">
+                <input id="note-${r.id}" class="form-control" style="flex:1" placeholder="ملاحظة..." value="${(r.reviewerNotes||"").replace(/"/g,'&quot;')}">
+                <button class="btn btn-danger btn-xs" onclick="ownerBanPostOwner('${r.id}')">حظر صاحب المنشور</button>
+                <button class="btn btn-warning btn-xs" onclick="ownerBanReporter('${r.id}')">حظر المُبلّغ</button>
+                <button class="btn btn-secondary btn-xs" onclick="ownerRejectReport('${r.id}')">رفض البلاغ</button>
+              </div>` :
+              `<div class="muted">الحالة: <b style="color:${statusColor}">${reportStatusLabel(r.status)}</b>${notes}</div>`;
+            return `
+              <div class="post">
+                <div class="post-header">
+                  <div class="post-username"><span>بلاغ على منشور: ${escapeHTML(r.postId || '')}</span></div>
+                  <div class="post-price" style="color:#888">${timeTxt}</div>
+                  <div class="post-title">حالته: <b style="color:${statusColor}">${reportStatusLabel(r.status)}</b></div>
+                </div>
+                <div class="post-description">السبب: ${reason}</div>
+                ${controls}
+                <div class="post-actions" style="margin-top:10px;">
+                  <button class="btn btn-secondary" onclick="openDetailsPage('${r.postId}')">عرض تفاصيل المنشور</button>
+                </div>
+              </div>`;
+          });
+        inboxContainer.innerHTML = rows.join("");
+      }catch(e){ console.error(e); inboxContainer.innerHTML = "<div class='post'><p>خطأ أثناء التحميل: "+(e.message||e)+"</p></div>"; }
+    }
+    function reportStatusLabel(s){ if(s==="action_taken") return "تم اتخاذ إجراء"; if(s==="rejected") return "مرفوض"; return "قيد المراجعة"; }
+    async function ownerBanPostOwner(reportId){
+      if(!isOwner()) return showNotification("غير مصرح","warning");
+      try{
+        const rdoc = await db.collection("reports").doc(reportId).get(); if(!rdoc.exists) return; const r = rdoc.data();
+        if(!r.ownerId) return showNotification("لا يوجد صاحب منشور محدد","warning");
+        const note = document.getElementById(`note-${reportId}`)?.value || "";
+        await db.collection("users").doc(r.ownerId).set({ blockedFromPosting:true },{merge:true});
+        await db.collection("reports").doc(reportId).update({ status:"action_taken", reviewerNotes: note, reviewedBy: currentUser.uid });
+        showNotification("تم حظر صاحب المنشور وتحديث حالة البلاغ","success"); renderInbox();
+      }catch(e){ console.error(e); showNotification("تعذّر تنفيذ الإجراء: "+(e.message||e),"error"); }
+    }
+    async function ownerBanReporter(reportId){
+      if(!isOwner()) return showNotification("غير مصرح","warning");
+      try{
+        const rdoc = await db.collection("reports").doc(reportId).get(); if(!rdoc.exists) return; const r = rdoc.data();
+        if(!r.reporterId) return showNotification("لا يوجد مُبلغ محدد","warning");
+        const note = document.getElementById(`note-${reportId}`)?.value || "";
+        await db.collection("users").doc(r.reporterId).set({ blockedFromPosting:true },{merge:true});
+        await db.collection("reports").doc(reportId).update({ status:"action_taken", reviewerNotes: note||"تم حظر المُبلغ", reviewedBy: currentUser.uid });
+        showNotification("تم حظر المُبلغ","success"); renderInbox();
+      }catch(e){ console.error(e); showNotification("تعذّر تنفيذ الإجراء: "+(e.message||e),"error"); }
+    }
+    async function ownerRejectReport(reportId){
+      if(!isOwner()) return showNotification("غير مصرح","warning");
+      try{
+        const note = document.getElementById(`note-${reportId}`)?.value || "";
+        await db.collection("reports").doc(reportId).update({ status:"rejected", reviewerNotes: note, reviewedBy: currentUser.uid });
+        showNotification("تم رفض البلاغ","success"); renderInbox();
+      }catch(e){ console.error(e); showNotification("تعذّر رفض البلاغ: "+(e.message||e),"error"); }
+    }
+
+    // ===== My Posts =====
+    async function showUserPosts(){
+      if(!currentUser) return showNotification("يرجى تسجيل الدخول","warning");
+      showPage("userPosts");
+      userPostsContainer.innerHTML="";
+      const mine = posts.filter(p=>p.userId===currentUser.uid);
+      if(mine.length===0){ userPostsContainer.innerHTML='<div class="post"><p>لا توجد منشورات لك</p></div>'; return; }
+      for(const post of mine){
+        const meta = await getUserMeta(post.userId);
+        const div=document.createElement("div");
+        div.className=`post ${post.status==='sold'?'sold':''} ${post.isPinned?'pinned':''}`;
+        div.innerHTML = generatePostHTML(post, meta, 'user-posts');
+        userPostsContainer.appendChild(div);
+      }
+    }
+    async function updatePostCountInProfile(){
+      if(!currentUser) return;
+      const count = posts.filter(p=>p.userId===currentUser.uid).length;
+      document.getElementById("profile-count").textContent = `عدد منشوراتك: ${count}`;
+    }
+    async function repost(postId){ const doc = await db.collection("posts").doc(postId).get(); if(!doc.exists) return; if(doc.data().userId !== currentUser.uid) return showNotification("غير مصرح","warning"); await db.collection("posts").doc(postId).update({ createdAt: firebase.firestore.FieldValue.serverTimestamp(), status:'active' }); showNotification("تم إعادة النشر وتحديث التاريخ","success"); await loadPostsFromFirestore(); showUserPosts(); }
+    async function markSold(postId,isSold){ const doc = await db.collection("posts").doc(postId).get(); if(!doc.exists) return; if(doc.data().userId !== currentUser.uid) return showNotification("غير مصرح","warning"); await db.collection("posts").doc(postId).update({ status: isSold? 'active':'sold' }); showNotification(isSold?"تم إلغاء حالة البيع":"تم تحديد: تم بيعه","success"); await loadPostsFromFirestore(); showUserPosts(); }
+    function deletePost(postId){ if(!currentUser) return; if(!confirm("هل أنت متأكد من حذف هذا المنشور؟")) return; db.collection("posts").doc(postId).get().then(doc=>{ if(!doc.exists) return showNotification("غير موجود","error"); if(doc.data().userId !== currentUser.uid) return showNotification("غير مصرح","warning"); return db.collection("posts").doc(postId).delete(); }).then(()=>{ showNotification("تم الحذف","success"); loadPostsFromFirestore(); showUserPosts(); }).catch(err=> showNotification("خطأ أثناء الحذف: "+(err.message||err),"error")); }
+
+    // ===== Create Post =====
+    let createPostBusy = false;
+    function openCreatePostModal(){ document.getElementById("create-post-modal").style.display="block"; }
+    function closeCreatePostModal(){ document.getElementById("create-post-modal").style.display="none"; }
+    function changeContactMethod(){ const method=document.getElementById("contact-method").value; document.getElementById("whatsapp-field").style.display = method==="whatsapp"?"block":"none"; document.getElementById("telegram-field").style.display = method==="telegram"?"block":"none"; }
+
+    async function createPost(){
+      if(createPostBusy) return;
+      if(!currentUser) return showNotification("يرجى تسجيل الدخول أولاً","error");
+      try{
+        const udoc = await db.collection("users").doc(currentUser.uid).get();
+        if(udoc.exists && udoc.data()?.blockedFromPosting){ return showNotification("تم حظرك من المالك من النشر","error"); }
+      }catch(e){ console.warn("check block failed", e); }
+
+      const subject=document.getElementById("post-subject").value.trim();
+      const price=document.getElementById("post-price").value.trim();
+      const material=document.getElementById("post-material").value;
+      const description=document.getElementById("post-description").value.trim();
+      const contactMethod=document.getElementById("contact-method").value;
+      const whatsapp=sanitizeWhatsApp(document.getElementById("whatsapp-number").value);
+      const telegram=sanitizeTelegram(document.getElementById("telegram-username").value);
+      if(!subject||!price||!description) return showNotification("يرجى ملء جميع الحقول المطلوبة","error");
+
+      createPostBusy = true;
+      const btn = document.getElementById("post-submit-btn"); btn.disabled = true;
+      const newPost={ userId:currentUser.uid,userName:currentUser.name,userEmail:currentUser.email||"", subject,material,price,description,contactMethod, whatsapp:contactMethod==="whatsapp"?whatsapp:"", telegram:contactMethod==="telegram"?telegram:"", status:"active", isPinned:false, createdAt:firebase.firestore.FieldValue.serverTimestamp() };
+      try{
+        await db.collection("posts").add(newPost);
+        closeCreatePostModal();
+        await loadPostsFromFirestore();
+        showNotification("تم نشر المنشور بنجاح","success");
+      }catch(err){
+        console.error("createPost error:", err);
+        showNotification("حدث خطأ أثناء النشر: "+(err.message||err),"error");
+      }finally{
+        createPostBusy = false; btn.disabled = false;
+      }
+    }
+
+    // ===== Companies =====
+    function openCreateCompanyModal(){ document.getElementById("create-company-modal").style.display="block"; fillGovOptions(); }
+    function closeCreateCompanyModal(){ document.getElementById("create-company-modal").style.display="none"; }
+    let createCompanyBusy=false;
+    function fillGovOptions(){
+      const fromSel=document.getElementById("company-from");
+      const toSel=document.getElementById("company-to");
+      if(fromSel.options.length > 1) return; // Avoid re-filling
+      fromSel.innerHTML = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
+      toSel.innerHTML = GOVERNORATES.map(g=>`<option value="${g}">${g}</option>`).join("");
+      fromSel.value="بغداد"; toSel.value="كل المحافظات";
+    }
+    async function loadCompanies(){
+      companiesContainer.innerHTML = "<div class='post'><p>جاري تحميل الشركات...</p></div>";
+      try{
+        const snap = await db.collection("companies").orderBy("createdAt","desc").get();
+        companies = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        renderCompanies();
+      }catch(e){
+        console.warn("companies load err:", e);
+        companiesContainer.innerHTML = "<div class='post'><p>لا يمكن عرض الشركات الآن.</p></div>";
+      }
+    }
+    function renderCompanies(){
+      if(!companies || companies.length===0){
+        companiesContainer.innerHTML = "<div class='post'><p>لا توجد شركات توصيل مضافة بعد</p></div>"; return;
+      }
+      const html = companies.map(c=>`
+        <div class="company">
+          <div class="name">${escapeHTML(c.name||'شركة')}</div>
+          <div class="phone"><i class="fa-solid fa-phone"></i> ${c.phone?('0'+String(c.phone).replace(/^0+/,'')):'—'}</div>
+          <div class="route">النطاق: من <b>${escapeHTML(c.fromGov||'—')}</b> إلى <b>${escapeHTML(c.toGov||'—')}</b></div>
+        </div>`).join("");
+      companiesContainer.innerHTML = html;
+    }
+    async function createCompany(){
+      if(createCompanyBusy) return;
+      if(!isOwner()) return showNotification("هذا الزر للمالك فقط","warning");
+      const name=(document.getElementById("company-name").value||"").trim();
+      const phone=(document.getElementById("company-phone").value||"").trim();
+      const fromGov=document.getElementById("company-from").value;
+      const toGov=document.getElementById("company-to").value;
+      if(!name||!phone) return showNotification("يرجى إدخال اسم ورقم الشركة","error");
+      createCompanyBusy=true; const btn=document.getElementById("company-submit-btn"); btn.disabled=true;
+      try{
+        await db.collection("companies").add({ name, phone, fromGov, toGov, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        closeCreateCompanyModal();
+        await loadCompanies();
+        showNotification("تمت إضافة الشركة","success");
+      }catch(e){ console.error(e); showNotification("تعذر إضافة الشركة: "+(e.message||e),"error"); }
+      finally{ createCompanyBusy=false; btn.disabled=false; }
+    }
+
+    // ===== Profile: Avatar & Name =====
+    function openAvatarModal(){ if(!currentUser) return; document.getElementById("avatar-modal").style.display="block"; }
+    function closeAvatarModal(){ document.getElementById("avatar-modal").style.display="none"; }
+    async function setAvatar(kind){
+      if(!currentUser) return;
+      try{
+        await db.collection("users").doc(currentUser.uid).set({ avatar: kind }, {merge:true});
+        currentUser.avatar = kind; renderAvatar(kind);
+        closeAvatarModal();
+      }catch(e){ console.error(e); showNotification("تعذر حفظ الصورة","error"); }
+    }
+    function editProfileName(){ if(!currentUser) return; document.getElementById("new-name").value=currentUser.name||""; document.getElementById("edit-name-modal").style.display="block"; }
+    function closeEditNameModal(){ document.getElementById("edit-name-modal").style.display="none"; }
+    async function saveProfileName(){
+      try{
+        const newName = (document.getElementById("new-name").value||"").trim();
+        if(!currentUser) return showNotification("يرجى تسجيل الدخول","warning");
+        if(!newName) return showNotification("يرجى إدخال اسم صحيح","error");
+        await db.collection("users").doc(currentUser.uid).update({ name:newName });
+        currentUser.name = newName;
+        document.getElementById("profile-name").textContent = newName;
+        showNotification("تم تحديث الاسم بنجاح","success");
+      }catch(e){ console.error(e); showNotification("فشل حفظ الاسم: "+(e.message||e),"error"); }
+    }
+
+    // ===== Stats (modal) =====
+    async function openUserStats(){
+      document.getElementById("stats-modal").style.display="block";
+      try{
+        const qAll = await db.collection("users").get();
+        const all = qAll.size || qAll.docs.length;
+        const since = new Date(); since.setDate(since.getDate()-7);
+        let active = 0;
+        try{
+          const qActive = await db.collection("users").where("lastSeen",">=",firebase.firestore.Timestamp.fromDate(since)).get();
+          active = qActive.size || qActive.docs.length;
+        }catch(e){
+          active = qAll.docs.filter(d=>{ const t=d.data().lastSeen; const ts=t?.toDate? t.toDate(): null; return ts && ts >= since; }).length;
+        }
+        const qPosts = await db.collection("posts").get();
+        document.getElementById("stat-active").textContent = active;
+        document.getElementById("stat-users").textContent  = all;
+        document.getElementById("stat-posts").textContent = qPosts.size || qPosts.docs.length;
+      }catch(e){ console.error(e); showNotification("تعذّر جلب الإحصائيات","error"); }
+    }
+    function closeStatsModal(){ document.getElementById("stats-modal").style.display="none"; }
+
+    // ===== Broadcast (owner) + عرض للمستخدم =====
+    function openBroadcastModal(){ if(!isOwner()) return showNotification("هذا الخيار للمالك فقط","warning"); document.getElementById("broadcast-modal").style.display="block"; }
+    function closeBroadcastModal(){ document.getElementById("broadcast-modal").style.display="none"; }
+
+    async function sendBroadcast(){
+      if(!currentUser || !isOwner()) return showNotification("غير مصرح","warning");
+      const title = (document.getElementById("broadcast-title-modal").value||"").trim();
+      const text  = (document.getElementById("broadcast-text-modal").value||"").trim();
+      if(!title || !text) return showNotification("يرجى كتابة عنوان ونص للإشعار","warning");
+      const payload = { title, text, createdAt: firebase.firestore.FieldValue.serverTimestamp(), createdBy: { uid: currentUser.uid, email: currentUser.email } };
+      try{
+        if (auth.currentUser) await auth.currentUser.getIdToken(true);
+        await db.collection("broadcasts").add(payload);
+        showNotification("تم إرسال الإشعار","success");
+        document.getElementById("broadcast-title-modal").value="";
+        document.getElementById("broadcast-text-modal").value="";
+        closeBroadcastModal();
+        await fetchLatestBroadcast(true);
+      }catch(e){
+        console.error("broadcast error:", e);
+        showNotification("خطأ من السيرفر: " + (e.message||e), "error");
+      }
+    }
+
+    // يظهر الإشعار مرّة واحدة لكل مستخدم لكل إشعار
+    async function fetchLatestBroadcast(forceShow=false){
+      try{
+        const q = await db.collection("broadcasts").orderBy("createdAt","desc").limit(1).get();
+        const overlay = document.getElementById("broadcast-overlay");
+        const banner  = document.getElementById("broadcast-banner");
+        if(q.empty){ banner.classList.remove('show'); overlay.classList.remove('show'); return; }
+        lastBroadcast = { id:q.docs[0].id, ...q.docs[0].data() };
+        const seenKey = `broadcast_seen_${lastBroadcast.id}_${currentUser ? currentUser.uid : "guest"}`;
+        if(forceShow || !localStorage.getItem(seenKey)){
+          document.getElementById("broadcast-title-display").textContent = lastBroadcast.title || "إشعار";
+          document.getElementById("broadcast-text-display").textContent  = lastBroadcast.text  || "";
+          banner.classList.add('show'); overlay.classList.add('show');
+        }
+      }catch(e){ console.warn("broadcast fetch failed", e); }
+    }
+    function dismissBroadcast(){
+      const overlay = document.getElementById("broadcast-overlay");
+      const banner  = document.getElementById("broadcast-banner");
+      if(lastBroadcast){
+        const seenKey = `broadcast_seen_${lastBroadcast.id}_${currentUser ? currentUser.uid : "guest"}`;
+        localStorage.setItem(seenKey,"1");
+      }
+      banner.classList.remove('show'); overlay.classList.remove('show');
+    }
+
+    // ===== Owner resolve =====
+    async function resolveAppOwnerUid(){
+      if(APP_OWNER_UID) return APP_OWNER_UID;
+      try{
+        const q = await db.collection("users").where("email","==",APP_OWNER_EMAIL).limit(1).get();
+        if(!q.empty){ APP_OWNER_UID = q.docs[0].id; }
+      }catch(e){ console.error("resolve owner uid err:", e); }
+      return APP_OWNER_UID;
+    }
+
+    function handleAuthError(error){ const code=error?.code||""; showNotification("خطأ مصادقة: "+code+" "+(error.message||""),"error"); console.error("Auth error:", error); }
+
+    // ===== Pull to refresh =====
+    ;(function initPullToRefresh(){
+      const bubble = document.getElementById("pull-bubble");
+      let startY = 0, pulling = false, threshold = 80;
+      window.addEventListener("touchstart", (e)=>{
+        if(pages.main.style.display!=="block" || window.pageYOffset > 0) return;
+        startY = e.touches[0].clientY;
+        pulling = true;
+      }, {passive:true});
+      window.addEventListener("touchmove", (e)=>{
+        if(!pulling) return;
+        const dy = e.touches[0].clientY - startY;
+        if(dy > 6 && window.pageYOffset <= 0){
+          e.preventDefault();
+          bubble.style.display = "inline-block";
+          bubble.textContent = dy > threshold ? "أفلت للتحديث…" : "اسحب للتحديث…";
+        }else{
+          bubble.style.display = "none";
+        }
+      }, {passive:false});
+      window.addEventListener("touchend", async ()=>{
+        if(!pulling) return; pulling = false;
+        if(bubble.style.display === "inline-block" && bubble.textContent.includes("أفلت")){
+          bubble.textContent = "جاري التحديث…";
+          try{ await Promise.all([loadPostsFromFirestore(), loadCompanies(), fetchLatestBroadcast()]); } finally{ setTimeout(()=> bubble.style.display="none", 500); }
+        }else{
+          bubble.style.display = "none";
+        }
+      });
+    })();
+
+    // ===== إغلاق الإشعار العام بالنقر على الخلفية أو زر ESC =====
+    document.getElementById('broadcast-overlay').addEventListener('click', dismissBroadcast);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dismissBroadcast(); });
+
+  </script>
+</body>
+</html>
