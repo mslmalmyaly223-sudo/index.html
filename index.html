@@ -140,7 +140,8 @@
       background:#e9f0ff; border:1px solid #d0dcff; border-radius:16px; padding:16px 46px 16px 16px;
       box-shadow:0 20px 40px rgba(0,0,0,.28); opacity:0;
     }
-    #broadcast-banner.show{animation:bannerIn .32s cubic-bezier(.2,.8,.2,1) forwards}
+    /* ✅ الإصلاح: إظهار البانر عند إضافة .show */
+    #broadcast-banner.show{display:block;animation:bannerIn .32s cubic-bezier(.2,.8,.2,1) forwards}
     @keyframes bannerIn{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
     #broadcast-banner .x{position:absolute;top:10px;right:12px;background:#0000;border:none;font-size:22px;cursor:pointer;color:#2643b8}
 
@@ -155,7 +156,7 @@
     }
   </style>
 
-  <!-- Firebase (بدون defer حتى تجهز قبل سكربت التطبيق) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -244,7 +245,7 @@
   <div id="profile-page" class="container page" style="display:none">
     <div class="profile-shell">
       <div class="profile-card">
-        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal()"></div>
+        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal"></div>
         <div class="profile-meta">
           <div class="profile-name-row">
             <span id="profile-name"></span>
@@ -521,9 +522,13 @@
     let activeSection = "posts";
     let notifUnsub = null;
 
+    // 🔔 مستمع صفحة الإشعارات (Realtime)
+    let notifPageUnsub = null;
+
     // ===== Auth =====
     auth.onAuthStateChanged(async (user) => {
       stopNotificationListener();
+      stopNotificationsPageListener();
       if(!user){
         updateUIForLoggedOutUser();
         setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 900);
@@ -560,7 +565,7 @@
 
       await resolveAppOwnerUid();
       updateUIForLoggedInUser();
-      startNotificationListener();
+      startNotificationListener(); // 🔴 النقطة الحمراء تعمل لحظيًا
       await Promise.all([loadPostsFromFirestore(), refreshNotifDot(), loadCompanies(), fetchLatestBroadcast()]);
       setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
       pendingChosenAvatar = null;
@@ -610,6 +615,8 @@
       Object.values(pages).forEach(p=>p.style.display="none");
       pages[key].style.display = (key==="auth")?"flex":"block";
       updateBottomNav(key);
+      // إيقاف مستمع الإشعارات الحي إذا خرجنا من صفحة الإشعارات
+      if (key !== "notifications") stopNotificationsPageListener();
     }
     function updateBottomNav(activePageKey) {
       document.querySelectorAll("#bottom-nav .nav-item").forEach(item => {
@@ -622,7 +629,7 @@
     function backToProfile(){ showPage("profile"); }
     function backToMainFromDetails(){ showPage("main"); }
     function backToMainFromComments(){ showPage("main"); }
-    function showNotificationsPage(){ showPage("notifications"); renderNotificationsPage(); }
+    function showNotificationsPage(){ showPage("notifications"); startNotificationsPageListener(); }
     function backToMainFromNotifications(){ showPage("main"); }
 
     function updateUIForLoggedInUser(){
@@ -642,6 +649,7 @@
       document.getElementById("broadcast-banner").classList.remove('show');
       document.getElementById("broadcast-overlay").classList.remove('show');
       stopNotificationListener();
+      stopNotificationsPageListener();
     }
 
     function switchAuthTab(tab){
@@ -676,7 +684,7 @@
     }
     function onCreateButton(){ if(activeSection==="posts") openCreatePostModal(); else openCreateCompanyModal(); }
 
-    // ===== إشعارات لحظية =====
+    // ===== إشعارات لحظية (أيقونة الجرس) =====
     function startNotificationListener(){
       stopNotificationListener();
       if(!currentUser) return;
@@ -1236,7 +1244,9 @@
         if(forceShow || !localStorage.getItem(seenKey)){
           document.getElementById("broadcast-title-display").textContent = lastBroadcast.title || "إشعار";
           document.getElementById("broadcast-text-display").textContent  = lastBroadcast.text  || "";
-          banner.classList.add('show'); overlay.classList.add('show');
+          banner.style.display = "block";      // ✅ احتياط
+          banner.classList.add('show');        // ✅ يطبق الـ display:block من الـ CSS
+          overlay.classList.add('show');
         }
       }catch(e){ console.warn("broadcast fetch failed", e); }
     }
@@ -1248,6 +1258,7 @@
         localStorage.setItem(seenKey,"1");
       }
       banner.classList.remove('show'); overlay.classList.remove('show');
+      banner.style.display = "none";
     }
     document.getElementById("broadcast-overlay").addEventListener("click", dismissBroadcast);
 
@@ -1294,47 +1305,57 @@
       });
     })();
 
-    // ===== Notifications Page =====
-    async function renderNotificationsPage(){
+    // ===== Notifications Page (Realtime render) =====
+    function startNotificationsPageListener(){
+      stopNotificationsPageListener();
       notificationsContainer.innerHTML = "<div class='post'><p>جاري التحميل...</p></div>";
       if(!currentUser) return;
-      try{
-        const q = await db.collection("notifications")
-          .where("userId","==",currentUser.uid)
-          .limit(200).get();
-
-        const items = q.docs.map(d=>({id:d.id, ...d.data()}))
-          .sort((a,b)=> (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
-
-        if(items.length===0){ notificationsContainer.innerHTML = "<div class='post'><p>لا توجد إشعارات</p></div>"; return; }
-
-        const out = items.map(n => {
-          const dateTxt = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-IQ') : "";
-          const kind = n.type==='comment'?'تعليق جديد':(n.type==='report'?'بلاغ جديد':'إشعار');
-          return `<div class="post">
-            <div class="post-header">
-              <div class="post-username"><span>${kind}</span></div>
-              <div class="post-price" style="color:#888">${dateTxt}</div>
-              <div class="post-title">${n.postId||''}</div>
-            </div>
-            <div class="post-actions">
-              ${n.postId?`<button class="btn btn-secondary" onclick="openPostFromNotif('${n.postId}','${n.type}')">فتح</button>`:""}
-              ${n.seen===false?`<button class="btn" onclick="markNotifSeen('${n.id}')">تم</button>`:""}
-            </div>
-          </div>`;
-        }).join("");
-        notificationsContainer.innerHTML = out;
-      }catch(err){
-        console.error("render notif error:", err);
-        notificationsContainer.innerHTML = "<div class='post'><p>تعذّر تحميل الإشعارات</p></div>";
-      }
-      await refreshNotifDot();
+      notifPageUnsub = db.collection("notifications")
+        .where("userId","==",currentUser.uid)
+        .onSnapshot(
+          snap => {
+            const items = snap.docs.map(d=>({id:d.id, ...d.data()}))
+              .sort((a,b)=> (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
+            renderNotificationsList(items);
+            refreshNotifDot(); // تحديث نقطة الجرس تلقائيًا
+          },
+          err => {
+            console.error("render notif error:", err);
+            notificationsContainer.innerHTML = "<div class='post'><p>تعذّر تحميل الإشعارات</p></div>";
+          }
+        );
     }
-    async function markNotifSeen(id){ try{ await db.collection("notifications").doc(id).update({seen:true}); }catch{} await renderNotificationsPage(); }
+    function stopNotificationsPageListener(){
+      if (notifPageUnsub){ try{ notifPageUnsub(); }catch{} notifPageUnsub=null; }
+    }
+    function renderNotificationsList(items){
+      if(items.length===0){ notificationsContainer.innerHTML = "<div class='post'><p>لا توجد إشعارات</p></div>"; return; }
+      const out = items.map(n => {
+        const dateTxt = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-IQ') : "";
+        const kind = n.type==='comment'?'تعليق جديد':(n.type==='report'?'بلاغ جديد':'إشعار');
+        return `<div class="post">
+          <div class="post-header">
+            <div class="post-username"><span>${kind}</span></div>
+            <div class="post-price" style="color:#888">${dateTxt}</div>
+            <div class="post-title">${n.postId||''}</div>
+          </div>
+          <div class="post-actions">
+            ${n.postId?`<button class="btn btn-secondary" onclick="openPostFromNotif('${n.postId}','${n.type}')">فتح</button>`:""}
+            ${n.seen===false?`<button class="btn" onclick="markNotifSeen('${n.id}')">تم</button>`:""}
+          </div>
+        </div>`;
+      }).join("");
+      notificationsContainer.innerHTML = out;
+    }
+    async function markNotifSeen(id){
+      try{ await db.collection("notifications").doc(id).update({seen:true}); }
+      catch(e){ console.error(e); }
+      refreshNotifDot();
+    }
     function openPostFromNotif(postId,type){ if(type==='comment'){ openCommentsPage(postId); } else{ openDetailsPage(postId); } }
   </script>
 
-  <!-- حقن الـ manifest وأيقونات iOS + تسجيل SW -->
+  <!-- manifest + SW -->
   <script>
   (function(){
     function add(tag, attrs, keyAttr){
@@ -1361,7 +1382,7 @@
   })();
   </script>
 
-  <!-- إخفاء السبلش تلقائياً كـ fallback (لا يفتح صفحات) -->
+  <!-- إخفاء السبلش تلقائياً كـ fallback -->
   <script>
     (function () {
       function hideSplash() {
