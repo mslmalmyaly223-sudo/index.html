@@ -50,7 +50,7 @@
     .row{display:flex;gap:8px;align-items:center}
     .grow{flex:1}
 
-    /* اختيار الصورة في التسجيل فقط */
+    /* اختيار الصورة */
     .choose-avatar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .choose-avatar label{display:flex;align-items:center;gap:8px;background:#f2f4ff;border:1px solid #dfe4ff;padding:10px 12px;border-radius:12px;cursor:pointer}
     .choose-avatar input{display:none}
@@ -140,8 +140,11 @@
       background:#e9f0ff; border:1px solid #d0dcff; border-radius:16px; padding:16px 46px 16px 16px;
       box-shadow:0 20px 40px rgba(0,0,0,.28); opacity:0;
     }
-    /* ✅ الإصلاح: إظهار البانر عند إضافة .show */
-    #broadcast-banner.show{display:block;animation:bannerIn .32s cubic-bezier(.2,.8,.2,1) forwards}
+    /* إصلاح نهائي: إظهار البانر حتى لو تعذّر الأنيميشن */
+    #broadcast-banner.show{
+      display:block; opacity:1; transform:translate(-50%,-50%) scale(1);
+      animation:bannerIn .32s cubic-bezier(.2,.8,.2,1) forwards;
+    }
     @keyframes bannerIn{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
     #broadcast-banner .x{position:absolute;top:10px;right:12px;background:#0000;border:none;font-size:22px;cursor:pointer;color:#2643b8}
 
@@ -179,14 +182,12 @@
         <div class="auth-tab" onclick="switchAuthTab('register')">إنشاء حساب</div>
       </div>
 
-      <!-- تسجيل الدخول -->
       <form id="login-form" class="auth-form active" onsubmit="event.preventDefault(); login();">
         <div class="form-group"><label for="login-email">البريد الإلكتروني</label><input type="email" id="login-email" class="form-control" required></div>
         <div class="form-group"><label for="login-password">كلمة المرور</label><input type="password" id="login-password" class="form-control" required></div>
         <button type="submit" class="btn btn-block">تسجيل الدخول</button>
       </form>
 
-      <!-- إنشاء حساب -->
       <form id="register-form" class="auth-form" onsubmit="event.preventDefault(); register();">
         <div class="form-group"><label for="register-name">الاسم الكامل</label><input type="text" id="register-name" class="form-control" required></div>
         <div class="form-group"><label for="register-email">البريد الإلكتروني</label><input type="email" id="register-email" class="form-control" required></div>
@@ -245,7 +246,7 @@
   <div id="profile-page" class="container page" style="display:none">
     <div class="profile-shell">
       <div class="profile-card">
-        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal"></div>
+        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal()"></div>
         <div class="profile-meta">
           <div class="profile-name-row">
             <span id="profile-name"></span>
@@ -342,9 +343,7 @@
   <div id="create-company-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header"><h2>إضافة شركة توصيل</h2><button class="close-modal" onclick="closeCreateCompanyModal()">&times;</button></div>
-
       <div class="form-group"><label for="company-name">اسم الشركة</label><input type="text" id="company-name" class="form-control" required></div>
-
       <div class="select-group">
         <label for="company-from">من محافظة</label>
         <select id="company-from" class="select-control"></select>
@@ -355,10 +354,8 @@
         <select id="company-to" class="select-control"></select>
         <div class="muted">المحافظات التي <b>تُوصل إليها</b> الشركة (اختر "كل المحافظات" إن كانت عامة).</div>
       </div>
-
       <div class="form-group"><label for="company-phone">رقم الهاتف</label><input type="text" id="company-phone" class="form-control" placeholder="07xxxxxxxxxx" required></div>
       <div class="form-group"><label for="company-desc">وصف (اختياري)</label><textarea id="company-desc" class="form-control" rows="3" placeholder="ملاحظات أو أسعار تقريبية..."></textarea></div>
-
       <div class="modal-footer"><button class="btn btn-secondary" onclick="closeCreateCompanyModal()">إلغاء</button><button id="company-submit-btn" class="btn" onclick="createCompany()">إضافة</button></div>
     </div>
   </div>
@@ -373,7 +370,7 @@
         <label for="edit-company-from">من محافظة</label>
         <select id="edit-company-from" class="select-control"></select>
       </div>
-      <div class="select-group">
+        <div class="select-group">
         <label for="edit-company-to">إلى محافظة</label>
         <select id="edit-company-to" class="select-control"></select>
       </div>
@@ -387,7 +384,7 @@
     </div>
   </div>
 
-  <!-- Avatar chooser modal -->
+  <!-- Avatar chooser -->
   <div id="avatar-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header"><h2>اختيار صورة</h2><button class="close-modal" onclick="closeAvatarModal()">&times;</button></div>
@@ -522,8 +519,9 @@
     let activeSection = "posts";
     let notifUnsub = null;
 
-    // 🔔 مستمع صفحة الإشعارات (Realtime)
+    // 🔔 مستمع صفحة الإشعارات (Realtime) + مؤقت احتياطي
     let notifPageUnsub = null;
+    let notifDotInterval = null;
 
     // ===== Auth =====
     auth.onAuthStateChanged(async (user) => {
@@ -565,7 +563,7 @@
 
       await resolveAppOwnerUid();
       updateUIForLoggedInUser();
-      startNotificationListener(); // 🔴 النقطة الحمراء تعمل لحظيًا
+      startNotificationListener(); // النقطة الحمراء لحظيًا + مؤقت
       await Promise.all([loadPostsFromFirestore(), refreshNotifDot(), loadCompanies(), fetchLatestBroadcast()]);
       setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
       pendingChosenAvatar = null;
@@ -615,7 +613,6 @@
       Object.values(pages).forEach(p=>p.style.display="none");
       pages[key].style.display = (key==="auth")?"flex":"block";
       updateBottomNav(key);
-      // إيقاف مستمع الإشعارات الحي إذا خرجنا من صفحة الإشعارات
       if (key !== "notifications") stopNotificationsPageListener();
     }
     function updateBottomNav(activePageKey) {
@@ -684,10 +681,12 @@
     }
     function onCreateButton(){ if(activeSection==="posts") openCreatePostModal(); else openCreateCompanyModal(); }
 
-    // ===== إشعارات لحظية (أيقونة الجرس) =====
+    // ===== إشعارات لحظية (زر الجرس) =====
     function startNotificationListener(){
       stopNotificationListener();
       if(!currentUser) return;
+
+      // مستمع لحظي
       notifUnsub = db.collection("notifications")
         .where("userId","==", currentUser.uid)
         .where("seen","==", false)
@@ -695,9 +694,14 @@
           snap => { notifBtn.classList.toggle("has-unseen", !snap.empty); },
           err => { console.warn("notif listener error:", err); notifBtn.classList.remove("has-unseen"); }
         );
+
+      // مؤقت احتياطي (لو المستمع ما firing)
+      if (notifDotInterval) clearInterval(notifDotInterval);
+      notifDotInterval = setInterval(refreshNotifDot, 15000);
     }
     function stopNotificationListener(){
       if(notifUnsub){ try{ notifUnsub(); }catch{} }
+      if(notifDotInterval){ clearInterval(notifDotInterval); notifDotInterval=null; }
       notifUnsub = null;
       notifBtn.classList.remove("has-unseen");
     }
@@ -1244,8 +1248,9 @@
         if(forceShow || !localStorage.getItem(seenKey)){
           document.getElementById("broadcast-title-display").textContent = lastBroadcast.title || "إشعار";
           document.getElementById("broadcast-text-display").textContent  = lastBroadcast.text  || "";
-          banner.style.display = "block";      // ✅ احتياط
-          banner.classList.add('show');        // ✅ يطبق الـ display:block من الـ CSS
+          banner.style.display = "block";      // احتياط
+          banner.style.opacity = "1";          // احتياط
+          banner.classList.add('show');
           overlay.classList.add('show');
         }
       }catch(e){ console.warn("broadcast fetch failed", e); }
@@ -1317,7 +1322,7 @@
             const items = snap.docs.map(d=>({id:d.id, ...d.data()}))
               .sort((a,b)=> (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
             renderNotificationsList(items);
-            refreshNotifDot(); // تحديث نقطة الجرس تلقائيًا
+            refreshNotifDot(); // تحديث نقطة الجرس
           },
           err => {
             console.error("render notif error:", err);
@@ -1382,7 +1387,7 @@
   })();
   </script>
 
-  <!-- إخفاء السبلش تلقائياً كـ fallback -->
+  <!-- إخفاء السبلش كـ fallback -->
   <script>
     (function () {
       function hideSplash() {
