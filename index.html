@@ -125,7 +125,6 @@
     .profile-name-row{display:flex;align-items:center;gap:8px;font-weight:900;font-size:18px;color:#0f235f}
     .profile-count{font-size:13px;color:#2b3f8c;font-weight:700}
     .profile-email{font-size:12px;color:#3c4c7f;word-break:break-all}
-
     .profile-uid-input {font-size:12px;padding:6px 8px}
 
     .profile-actions-card{margin-top:20px;background:#fff;border:1px solid var(--border-color);border-radius:14px;padding:10px}
@@ -290,7 +289,7 @@
   <div id="profile-page" class="container page" style="display:none">
     <div class="profile-shell">
       <div class="profile-card">
-        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal()"></div>
+        <div id="avatar" class="avatar" title="تغيير الصورة" onclick="openAvatarModal"></div>
         <div class="profile-meta">
           <div class="profile-name-row">
             <span id="profile-name"></span>
@@ -344,7 +343,7 @@
       <div id="comments-list-page"></div>
       <div class="row" style="margin-top:10px;">
         <input type="text" id="comment-text-page" class="form-control grow" placeholder="أضف تعليقًا...">
-        <button class="btn" onclick="addCommentFromPage()">إرسال</button>
+        <button id="send-comment-btn" class="btn" onclick="addCommentFromPage()">إرسال</button>
       </div>
     </div>
   </div>
@@ -611,7 +610,6 @@
         </select>
       </div>
 
-      <!-- خيارات مع تحديد الإجابة الصحيحة -->
       <div class="form-group">
         <label>الخيارات (اختر الدائرة أمام الإجابة الصحيحة)</label>
 
@@ -673,7 +671,6 @@
     const auth = firebase.auth();
 
     const APP_OWNER_EMAIL = "mslmalmyaly223@gmail.com";
-    let APP_OWNER_UID = null;
     let pendingChosenAvatar = null;
     let lastBroadcast = null;
     let isFirstLoginSession = false;
@@ -698,11 +695,12 @@
       clearTimeout(n._t);
       n._t=setTimeout(()=>{ n.style.display="none"; },2500);
     }
+    function escapeHTML(s=''){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m])); }
     function validateEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase()); }
     function formatWhatsApp(v){ 
       let num = (v||"").toString().replace(/[^\d]/g, "");
-      if (num.startsWith('07') && num.length >= 11) { return '964' + num.substring(1); }
-      if (num.startsWith('96407')) { return '964' + num.substring(4); }
+      if (num.startsWith('07') && num.length === 11) { return '964' + num.substring(1); }
+      if (num.startsWith('96407') && num.length === 14) { return '964' + num.substring(4); }
       return num;
     }
     function sanitizeTelegram(v){ return (v||"").toString().replace(/^@+/,"").trim(); }
@@ -734,14 +732,6 @@
       }
       showNotification(friendly,'error');
       console.error('Auth error:', error);
-    }
-    async function resolveAppOwnerUid(){
-      if(APP_OWNER_UID) return APP_OWNER_UID;
-      try{
-        const q = await db.collection("users").where("email","==",APP_OWNER_EMAIL).limit(1).get();
-        if(!q.empty){ APP_OWNER_UID = q.docs[0].id; }
-      }catch(e){ console.error("resolve owner uid err:", e); }
-      return APP_OWNER_UID;
     }
 
     // ===== Pages & UI =====
@@ -807,16 +797,10 @@
           db.collection("users").doc(user.uid).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
         }
         currentUser = { uid:user.uid, ...doc.data() };
-        if (currentUser.email === APP_OWNER_EMAIL && currentUser.isOwner !== true){
-          await db.collection("users").doc(user.uid).set({ isOwner:true }, {merge:true});
-          currentUser.isOwner = true;
-        }
       }catch(e){
         console.error("user load error:", e);
         currentUser = { uid:user.uid, name:user.email.split("@")[0], email:user.email, avatar: pendingChosenAvatar || "male", isVerified:false, blockedFromPosting:false, isOwner:false };
-        if (currentUser.email === APP_OWNER_EMAIL) currentUser.isOwner = true;
       }
-      await resolveAppOwnerUid();
       updateUIForLoggedInUser();
       await Promise.all([loadPostsFromFirestore(), loadCompanies(), fetchLatestBroadcast()]);
       await initChallengeAfterLogin();
@@ -957,13 +941,17 @@
         return isVisible && materialMatch && stageMatch;
       });
       if(filtered.length===0){ postsContainer.innerHTML='<div class="post"><p>لا توجد منشورات تطابق الفلتر</p></div>'; return; }
+      const uids = [...new Set(filtered.map(p => p.userId).filter(Boolean))];
+      await Promise.all(uids.map(async uid => { if(!userMetaCache[uid]) userMetaCache[uid] = await getUserMeta(uid); }));
+      const frag = document.createDocumentFragment();
       for(const post of filtered){
-        const meta = await getUserMeta(post.userId);
+        const meta = userMetaCache[post.userId] || {isVerified:false, blockedFromPosting:false};
         const card = document.createElement("div");
         card.className = `post ${post.isPinned?'pinned':''}`;
         card.innerHTML = generatePostHTML(post, meta, 'list');
-        postsContainer.appendChild(card);
+        frag.appendChild(card);
       }
+      postsContainer.appendChild(frag);
     }
     function generatePostHTML(post, meta, context = 'list') {
       const badge = meta.isVerified ? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>` : '';
@@ -983,6 +971,9 @@
       const priceValue = Number(post.price);
       const priceLabel = (!isNaN(priceValue) && priceValue === 0) ? 'مجاناً' : `${priceValue.toLocaleString('ar-IQ')} د.ع`;
       const stageLabel = post.stage ? ({ "sades-elmi": "السادس العلمي", "sades-adabi": "السادس الادبي", "khames": "الخامس", "rabea": "الرابع", "thaleth-mut": "الثالث متوسط", "thani-mut": "الثاني متوسط", "awal-mut": "الاول متوسط", "sades-ibtidai": "السادس الابتدائي" })[post.stage] || "" : "";
+      const userName = escapeHTML(post.userName||'مستخدم');
+      const material = escapeHTML(post.material||'');
+      const description = escapeHTML(post.description||'');
       let contactBtn="";
       if (post.contactMethod === "whatsapp" && post.whatsapp) { contactBtn = `<a class="btn" href="https://wa.me/${post.whatsapp}" target="_blank" rel="noopener">تواصل (واتساب)</a>`; } 
       else if (post.contactMethod === "telegram" && post.telegram) { contactBtn = `<button class="btn" onclick="openTelegram('${post.telegram}')">تواصل (تلكرام)</button>`; } 
@@ -1005,13 +996,12 @@
           <button class="btn btn-warning" onclick="markSold('${post.id}', ${post.status === 'sold' ? 'true' : 'false'})">${post.status === 'sold' ? 'إلغاء تم بيعه' : 'تم بيعه'}</button>
           <button class="btn btn-danger" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> حذف</button>`;
       }
-      return `${pinRibbon}${ownerTools}<div class="post-header"><div class="post-username"><span>${post.userName||'مستخدم'}</span> ${badge}</div><div class="post-price">${priceLabel}</div><div class="post-title">${stageLabel?`${stageLabel} - `:''}${post.material}</div></div><div class="post-description">${post.description}</div><div class="post-actions">${actionButtons}</div>`;
+      return `${pinRibbon}${ownerTools}<div class="post-header"><div class="post-username"><span>${userName}</span> ${badge}</div><div class="post-price">${priceLabel}</div><div class="post-title">${stageLabel?`${stageLabel} - `:''}${material}</div></div><div class="post-description">${description}</div><div class="post-actions">${actionButtons}</div>`;
     }
     let createPostBusy = false;
     function openCreatePostModal(){ document.getElementById("create-post-modal").style.display="block"; }
     function closeCreatePostModal(){ document.getElementById("create-post-modal").style.display="none"; }
     function changeContactMethod(prefix = ''){
-      const id = (prefix ? `${prefix}-` : '');
       const methodEl = document.getElementById(`${prefix ? 'edit-' : ''}contact-method`);
       const w_field = document.getElementById(`${prefix ? 'edit-' : ''}whatsapp-field`);
       const t_field = document.getElementById(`${prefix ? 'edit-' : ''}telegram-field`);
@@ -1033,6 +1023,8 @@
       const whatsapp = formatWhatsApp(document.getElementById("whatsapp-number").value);
       const telegram = sanitizeTelegram(document.getElementById("telegram-username").value); 
       if(!description) return showNotification("يرجى ملء الوصف","error");
+      if (contactMethod==="whatsapp" && whatsapp.length !== 12) return showNotification("رقم واتساب غير صالح","error");
+      if (contactMethod==="telegram" && !telegram) return showNotification("معرّف تلكرام غير صالح","error");
       createPostBusy = true; 
       const btn = document.getElementById("post-submit-btn"); btn.disabled = true;
       const newPost = { 
@@ -1077,6 +1069,8 @@
         telegram: sanitizeTelegram(document.getElementById('edit-telegram-username').value),
       };
       if (!updatedData.description) return showNotification("الوصف مطلوب", "error");
+      if (updatedData.contactMethod==="whatsapp" && updatedData.whatsapp.length !== 12) return showNotification("رقم واتساب غير صالح","error");
+      if (updatedData.contactMethod==="telegram" && !updatedData.telegram) return showNotification("معرّف تلكرام غير صالح","error");
       const btn = document.getElementById('post-edit-submit-btn'); btn.disabled = true;
       try {
         await db.collection('posts').doc(postId).update(updatedData); 
@@ -1119,13 +1113,13 @@
       try {
         const snap = await db.collection("posts").doc(postId).collection("comments").orderBy("createdAt", "asc").get();
         if (snap.empty) { commentsListContainer.innerHTML = '<div class="post"><p>لا توجد تعليقات بعد.</p></div>'; return; }
-        commentsListContainer.innerHTML = snap.docs.map(doc => { const c = doc.data(); const d = c.createdAt?.toDate?c.createdAt.toDate().toLocaleString('ar-IQ'):''; return `<div class="post" style="margin-bottom:8px; padding:10px;"><div style="font-weight:bold;">${c.userName||'مستخدم'}</div><p style="margin-top:5px;">${c.text}</p><small style="color:#777;">${d}</small></div>`; }).join('');
+        commentsListContainer.innerHTML = snap.docs.map(doc => { const c = doc.data(); const d = c.createdAt?.toDate?c.createdAt.toDate().toLocaleString('ar-IQ'):''; return `<div class="post" style="margin-bottom:8px; padding:10px;"><div style="font-weight:bold;">${escapeHTML(c.userName||'مستخدم')}</div><p style="margin-top:5px;">${escapeHTML(c.text||'')}</p><small style="color:#777;">${d}</small></div>`; }).join('');
       } catch (e) { commentsListContainer.innerHTML = '<div class="post"><p>خطأ في تحميل التعليقات.</p></div>'; }
     }
     async function addCommentFromPage() {
       if (!currentUser || !currentCommentsPostId) return;
       const textInput = document.getElementById("comment-text-page"); const text = textInput.value.trim(); if (!text) return;
-      const btn = document.querySelector('#comments-page button.btn'); btn.disabled = true;
+      const btn = document.getElementById('send-comment-btn'); btn.disabled = true;
       try {
         await db.collection("posts").doc(currentCommentsPostId).collection("comments").add({ text, userId: currentUser.uid, userName: currentUser.name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
         textInput.value = ''; await renderComments(currentCommentsPostId);
@@ -1153,8 +1147,8 @@
       if(!items || items.length===0){ lb.innerHTML = "<div class='post'><p>لا يوجد متنافسون بعد</p></div>"; return; }
       lb.innerHTML = items.map((it, idx) => {
         const points = it.totalPoints || 0; const cls = idx===0?'rank-1':(idx===1?'rank-2':(idx===2?'rank-3':''));
-        const ownerDeleteBtn = isOwner() ? `<button class="btn btn-xs btn-danger" style="margin-right: auto;" onclick="ownerRemoveFromLeaderboard('${it.uid}', '${it.name}')"><i class="fa-solid fa-trash"></i></button>` : '';
-        return `<div class="rank-card ${cls}"><div class="rank-left"><div class="rank-badge">${idx+1}</div><div class="rank-name">${it.name||'مستخدم'}</div></div>${ownerDeleteBtn}<div class="rank-points">${points.toLocaleString('ar-IQ')} نقطة</div></div>`;
+        const ownerDeleteBtn = isOwner() ? `<button class="btn btn-xs btn-danger" style="margin-right: auto;" onclick="ownerRemoveFromLeaderboard('${it.uid}', '${escapeHTML(it.name||'مستخدم')}')"><i class="fa-solid fa-trash"></i></button>` : '';
+        return `<div class="rank-card ${cls}"><div class="rank-left"><div class="rank-badge">${idx+1}</div><div class="rank-name">${escapeHTML(it.name||'مستخدم')}</div></div>${ownerDeleteBtn}<div class="rank-points">${points.toLocaleString('ar-IQ')} نقطة</div></div>`;
       }).join("");
     }
     async function ownerRemoveFromLeaderboard(uid, name) {
@@ -1171,12 +1165,10 @@
         const sdoc = await ref.get();
         if(sdoc.exists){
           const s = sdoc.data();
-          // تحقق من انقطاع أكثر من 3 ساعات: إيقاف العداد واحتساب النقاط حتى آخر نبضة (heartbeat)
           const lastPing = s.lastPingAt?.toDate ? s.lastPingAt.toDate() : null;
           const runStart = s.startAt?.toDate ? s.startAt.toDate() : null;
           const now = new Date();
           if (s.running && lastPing && (now - lastPing) > 3*3600*1000 && runStart) {
-            // احتساب حتى آخر نبضة
             const elapsedSeconds = Math.max(0, Math.floor((lastPing - runStart) / 1000));
             const boosted = (s.boostUntil?.toDate && s.boostUntil.toDate() > runStart)
               ? Math.max(0, Math.floor((Math.min(lastPing, s.boostUntil.toDate()) - runStart) / 1000))
@@ -1215,22 +1207,19 @@
       const pointsDisp = document.getElementById("current-points-display");
       const isBoostActive = studyState.boostUntil && studyState.boostUntil > new Date();
       const boostIndicator = isBoostActive ? ' <span style="color: #ff8c00; font-size: 16px;">(2x)</span>' : '';
-      let totalSecondsToDisplay = 0; // يبدأ من الصفر في كل تشغيل
+      let totalSecondsToDisplay = 0;
       if (studyState.running && studyState.startAtMs) {
         const elapsedMs = Date.now() - studyState.startAtMs;
         const effectiveElapsedMs = isBoostActive ? elapsedMs * 2 : elapsedMs;
         const currentSessionSeconds = Math.floor(effectiveElapsedMs / 1000);
         totalSecondsToDisplay += currentSessionSeconds;
       }
-      if(disp) disp.innerHTML = formatDuration(totalSecondsToDisplay) + boostIndicator;
+      if(disp) disp.innerHTML = `${formatDuration(totalSecondsToDisplay)}${boostIndicator}`;
       if(startBtn) startBtn.disabled = !!studyState.running;
       if(stopBtn) stopBtn.disabled = !studyState.running; 
       if(pointsDisp) pointsDisp.textContent = studyState.currentPoints.toLocaleString('ar-IQ');
     }
-    function startStudyInterval() {
-      stopStudyInterval();
-      studyInterval = setInterval(renderTimerUI, 1000);
-    }
+    function startStudyInterval() { stopStudyInterval(); studyInterval = setInterval(renderTimerUI, 1000); }
     function stopStudyInterval(){ if(studyInterval){ clearInterval(studyInterval); studyInterval=null; } }
     function startHeartbeatInterval(){
       stopHeartbeatInterval();
@@ -1238,11 +1227,14 @@
       heartbeatInterval = setInterval(async ()=>{
         if (!studyState.running || !currentUser) return;
         const now = Date.now();
-        if (now - lastHeartbeatSentAt < 60000) return; // كل دقيقة
+        if (now - lastHeartbeatSentAt < 60000) return;
         lastHeartbeatSentAt = now;
         try{
-          await db.collection('study').doc(currentUser.uid).set({ lastPingAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
-        }catch(e){ /* تجاهل */ }
+          await Promise.all([
+            db.collection('study').doc(currentUser.uid).set({ lastPingAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true}),
+            db.collection('users').doc(currentUser.uid).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true})
+          ]);
+        }catch(e){}
       }, 5000);
     }
     function stopHeartbeatInterval(){ if (heartbeatInterval) { clearInterval(heartbeatInterval); heartbeatInterval=null; } }
@@ -1276,11 +1268,10 @@
           const sdoc = await tx.get(ref); if (!sdoc.exists || !sdoc.data().running) { return; }
           const s = sdoc.data(); 
           let stopAt = new Date();
-          // إذا غاب أكثر من 3 ساعات نوقف عند آخر نبضة
           const lastPing = s.lastPingAt?.toDate ? s.lastPingAt.toDate() : null;
           if (lastPing && (new Date() - lastPing) > 3*3600*1000) stopAt = lastPing;
           let elapsedSeconds = 0; 
-          if (s.startAt?.toDate) { elapsedSeconds = Math.max(0, Math.floor((stopAt - s.startAt.toDate().getTime()) / 1000)); }
+          if (s.startAt?.toDate) { elapsedSeconds = Math.max(0, Math.floor((stopAt.getTime() - s.startAt.toDate().getTime()) / 1000)); }
           let effectiveSeconds = elapsedSeconds;
           if (s.boostUntil?.toDate && s.boostUntil.toDate() > s.startAt.toDate()) {
             const boostStart = s.startAt.toDate(); 
@@ -1288,7 +1279,7 @@
             const boostedDuration = Math.max(0, (Math.min(stopAt, boostEnd) - boostStart) / 1000); 
             effectiveSeconds += boostedDuration;
           }
-          const pointsEarned = Math.floor(effectiveSeconds / 180); // 1 نقطة لكل 3 دقائق
+          const pointsEarned = Math.floor(effectiveSeconds / 180);
           tx.update(ref, { 
             running: false, startAt: null, 
             totalPoints: firebase.firestore.FieldValue.increment(pointsEarned), 
@@ -1346,7 +1337,6 @@
         document.getElementById('qna-option-3').value.trim(),
       ];
       const correctIndex = parseInt(document.querySelector('input[name="qna-correct"]:checked').value, 10);
-
       if (!question || !material || options.some(o => !o) || !Number.isFinite(prize) || prize <= 0) {
         return showNotification('يرجى ملء جميع الحقول بجائزة صالحة', 'error');
       }
@@ -1375,6 +1365,7 @@
       } catch (e) { showNotification('فشل إنشاء السؤال: ' + e.message, 'error'); } 
       finally { btn.disabled = false; }
     }
+
     function startQnaListener() {
       stopQnaListener(); 
       const container = document.getElementById('qna-list-container'); 
@@ -1396,8 +1387,8 @@
         else { actionButtons = '<div class="muted" style="margin-top:8px;">هذا سؤالك.</div>'; }
         if (isOwner() || c.creatorUid === currentUser.uid) { actionButtons += `<div class="qna-actions" style="margin-top: 5px;"><button class="btn btn-danger btn-xs" onclick="deleteQnaChallenge('${c.id}')"><i class="fas fa-trash"></i> حذف السؤال</button></div>`; }
         return `<div class="qna-card">
-          <div class="qna-header"><div class="qna-creator">سؤال من: ${c.creatorName}</div><div class="qna-prize">${c.prize} نقطة <i class="fa-solid fa-star" style="color:#ffc107;"></i></div></div>
-          <div class="muted" style="margin-top:4px;font-weight:700;">المادة: <span style="color:var(--primary-color);">${c.material||'غير محدد'}</span></div>
+          <div class="qna-header"><div class="qna-creator">سؤال من: ${escapeHTML(c.creatorName||'مستخدم')}</div><div class="qna-prize">${c.prize} نقطة <i class="fa-solid fa-star" style="color:#ffc107;"></i></div></div>
+          <div class="muted" style="margin-top:4px;font-weight:700;">المادة: <span style="color:var(--primary-color);">${escapeHTML(c.material||'غير محدد')}</span></div>
           ${actionButtons}</div>`;
       }).join('');
     }
@@ -1411,47 +1402,52 @@
       const challengeDoc = await db.collection('qna_challenges').doc(challengeId).get();
       if (!challengeDoc.exists) return showNotification("السؤال لم يعد متاحاً", "error");
       const challenge = { id: challengeDoc.id, ...challengeDoc.data() };
-      if (challenge.prize > studyState.currentPoints) { return showNotification("نقاطك غير كافية للمخاطرة", "warning"); }
+      if (challenge.creatorUid === currentUser.uid) { return showNotification("لا يمكنك الإجابة على سؤالك", "warning"); }
 
       document.getElementById('answer-qna-text').textContent = challenge.question;
       const optionsContainer = document.getElementById('answer-qna-options');
 
       const shuffled = challenge.options.map((text, idx) => ({ text, idx })).sort(() => Math.random() - 0.5);
       optionsContainer.innerHTML = shuffled.map(opt =>
-        `<button class="btn btn-block btn-secondary" onclick="submitQnaAnswer('${challenge.id}', ${opt.idx})">${opt.text}</button>`
+        `<button class="btn btn-block btn-secondary" onclick="submitQnaAnswer('${challenge.id}', ${opt.idx})">${escapeHTML(opt.text)}</button>`
       ).join('');
       openAnswerQnaModal();
     }
+
+    // *** تم استبدال منطق الإجابة: لا نلمس أرصدة الآخرين من المتصفح.
     async function submitQnaAnswer(challengeId, chosenIndex) {
       if (!currentUser) return; 
       closeAnswerQnaModal();
+      const challengeRef = db.collection('qna_challenges').doc(challengeId);
+      let isCorrectLocal = false;
       try {
-        const result = await db.runTransaction(async (tx) => {
-          const challengeRef = db.collection('qna_challenges').doc(challengeId); 
-          const challengeDoc = await tx.get(challengeRef);
-          if (!challengeDoc.exists || challengeDoc.data().status !== 'open') { throw new Error("السؤال لم يعد متاحًا"); }
-          const challenge = challengeDoc.data(); 
-          const correctIndex = (typeof challenge.correctIndex === 'number') ? challenge.correctIndex : 0; 
-          const challengerRef = db.collection('study').doc(currentUser.uid);
-          const creatorRef = db.collection('study').doc(challenge.creatorUid); 
-          const challengerDoc = await tx.get(challengerRef);
-          if (!challengerDoc.exists || (challengerDoc.data().currentPoints || 0) < challenge.prize) { throw new Error("نقاطك غير كافية"); }
-          const isCorrect = (Number(chosenIndex) === Number(correctIndex)); 
-          const prize = challenge.prize;
+        await db.runTransaction(async (tx) => {
+          const snap = await tx.get(challengeRef);
+          if (!snap.exists) throw new Error('السؤال غير موجود');
+          const ch = snap.data();
+          if (ch.status !== 'open') throw new Error('تمت الإجابة على هذا السؤال مسبقًا');
+          if (ch.creatorUid === currentUser.uid) throw new Error('لا يمكنك الإجابة على سؤالك');
 
-          if (isCorrect) { 
-            tx.set(challengerRef, { name: currentUser.name || currentUser.email || 'مستخدم', currentPoints: firebase.firestore.FieldValue.increment(prize) }, { merge: true }); 
-          } else { 
-            tx.set(challengerRef, { name: currentUser.name || currentUser.email || 'مستخدم', currentPoints: firebase.firestore.FieldValue.increment(-prize) }, { merge: true }); 
-            tx.set(creatorRef,    { name: challenge.creatorName || 'مستخدم',      currentPoints: firebase.firestore.FieldValue.increment(prize) }, { merge: true }); 
-          }
-          tx.update(challengeRef, { status: 'answered', answeredBy: { uid: currentUser.uid, name: currentUser.name }, isCorrect: isCorrect, });
-          return { correct: isCorrect, prize: prize };
+          const correctIndex = Number(ch.correctIndex || 0);
+          isCorrectLocal = (Number(chosenIndex) === correctIndex);
+
+          tx.update(challengeRef, {
+            status: 'answered',
+            answeredBy: { uid: currentUser.uid, name: currentUser.name || 'مستخدم' },
+            isCorrect: isCorrectLocal,
+            answeredAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
         });
-        if (result.correct) { showNotification(`إجابة صحيحة! لقد ربحت ${result.prize} نقطة.`, 'success'); studyState.currentPoints += result.prize; } 
-        else { showNotification(`إجابة خاطئة! لقد خسرت ${result.prize} نقطة.`, 'error'); studyState.currentPoints -= result.prize; }
-        renderTimerUI();
-      } catch (e) { showNotification("حدث خطأ: " + e.message, "error"); }
+
+        if (isCorrectLocal) {
+          showNotification('إجابة صحيحة! سيتم تحديث رصيدك خلال لحظات.', 'success');
+        } else {
+          showNotification('إجابة خاطئة! سيتم خصم/تحويل النقاط خلال لحظات.', 'error');
+        }
+        setTimeout(loadStudyState, 1500);
+      } catch (e) {
+        showNotification('حدث خطأ: ' + (e.message || e), 'error');
+      }
     }
 
     // --- Owner Tools ---
@@ -1515,22 +1511,24 @@
     async function renderOwnerInbox() {
       const container = document.getElementById("inbox-container");
       try {
-        const snap = await db.collection('reports').where('status', '==', 'pending').orderBy('createdAt', 'desc').get();
+        // بدون orderBy لتجنّب فهرس مركّب؛ سنرتّب محليًا
+        const snap = await db.collection('reports').where('status', '==', 'pending').get();
         if (snap.empty) { container.innerHTML = '<div class="post" style="text-align:center;"><p>لا توجد بلاغات جديدة للمراجعة.</p></div>'; return; }
+        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        items.sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
         let html = '<h2>البلاغات الجديدة</h2>';
-        snap.forEach(doc => {
-          const report = doc.data();
+        for (const report of items) {
           html += `<div class="post">
-            <p><b>سبب البلاغ:</b> ${report.reason}</p>
-            <p class="muted" style="margin: 8px 0; border-left: 3px solid #eee; padding-left: 8px;"><b>اقتباس:</b> "${report.postDescriptionSnippet}..."</p>
-            <p><small><b>المبلغ:</b> ${report.reporterName}</small></p>
+            <p><b>سبب البلاغ:</b> ${escapeHTML(report.reason||'')}</p>
+            <p class="muted" style="margin: 8px 0; border-left: 3px solid #eee; padding-left: 8px;"><b>اقتباس:</b> "${escapeHTML(report.postDescriptionSnippet||'')}..."</p>
+            <p><small><b>المبلغ:</b> ${escapeHTML(report.reporterName||'')}</small></p>
             <div class="post-actions" style="margin-top: 15px;">
               <button class="btn btn-secondary btn-xs" onclick="openDetailsPage('${report.postId}')">عرض المنشور</button>
-              <button class="btn btn-warning btn-xs" onclick="resolveReport('${doc.id}', 'ban_post_owner', '${report.postOwnerUid}')">حظر صاحب المنشور</button>
-              <button class="btn btn-warning btn-xs" onclick="resolveReport('${doc.id}', 'ban_reporter', '${report.reporterUid}')">حظر المُبلّغ</button>
-              <button class="btn btn-success btn-xs" onclick="resolveReport('${doc.id}', 'reject_report', null)">رفض البلاغ</button>
+              <button class="btn btn-warning btn-xs" onclick="resolveReport('${report.id}', 'ban_post_owner', '${report.postOwnerUid}')">حظر صاحب المنشور</button>
+              <button class="btn btn-warning btn-xs" onclick="resolveReport('${report.id}', 'ban_reporter', '${report.reporterUid}')">حظر المُبلّغ</button>
+              <button class="btn btn-success btn-xs" onclick="resolveReport('${report.id}', 'reject_report', null)">رفض البلاغ</button>
             </div></div>`;
-        });
+        }
         container.innerHTML = html;
       } catch (e) { 
         container.innerHTML = '<div class="post"><p>خطأ في تحميل البلاغات.</p></div>'; 
@@ -1540,16 +1538,17 @@
     async function renderUserInbox() {
       const container = document.getElementById("inbox-container");
       try {
-        const snap = await db.collection('reports').where('reporterUid', '==', currentUser.uid).orderBy('createdAt', 'desc').get();
+        const snap = await db.collection('reports').where('reporterUid', '==', currentUser.uid).get();
         if (snap.empty) { container.innerHTML = '<div class="post" style="text-align:center;"><p>ليس لديك أي بلاغات مرسلة.</p></div>'; return; }
+        const items = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+        items.sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
         let html = '<h2>حالة بلاغاتك</h2>';
-        snap.forEach(doc => {
-          const report = doc.data();
+        for (const report of items) {
           html += `<div class="post">
-            <p><b>سبب البلاغ:</b> ${report.reason}</p>
-            <p class="muted" style="margin: 8px 0; border-left: 3px solid #eee; padding-left: 8px;"><b>عن منشور:</b> "${report.postDescriptionSnippet}..."</p>
-            <p><b>الحالة:</b> ${formatReportStatus(report.status)}</p></div>`;
-        });
+            <p><b>سبب البلاغ:</b> ${escapeHTML(report.reason||'')}</p>
+            <p class="muted" style="margin: 8px 0; border-left: 3px solid #eee; padding-left: 8px;"><b>عن منشور:</b> "${escapeHTML(report.postDescriptionSnippet||'')}..."</p>
+            <p><b>الحالة:</b> ${escapeHTML(formatReportStatus(report.status))}</p></div>`;
+        }
         container.innerHTML = html;
       } catch (e) { container.innerHTML = '<div class="post"><p>خطأ في تحميل بلاغاتك.</p></div>'; console.error(e); }
     }
@@ -1567,9 +1566,7 @@
       } catch (e) { showNotification("فشل اتخاذ الإجراء: " + e.message, "error"); }
     }
     function formatReportStatus(status) {
-      if (status === 'pending') return '<span style="color: orange;">قيد المراجعة</span>';
-      if (String(status).includes('تم الحل')) return `<span style="color: green;">${status}</span>`;
-      if (String(status).includes('تم الرفض')) return `<span style="color: grey;">${status}</span>`;
+      if (status === 'pending') return 'قيد المراجعة';
       return status || '';
     }
     async function reportPost(postId) {
@@ -1582,7 +1579,7 @@
       try {
         const postDoc = await db.collection('posts').doc(postId).get(); if (!postDoc.exists) throw new Error("المنشور غير موجود.");
         const postData = postDoc.data();
-        await db.collection('reports').add({ postId, postDescriptionSnippet: postData.description.substring(0, 100), postOwnerUid: postData.userId, reason, reporterUid: currentUser.uid, reporterName: currentUser.name, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        await db.collection('reports').add({ postId, postDescriptionSnippet: (postData.description||'').substring(0, 100), postOwnerUid: postData.userId, reason, reporterUid: currentUser.uid, reporterName: currentUser.name, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
         showNotification("تم إرسال بلاغك بنجاح.", "success");
         reportedPosts.push(postId); localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts));
         if(pages.details.style.display === 'block') { renderDetails(postId); } else { renderPosts(); }
