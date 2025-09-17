@@ -189,7 +189,7 @@
     .qna-creator { font-weight: 700; color: #555; }
     .qna-actions { margin-top: 10px; }
 
-    /* ===== “إطارات” أول 5 في التصنيف ===== */
+    /* ===== "إطارات" أول 5 في التصنيف ===== */
     .rank-1{border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.35),0 10px 24px rgba(212,175,55,.25)}
     .rank-1 .rank-badge{background:linear-gradient(135deg,#ffe27a,#f6c33b);color:#5a4600;border:2px solid #d4af37}
     .rank-2{border-color:#c0c0c0;box-shadow:0 0 0 3px rgba(192,192,192,.35),0 10px 24px rgba(192,192,192,.25)}
@@ -211,6 +211,18 @@
     .square-card h3{margin-bottom:6px;font-weight:900;color:#0f235f}
     .journey-button{background:#fff;border:1px solid var(--border-color);border-radius:14px;padding:14px;margin-bottom:12px;cursor:pointer;transition:.2s}
     .journey-button:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.1)}
+    
+    /* تعديلات جديدة */
+    .gift-section { margin-bottom: 20px; }
+    .gift-item { background: #fff7e6; border: 1px solid #ffd8a8; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+    .gift-item h4 { margin: 0 0 8px 0; color: #e67700; }
+    .gift-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .stat-card { background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; }
+    .stat-number { font-size: 24px; font-weight: 900; color: var(--primary-color); }
+    .stat-label { font-size: 12px; color: var(--light-text); }
+    .report-reason { margin-top: 10px; padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; width: 100%; }
+    .daily-reward { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid var(--border-color); border-radius: 14px; }
   </style>
 
   <!-- Firebase -->
@@ -396,6 +408,18 @@
       </div>
 
       <div id="challenge-tab-timer" class="challenge-tab-content active">
+        <!-- قسم الهدايا أعلى المؤقت -->
+        <div class="gift-section">
+          <div class="boost-card">
+            <div class="timer-title">هدايا ومرشحات المواد</div>
+            <div class="hint">اشترِ مرشحات المواد واحصل على مكافآت:</div>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+              <button class="btn btn-success" onclick="openGiftsModal()"><i class="fas fa-gift"></i> عرض الهدايا والشراء</button>
+            </div>
+            <div id="purchased-gifts" style="margin-top: 15px;"></div>
+          </div>
+        </div>
+
         <div class="timer-card">
           <div class="timer-title">عدّاد دراستك</div>
           <div id="timer-display" class="timer-display">00:00:00</div>
@@ -409,13 +433,13 @@
           <div id="timer-hint" class="hint">1 نقطة لكل 3 دقائق. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
         </div>
 
-        <!-- مكافأة يومية داخل صندوق المؤقت -->
-        <div class="daily-reward" id="daily-reward-box">
+        <!-- مكافأة يومية مع تباعد أكبر -->
+        <div class="daily-reward">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
             <div style="font-weight:800;color:#0f235f">هدية يومية</div>
             <button id="daily-claim-btn" class="btn btn-success"><i class="fas fa-gift"></i> احصل على 20 نقطة</button>
           </div>
-          <div id="daily-remaining" class="hint" style="margin-top:6px"></div>
+          <div id="daily-remaining" class="hint" style="margin-top:10px"></div>
         </div>
 
         <div class="boost-card">
@@ -428,14 +452,6 @@
             <button class="btn" onclick="buyBoost(5)">5 ساعات (100 نقطة)</button>
           </div>
           <div id="boost-status" class="hint" style="margin-top: 10px; font-weight: 700;"></div>
-        </div>
-
-        <div class="boost-card">
-          <div class="timer-title">هدايا</div>
-          <div class="hint">اشترِ مرشحات المواد واحصل على مكافآت:</div>
-          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-            <button class="btn btn-success" onclick="openGiftsModal()"><i class="fas fa-gift"></i> عرض الهدايا والشراء</button>
-          </div>
         </div>
       </div>
 
@@ -747,15 +763,13 @@ async function sendTelegramNotification(message, chatId = TELEGRAM_OWNER_ID) {
 /* إرسال إشعار عام لجميع مستخدمي البوت */
 async function sendBroadcastToAllUsers(message) {
   try {
-    // الحصول على جميع مستخدمي البوت (هذه تحتاج إلى تنفيذ حسب نظامك)
-    // هذا مثال فقط - تحتاج إلى تعديله بناءً على كيفية تخزين مستخدمي البوت
-    const usersSnapshot = await db.collection('bot_users').get();
+    const usersSnapshot = await db.collection('users').get();
     const promises = [];
     
     usersSnapshot.forEach(doc => {
       const user = doc.data();
-      if (user.chatId) {
-        promises.push(sendTelegramNotification(message, user.chatId));
+      if (user.telegramId) {
+        promises.push(sendTelegramNotification(message, user.telegramId));
       }
     });
     
@@ -973,7 +987,9 @@ function updateUIForLoggedInUser(){
   showPage("challenge"); // افتراضي
   document.getElementById("profile-name").textContent = currentUser.name || "";
   document.getElementById("profile-email").textContent = currentUser.email || "";
-  document.getElementById("profile-uid-input").value = currentUser.uid || "";
+  // تقليل حجم الـ UID
+  const shortUid = currentUser.uid ? currentUser.uid.substring(0, 8) + '...' : '';
+  document.getElementById("profile-uid-input").value = shortUid || "";
   renderAvatar(currentUser.avatar==="female"?"female":"male");
   const pv=document.getElementById("profile-verified");
   pv.innerHTML = currentUser.isVerified? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>` : '';
@@ -1229,16 +1245,30 @@ async function renderDetails(postId){
 /* إبلاغ + تعليقات */
 async function reportPost(postId){
   if(!currentUser) return showNotification('يلزم تسجيل الدخول','warning');
+  const reason = prompt('سبب الإبلاغ:');
+  if(!reason) return;
+  
   try{
     await db.collection('reports').add({
-      postId, reporterUid: currentUser.uid, reporterName: currentUser.name||'مستخدم',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(), reason: 'مخالفة/إزعاج'
+      postId, 
+      reporterUid: currentUser.uid, 
+      reporterName: currentUser.name||'مستخدم',
+      reason: reason,
+      status: 'قيد المراجعة',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    
     const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
-    if(!reportedPosts.includes(postId)){ reportedPosts.push(postId); localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts)); }
-    showNotification('تم الإبلاغ عن المنشور','success');
-    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: مخالفة/إزعاج\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${currentUser.uid}\n🔗 Post: ${location.origin}/post/${postId}`;
+    if(!reportedPosts.includes(postId)){ 
+      reportedPosts.push(postId); 
+      localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts)); 
+    }
+    
+    showNotification('تم الإبلاغ عن المنشور وسيتم مراجعته','success');
+    
+    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${currentUser.uid}\n🔗 Post: ${location.origin}/post/${postId}`;
     await sendTelegramNotification(msg);
+    
     renderDetails(postId);
   }catch(e){ showNotification('تعذّر إرسال البلاغ','error'); }
 }
@@ -1477,12 +1507,15 @@ async function addPointsDirectly(userId, points){
     const userDoc = await db.collection('users').doc(userId).get();
     if (!userDoc.exists) throw new Error('المستخدم غير موجود');
     const userData = userDoc.data();
+    
+    // تحديث النقاط مباشرة
     await db.collection('study').doc(userId).set({
-      name: userData.name || 'مستخدم',
       currentPoints: firebase.firestore.FieldValue.increment(points),
       totalPoints: firebase.firestore.FieldValue.increment(points),
+      name: userData.name || 'مستخدم',
       lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
+    
     showNotification(`أُضيف ${points} نقطة`, 'success');
     await sendTelegramNotification(
       `➕ <b>إضافة نقاط</b>\n👤 ${userData.name||'-'}\n📧 ${userData.email||'-'}\n🆔 ${userId}\n🎯 ${points}`
@@ -1570,7 +1603,6 @@ function openJourneyItemPage(title, content, id){
    إحصائيات المستخدمين
 ========================= */
 async function openUserStats(){
-  if(!isOwner()) return showNotification('للمالك فقط','error');
   showPage('userStats');
   const container = document.getElementById('user-stats-container');
   container.innerHTML = '<div class="post"><p>جاري تحميل الإحصائيات...</p></div>';
@@ -1581,48 +1613,44 @@ async function openUserStats(){
     const studySnapshot = await db.collection('study').get();
     const postsSnapshot = await db.collection('posts').get();
     
-    const userStats = [];
+    const totalUsers = usersSnapshot.size;
+    const totalPosts = postsSnapshot.size;
     
-    usersSnapshot.forEach(userDoc => {
-      const userData = userDoc.data();
-      const studyData = studySnapshot.docs.find(doc => doc.id === userDoc.id)?.data() || {};
-      const userPosts = postsSnapshot.docs.filter(doc => doc.data().userId === userDoc.id);
-      
-      userStats.push({
-        name: userData.name || 'مستخدم',
-        email: userData.email || '',
-        points: studyData.currentPoints || 0,
-        totalPoints: studyData.totalPoints || 0,
-        postCount: userPosts.length,
-        isVerified: userData.isVerified || false,
-        isBlocked: userData.blockedFromPosting || false,
-        lastSeen: userData.lastSeen?.toDate ? userData.lastSeen.toDate().toLocaleString('ar-IQ') : 'غير معروف'
-      });
-    });
+    // المستخدمين النشطين اليوم (آخر 24 ساعة)
+    const activeToday = usersSnapshot.docs.filter(doc => {
+      const userData = doc.data();
+      const lastSeen = userData.lastSeen?.toDate ? userData.lastSeen.toDate() : null;
+      return lastSeen && (Date.now() - lastSeen.getTime()) < (24 * 60 * 60 * 1000);
+    }).length;
     
-    // ترتيب حسب النقاط
-    userStats.sort((a, b) => b.points - a.points);
+    // المستخدمين النشطين حالياً (آخر 5 دقائق)
+    const activeNow = usersSnapshot.docs.filter(doc => {
+      const userData = doc.data();
+      const lastSeen = userData.lastSeen?.toDate ? userData.lastSeen.toDate() : null;
+      return lastSeen && (Date.now() - lastSeen.getTime()) < (5 * 60 * 1000);
+    }).length;
     
     container.innerHTML = `
       <div class="post">
         <h3>إحصائيات المستخدمين</h3>
-        <p>إجمالي المستخدمين: <b>${userStats.length}</b></p>
-        <p>إجمالي المنشورات: <b>${postsSnapshot.size}</b></p>
-      </div>
-      <div class="post">
-        <h4>أعلى 10 مستخدمين حسب النقاط</h4>
-        ${userStats.slice(0, 10).map((user, index) => `
-          <div class="rank-card ${index < 5 ? `rank-${index + 1}` : ''}" style="margin-bottom: 10px;">
-            <div class="rank-left">
-              <div class="rank-badge">${index + 1}</div>
-              <div>
-                <div class="rank-name">${escapeHTML(user.name)}</div>
-                <div style="font-size: 12px; color: #666;">${escapeHTML(user.email)}</div>
-              </div>
-            </div>
-            <div class="rank-points">${user.points} نقطة</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">${totalUsers}</div>
+            <div class="stat-label">إجمالي المستخدمين</div>
           </div>
-        `).join('')}
+          <div class="stat-card">
+            <div class="stat-number">${totalPosts}</div>
+            <div class="stat-label">إجمالي المنشورات</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${activeToday}</div>
+            <div class="stat-label">نشطين اليوم</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${activeNow}</div>
+            <div class="stat-label">نشطين حالياً</div>
+          </div>
+        </div>
       </div>
     `;
   } catch (error) {
@@ -1630,8 +1658,7 @@ async function openUserStats(){
     container.innerHTML = '<div class="post"><p>خطأ في تحميل الإحصائيات</p></div>';
   }
 }
-</script>
-<script>
+
 /* ===========================================================
    المؤقّت + التسريع + مكافأة 20 نقطة داخل المؤقّت
 =========================================================== */
@@ -1651,7 +1678,7 @@ function ensureDailyRewardBox(){
       <div style="font-weight:800;color:#0f235f">هدية يومية</div>
       <button id="daily-claim-btn" class="btn btn-success"><i class="fas fa-gift"></i> احصل على 20 نقطة</button>
     </div>
-    <div id="daily-remaining" class="hint" style="margin-top:6px"></div>`;
+    <div id="daily-remaining" class="hint" style="margin-top:10px"></div>`;
   card.parentNode.insertBefore(box, card.nextSibling);
   document.getElementById('daily-claim-btn').onclick = claimDailyReward;
 }
@@ -1932,12 +1959,6 @@ function startLeaderboardListener(){
       snap => {
         const items = snap.docs.map(d=>({uid:d.id,...d.data()}));
         renderLeaderboard(items);
-        
-        // توزيع الجوائز الأسبوعية تلقائياً (يوم الأحد)
-        const now = new Date();
-        if (now.getDay() === 0) { // الأحد
-          distributeWeeklyPrizes(items.slice(0, 5));
-        }
       },
       error => { 
         console.error("Leaderboard error:", error);
@@ -1983,56 +2004,6 @@ function renderLeaderboard(items){
   }).join('');
 }
 
-async function distributeWeeklyPrizes(top5){
-  if (!isOwner()) return;
-  
-  const prizes = [2000, 1500, 1000, 500, 300];
-  const now = new Date();
-  const lastDistribution = localStorage.getItem('lastPrizeDistribution');
-  
-  // التحقق إذا تم التوزيع هذا الأسبوع already
-  if (lastDistribution && (now - new Date(lastDistribution)) < (7 * 24 * 60 * 60 * 1000)) {
-    return;
-  }
-  
-  try {
-    for (let i = 0; i < Math.min(top5.length, 5); i++) {
-      const user = top5[i];
-      const prize = prizes[i];
-      
-      await db.collection('study').doc(user.uid).set({
-        currentPoints: firebase.firestore.FieldValue.increment(prize),
-        name: user.name || 'مستخدم'
-      }, { merge: true });
-      
-      // إرسال إشعار للمستخدم
-      await sendTelegramNotification(
-        `🎉 <b>مبروك! فزت بالمركز ${i + 1}</b>\n\nلقد فزت بـ ${prize} نقطة كجائزة أسبوعية!`,
-        user.uid // هذا يفترض أنك تخزن chatId للمستخدمين
-      );
-    }
-    
-    // إعادة تعيين نقاط التصنيف للأسبوع الجديد
-    const allUsers = await db.collection('study').get();
-    const resetPromises = [];
-    
-    allUsers.forEach(doc => {
-      resetPromises.push(
-        db.collection('study').doc(doc.id).update({
-          totalPoints: 0
-        })
-      );
-    });
-    
-    await Promise.all(resetPromises);
-    localStorage.setItem('lastPrizeDistribution', now.toString());
-    
-    showNotification('تم توزيع الجوائز الأسبوعية وإعادة تعيين التصنيف','success');
-  } catch (error) {
-    console.error('Error distributing weekly prizes:', error);
-  }
-}
-
 async function ownerRemoveFromLeaderboard(uid,name){
   if(!isOwner()) return;
   if(!confirm(`حذف "${name}" من التصنيف وإعادة نقاطه؟`)) return;
@@ -2045,7 +2016,7 @@ async function ownerRemoveFromLeaderboard(uid,name){
 }
 
 /* ===========================================================
-   الأسئلة QnA
+   الأسئلة QnA (النظام الجديد)
 =========================================================== */
 function openCreateQnaModal(){ 
   if(!currentUser) return showNotification('سجّل الدخول','warning'); 
@@ -2069,29 +2040,21 @@ function startQnaListener(){
         
         list.innerHTML = snap.docs.map(doc=>{
           const q={id:doc.id,...doc.data()};
-          const ownerBtns = isOwner()? `
-            <button class="btn btn-xs btn-danger" onclick="deleteQna('${q.id}')">
-              <i class="fa-solid fa-trash"></i>
-            </button>`:'';
           
           return `
             <div class="qna-card">
               <div class="qna-header">
-                <div class="qna-creator">${escapeHTML(q.material || 'عام')} - سؤال من: ${escapeHTML(q.creatorName||'مستخدم')}</div>
+                <div class="qna-creator">${escapeHTML(q.material || 'عام')} - سؤال بقيمة: ${q.prize||0} نقطة</div>
                 <div class="qna-prize"><i class="fa-solid fa-coins"></i> +${q.prize||0}</div>
               </div>
-              <div class="post-description" style="margin-top:8px"><b>السؤال:</b> ${escapeHTML(q.question||'')}</div>
               <div style="margin-top:8px">
-                <div><b>الخيارات:</b></div>
-                <div>1. ${escapeHTML(q.option1||'')}</div>
-                <div>2. ${escapeHTML(q.option2||'')}</div>
-                <div>3. ${escapeHTML(q.option3||'')}</div>
+                <div><b>المادة:</b> ${escapeHTML(q.material||'')}</div>
+                <div><b>السعر:</b> ${q.prize||0} نقطة</div>
               </div>
               <div class="qna-actions">
-                <button class="btn btn-success" onclick="answerQna('${q.id}')">
-                  <i class="fa-solid fa-check"></i> إجابة
+                <button class="btn btn-success" onclick="startQnaChallenge('${q.id}', ${q.prize||0})">
+                  <i class="fa-solid fa-play"></i> بدء التحدي
                 </button>
-                ${ownerBtns}
               </div>
             </div>`;
         }).join('');
@@ -2107,6 +2070,75 @@ function stopQnaListener(){
   if(qnaUnsub){
     try{qnaUnsub();}catch{} 
     qnaUnsub=null;
+  }
+}
+
+async function startQnaChallenge(qnaId, price){
+  if(!currentUser) return;
+  
+  if(studyState.currentPoints < price){
+    return showNotification('نقاط غير كافية لبدء هذا التحدي','error');
+  }
+  
+  if(!confirm(`سوف تدفع ${price} نقطة لبدء هذا التحدي. إذا انسحبت سيتم خصم النقاط. هل تريد المتابعة؟`)){
+    return;
+  }
+  
+  try{
+    // خصم النقاط مقدماً
+    await db.collection('study').doc(currentUser.uid).update({
+      currentPoints: firebase.firestore.FieldValue.increment(-price)
+    });
+    
+    studyState.currentPoints -= price;
+    renderTimerUI();
+    
+    // عرض السؤال
+    const qnaDoc = await db.collection('qna').doc(qnaId).get();
+    if(!qnaDoc.exists) return;
+    
+    const qna = qnaDoc.data();
+    const answer = prompt(
+      `السؤال: ${qna.question}\n\nالخيارات:\n1. ${qna.option1}\n2. ${qna.option2}\n3. ${qna.option3}\n\nأدخل رقم الإجابة الصحيحة:`
+    );
+    
+    if(answer === null){
+      // المستخدم انسحب - النقاط تذهب لمنشئ السؤال
+      await db.collection('study').doc(qna.creatorUid).update({
+        currentPoints: firebase.firestore.FieldValue.increment(price)
+      });
+      showNotification('تم خصم النقاط بسبب الانسحاب','error');
+      return;
+    }
+    
+    if(answer.trim() === qna.correctAnswer){
+      // إجابة صحيحة - يحصل على الجائزة
+      await db.collection('study').doc(currentUser.uid).update({
+        currentPoints: firebase.firestore.FieldValue.increment(price * 2), // يحصل على ضعف المبلغ
+        totalPoints: firebase.firestore.FieldValue.increment(price * 2)
+      });
+      
+      studyState.currentPoints += price * 2;
+      studyState.totalPoints += price * 2;
+      
+      showNotification(`مبروك! إجابة صحيحة +${price * 2} نقطة`,'success');
+      renderTimerUI();
+      
+      // حذف السؤال بعد الإجابة الصحيحة
+      await db.collection('qna').doc(qnaId).delete();
+    }else{
+      // إجابة خاطئة - النقاط تذهب لمنشئ السؤال
+      await db.collection('study').doc(qna.creatorUid).update({
+        currentPoints: firebase.firestore.FieldValue.increment(price)
+      });
+      showNotification('إجابة خاطئة! النقاط ذهبت لمنشئ السؤال','error');
+      
+      // حذف السؤال بعد الإجابة الخاطئة
+      await db.collection('qna').doc(qnaId).delete();
+    }
+  }catch(e){
+    console.error("Error in QnA challenge:", e);
+    showNotification('فشل عملية التحدي','error');
   }
 }
 
@@ -2142,54 +2174,6 @@ async function createQna(){
   }catch(e){
     console.error("Error creating QnA:", e);
     showNotification('فشل النشر','error'); 
-  }
-}
-
-async function answerQna(id){
-  if(!currentUser) return showNotification('سجّل الدخول','warning');
-  
-  const doc=await db.collection('qna').doc(id).get();
-  if(!doc.exists) return;
-  
-  const q=doc.data(); 
-  const userAnswer = prompt(`اختر الإجابة الصحيحة:\n1. ${q.option1}\n2. ${q.option2}\n3. ${q.option3}`);
-  
-  if(userAnswer===null) return;
-  const isCorrect = userAnswer.trim() === q.correctAnswer;
-  
-  try {
-    if(isCorrect) {
-      // المستخدم أجاب correctly - يحصل على الجائزة
-      await db.collection('study').doc(currentUser.uid).set({
-        currentPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
-        totalPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
-        name: currentUser.name||'مستخدم'
-      },{merge:true});
-      
-      studyState.currentPoints += Number(q.prize||0); 
-      studyState.totalPoints += Number(q.prize||0);
-      
-      showNotification(`صحيح! +${q.prize} نقطة`, 'success'); 
-      renderTimerUI();
-      
-      // حذف السؤال بعد الإجابة الصحيحة
-      await db.collection('qna').doc(id).delete();
-    } else {
-      // المستخدم أجاب incorrectly - الجائزة تذهب لمنشئ السؤال
-      await db.collection('study').doc(q.creatorUid).set({
-        currentPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
-        totalPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
-        name: q.creatorName||'مستخدم'
-      },{merge:true});
-      
-      showNotification('إجابة خاطئة! النقاط ذهبت لمنشئ السؤال','error');
-      
-      // حذف السؤال بعد الإجابة الخاطئة
-      await db.collection('qna').doc(id).delete();
-    }
-  }catch(e){
-    console.error("Error answering QnA:", e);
-    showNotification('لم نستطع معالجة الإجابة','error'); 
   }
 }
 
@@ -2350,24 +2334,79 @@ async function loadGifts(){
   const giftsList = document.getElementById('gifts-list');
   giftsList.innerHTML = '<div class="post"><p>جاري تحميل الهدايا...</p></div>';
   
-  // هذا مثال للهدايا - يمكنك استبداله ببيانات من Firebase
-  const gifts = [
-    {id: 1, name: 'مرشح الرياضيات', description: 'تصفية منشورات الرياضيات فقط', price: 50},
-    {id: 2, name: 'مرشح اللغة العربية', description: 'تصفية منشورات اللغة العربية فقط', price: 50},
-    {id: 3, name: 'مرشح اللغة الإنجليزية', description: 'تصفية منشورات اللغة الإنجليزية فقط', price: 50},
-    {id: 4, name: 'باقة خاصة', description: 'مزايا حصرية لمدة أسبوع', price: 100}
-  ];
+  try {
+    const snapshot = await db.collection('gifts').orderBy('price', 'asc').get();
+    
+    if (snapshot.empty) {
+      giftsList.innerHTML = `
+        <div class="post">
+          <p>لا توجد هدايا حالياً.</p>
+          ${isOwner() ? '<button class="btn" onclick="addGift()">إضافة هدية</button>' : ''}
+        </div>`;
+      return;
+    }
+    
+    giftsList.innerHTML = snapshot.docs.map(doc => {
+      const gift = { id: doc.id, ...doc.data() };
+      return `
+        <div class="gift-item">
+          <h4>${escapeHTML(gift.name)}</h4>
+          <p>${escapeHTML(gift.description)}</p>
+          <p class="muted">السعر: ${gift.price} نقطة</p>
+          <div class="gift-actions">
+            <button class="btn btn-success" onclick="openBuyGiftModal('${gift.id}', '${escapeHTML(gift.name)}', '${escapeHTML(gift.description)}', ${gift.price})">
+              شراء
+            </button>
+            ${isOwner() ? `
+              <button class="btn btn-secondary" onclick="editGift('${gift.id}')">تعديل</button>
+              <button class="btn btn-danger" onclick="deleteGift('${gift.id}')">حذف</button>
+            ` : ''}
+          </div>
+        </div>`;
+    }).join('');
+    
+    if (isOwner()) {
+      giftsList.innerHTML += `
+        <div class="post" style="margin-top: 15px;">
+          <button class="btn btn-block" onclick="addGift()">إضافة هدية جديدة</button>
+        </div>`;
+    }
+    
+    // عرض الهدايا المشتراة
+    await loadPurchasedGifts();
+  } catch (error) {
+    console.error('Error loading gifts:', error);
+    giftsList.innerHTML = '<div class="post"><p>خطأ في تحميل الهدايا</p></div>';
+  }
+}
+
+async function loadPurchasedGifts() {
+  if (!currentUser) return;
   
-  giftsList.innerHTML = gifts.map(gift => `
-    <div class="post">
-      <h3>${gift.name}</h3>
-      <p>${gift.description}</p>
-      <p class="muted">السعر: ${gift.price} نقطة</p>
-      <button class="btn btn-success" onclick="openBuyGiftModal(${gift.id}, '${gift.name}', '${gift.description}', ${gift.price})">
-        شراء
-      </button>
-    </div>
-  `).join('');
+  try {
+    const purchasedSnapshot = await db.collection('purchases')
+      .where('userId', '==', currentUser.uid)
+      .get();
+    
+    const purchasedGifts = document.getElementById('purchased-gifts');
+    if (purchasedGifts && !purchasedSnapshot.empty) {
+      purchasedGifts.innerHTML = `
+        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px;">
+          <h4>هداياي المشتراة</h4>
+          ${purchasedSnapshot.docs.map(doc => {
+            const purchase = doc.data();
+            return `<div style="margin: 8px 0; padding: 8px; background: #fff; border-radius: 8px;">
+              <b>${escapeHTML(purchase.item)}</b>
+              <button class="btn btn-xs" onclick="openTelegram('MSLM_ALMYALY')" style="margin-top: 5px;">
+                <i class="fab fa-telegram"></i> تواصل مع المالك
+              </button>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+  } catch (error) {
+    console.error('Error loading purchased gifts:', error);
+  }
 }
 
 function openBuyGiftModal(id, name, description, price){
@@ -2376,7 +2415,6 @@ function openBuyGiftModal(id, name, description, price){
   document.getElementById('buy-gift-price').textContent = price;
   document.getElementById('buy-gift-modal').style.display = 'block';
   
-  // تخزين بيانات الهدية مؤقتاً
   window.currentGift = {id, name, description, price};
 }
 
@@ -2399,10 +2437,8 @@ async function purchaseGift(){
       name: currentUser.name||'مستخدم'
     }, {merge: true});
     
-    // تحديث الحالة المحلية
     studyState.currentPoints -= gift.price;
     
-    // تسجيل عملية الشراء
     await db.collection('purchases').add({
       userId: currentUser.uid,
       userName: currentUser.name,
@@ -2411,7 +2447,6 @@ async function purchaseGift(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
-    // إرسال إشعار للمالك
     await sendTelegramNotification(
       `🛒 <b>شراء جديد</b>\n\n👤 ${currentUser.name}\n🎁 ${gift.name}\n💰 ${gift.price} نقطة`
     );
@@ -2419,9 +2454,85 @@ async function purchaseGift(){
     showNotification(`تم شراء ${gift.name} بنجاح`,'success');
     closeBuyGiftModal();
     renderTimerUI();
+    await loadPurchasedGifts();
   } catch (error) {
     console.error('Error purchasing gift:', error);
     showNotification('فشل عملية الشراء','error');
+  }
+}
+
+async function addGift() {
+  if (!isOwner()) return;
+  
+  const name = prompt('اسم الهدية:');
+  if (!name) return;
+  
+  const description = prompt('وصف الهدية:');
+  if (!description) return;
+  
+  const price = parseInt(prompt('سعر الهدية (نقاط):'));
+  if (isNaN(price) || price <= 0) return;
+  
+  try {
+    await db.collection('gifts').add({
+      name,
+      description,
+      price,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    showNotification('تم إضافة الهدية','success');
+    loadGifts();
+  } catch (error) {
+    console.error('Error adding gift:', error);
+    showNotification('فشل إضافة الهدية','error');
+  }
+}
+
+async function editGift(id) {
+  if (!isOwner()) return;
+  
+  const doc = await db.collection('gifts').doc(id).get();
+  if (!doc.exists) return;
+  
+  const gift = doc.data();
+  const name = prompt('اسم الهدية:', gift.name);
+  if (!name) return;
+  
+  const description = prompt('وصف الهدية:', gift.description);
+  if (!description) return;
+  
+  const price = parseInt(prompt('سعر الهدية (نقاط):', gift.price));
+  if (isNaN(price) || price <= 0) return;
+  
+  try {
+    await db.collection('gifts').doc(id).update({
+      name,
+      description,
+      price,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    showNotification('تم تعديل الهدية','success');
+    loadGifts();
+  } catch (error) {
+    console.error('Error editing gift:', error);
+    showNotification('فشل تعديل الهدية','error');
+  }
+}
+
+async function deleteGift(id) {
+  if (!isOwner()) return;
+  
+  if (!confirm('حذف الهدية؟')) return;
+  
+  try {
+    await db.collection('gifts').doc(id).delete();
+    showNotification('تم حذف الهدية','success');
+    loadGifts();
+  } catch (error) {
+    console.error('Error deleting gift:', error);
+    showNotification('فشل حذف الهدية','error');
   }
 }
 
@@ -2431,17 +2542,13 @@ async function purchaseGift(){
 async function initChallengeAfterLogin(){
   await loadStudyState();
   
-  // افتح تبويب المؤقّت افتراضياً
   const firstTab=document.querySelector('.challenge-tab-pill[data-tab="timer"]');
   if(firstTab) switchChallengeTab(firstTab);
 }
 
-/* تشغيل بعض التهيئة عند التحميل الكامل */
 window.addEventListener('load', ()=>{
-  // حقن صندوق المكافأة اليومية بعد أن يوجد المؤقّت
   setTimeout(ensureDailyRewardBox, 300);
   
-  // بدء المستمعين عند الحاجة
   if (currentUser) {
     startLeaderboardListener();
     startQnaListener();
@@ -2449,10 +2556,8 @@ window.addEventListener('load', ()=>{
   }
 });
 
-// إضافة هذا للتعامل مع إغلاق المتصفح/التبويب
 window.addEventListener('beforeunload', () => {
   if (studyState.running) {
-    // محاولة حفظ حالة المؤقت عند الخروج
     stopStudyTimer();
   }
 });
