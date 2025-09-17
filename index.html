@@ -193,18 +193,24 @@
     .rank-1{border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.35),0 10px 24px rgba(212,175,55,.25)}
     .rank-1 .rank-badge{background:linear-gradient(135deg,#ffe27a,#f6c33b);color:#5a4600;border:2px solid #d4af37}
     .rank-2{border-color:#c0c0c0;box-shadow:0 0 0 3px rgba(192,192,192,.35),0 10px 24px rgba(192,192,192,.25)}
+    .rank-2 .rank-badge{background:linear-gradient(135deg,#f0f0f0,#c0c0c0);color:#333;border:2px solid #c0c0c0}
     .rank-3{border-color:#cd7f32;box-shadow:0 0 0 3px rgba(205,127,50,.35),0 10px 24px rgba(205,127,50,.25)}
+    .rank-3 .rank-badge{background:linear-gradient(135deg,#e6b17e,#cd7f32);color:#5a3f1e;border:2px solid #cd7f32}
     .rank-4{border-color:#7aa2ff;box-shadow:0 0 0 3px rgba(122,162,255,.35),0 10px 24px rgba(122,162,255,.25)}
+    .rank-4 .rank-badge{background:linear-gradient(135deg,#b3e5fc,#81d4fa);color:#06334a;border:2px solid #66c3eb}
     .rank-5{border-color:#a17aff;box-shadow:0 0 0 3px rgba(161,122,255,.35),0 10px 24px rgba(161,122,255,.25)}
+    .rank-5 .rank-badge{background:linear-gradient(135deg,#d1c4e9,#b39ddb);color:#382a4e;border:2px solid #9575cd}
 
     /* زر المطالبة اليومية داخل المؤقت */
     .daily-claim{display:inline-flex;align-items:center;justify-content:center;width:120px;height:56px;border-radius:12px;font-weight:900;border:2px dashed #ff8c00;background:#fff7e6;cursor:pointer}
     .daily-claim[disabled]{opacity:.6;cursor:not-allowed;border-style:solid}
     .daily-claim small{display:block;font-weight:700;color:#a85}
 
-    /* مربعات صفحات “رحلة السادس/شرح التطبيق” */
+    /* مربعات صفحات "رحلة السادس/شرح التطبيق" */
     .square-card{background:#fff;border:1px solid var(--border-color);border-radius:14px;padding:14px;margin-bottom:12px}
     .square-card h3{margin-bottom:6px;font-weight:900;color:#0f235f}
+    .journey-button{background:#fff;border:1px solid var(--border-color);border-radius:14px;padding:14px;margin-bottom:12px;cursor:pointer;transition:.2s}
+    .journey-button:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.1)}
   </style>
 
   <!-- Firebase -->
@@ -235,15 +241,6 @@
         <div class="form-group"><label for="login-email">البريد الإلكتروني</label><input type="email" id="login-email" class="form-control" required></div>
         <div class="form-group"><label for="login-password">كلمة المرور</label><input type="password" id="login-password" class="form-control" required></div>
         <button type="submit" class="btn btn-block">تسجيل الدخول</button>
-        <div style="margin-top: 20px; text-align: center;">
-          <div style="margin: 15px 0; position: relative;">
-            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-color);"></div>
-            <div style="position: relative; display: inline-block; background: #fff; padding: 0 10px; color: var(--light-text);">أو</div>
-          </div>
-          <button type="button" class="btn btn-secondary btn-block" onclick="signInWithGoogle()">
-            <i class="fab fa-google" style="margin-left: 8px;"></i> تسجيل الدخول بواسطة Google
-          </button>
-        </div>
       </form>
 
       <form id="register-form" class="auth-form" onsubmit="event.preventDefault(); register();">
@@ -341,10 +338,9 @@
         <div class="profile-menu">
           <div class="menu-item" onclick="showUserPosts()"><i class="fas fa-book"></i><span>منشوراتي</span></div>
           <div class="menu-item" onclick="showInbox()"><i class="fas fa-inbox"></i><span>البريد الوارد</span></div>
-          <div class="menu-item" onclick="openTelegram('MSLM_ALMYALY')"><i class="fas fa-thumbtack"></i><span>تثبيت المنشور بـ 1$</span></div>
-          <div class="menu-item" onclick="claimReward()"><i class="fas fa-gift"></i><span>مكافأة يومية (20 نقطة)</span></div>
           <div class="menu-item" onclick="openUserStats()"><i class="fas fa-chart-pie"></i><span>إحصائيات المستخدمين</span></div>
           <div class="menu-item" onclick="openAppExplanation()"><i class="fas fa-info-circle"></i><span>شرح التطبيق</span></div>
+          <div class="menu-item" onclick="openTelegram('MSLM_ALMYALY')"><i class="fas fa-thumbtack"></i><span>تثبيت المنشور بـ 1$</span></div>
           <div class="menu-item owner-only" style="display:none" onclick="openBroadcastModal()"><i class="fas fa-bullhorn"></i><span>إشعار عام</span></div>
           <div class="menu-item owner-only" style="display:none" onclick="openAddPointsModal()"><i class="fas fa-plus"></i><span>إضافة نقاط</span></div>
           <div class="menu-item" onclick="logout()" style="color: var(--danger-color);"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></div>
@@ -409,21 +405,17 @@
           <div class="timer-actions">
             <button id="timer-start-btn" class="btn" onclick="startStudyTimer()"><i class="fa-solid fa-play"></i> بدء</button>
             <button id="timer-stop-btn" class="btn btn-warning" onclick="stopStudyTimer()" disabled><i class="fa-solid fa-stop"></i> إيقاف</button>
-            <!-- مكافأة يومية داخل صندوق المؤقت -->
-            <button id="daily-claim-btn" class="daily-claim" onclick="claimRewardFromTimer()">
-              +20<br><small id="daily-claim-left">جاهز</small>
-            </button>
           </div>
           <div id="timer-hint" class="hint">1 نقطة لكل 3 دقائق. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
         </div>
 
-        <!-- سيتم رفع “الهدايا” فوق المؤقت بالـJS -->
-        <div class="boost-card">
-          <div class="timer-title">هدايا</div>
-          <div class="hint">اشترِ مرشحات المواد واحصل على مكافآت:</div>
-          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-            <button class="btn btn-success" onclick="openGiftsModal()"><i class="fas fa-gift"></i> عرض الهدايا والشراء</button>
+        <!-- مكافأة يومية داخل صندوق المؤقت -->
+        <div class="daily-reward" id="daily-reward-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div style="font-weight:800;color:#0f235f">هدية يومية</div>
+            <button id="daily-claim-btn" class="btn btn-success"><i class="fas fa-gift"></i> احصل على 20 نقطة</button>
           </div>
+          <div id="daily-remaining" class="hint" style="margin-top:6px"></div>
         </div>
 
         <div class="boost-card">
@@ -436,6 +428,14 @@
             <button class="btn" onclick="buyBoost(5)">5 ساعات (100 نقطة)</button>
           </div>
           <div id="boost-status" class="hint" style="margin-top: 10px; font-weight: 700;"></div>
+        </div>
+
+        <div class="boost-card">
+          <div class="timer-title">هدايا</div>
+          <div class="hint">اشترِ مرشحات المواد واحصل على مكافآت:</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+            <button class="btn btn-success" onclick="openGiftsModal()"><i class="fas fa-gift"></i> عرض الهدايا والشراء</button>
+          </div>
         </div>
       </div>
 
@@ -618,7 +618,25 @@
 
   <div id="qna-create-modal" class="modal"><div class="modal-content">
     <div class="modal-header"><h2>سؤال جديد</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
+    <div class="select-group"><label>المادة</label>
+      <select id="qna-material" class="select-control">
+        <option value="اسلامية">اسلامية</option><option value="عربي">عربي</option><option value="انكليزي">انكليزي</option>
+        <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="كيمياء">كيمياء</option>
+        <option value="فيزياء">فيزياء</option><option value="اقتصاد">اقتصاد</option><option value="أدب ونصوص">أدب ونصوص</option>
+        <option value="قواعد">قواعد</option>
+      </select>
+    </div>
     <div class="select-group"><label>السؤال</label><textarea id="qna-text" class="select-control" rows="3"></textarea></div>
+    <div class="select-group"><label>الخيار الأول</label><input id="qna-option1" class="select-control"></div>
+    <div class="select-group"><label>الخيار الثاني</label><input id="qna-option2" class="select-control"></div>
+    <div class="select-group"><label>الخيار الثالث</label><input id="qna-option3" class="select-control"></div>
+    <div class="select-group"><label>الإجابة الصحيحة</label>
+      <select id="qna-correct" class="select-control">
+        <option value="1">الخيار الأول</option>
+        <option value="2">الخيار الثاني</option>
+        <option value="3">الخيار الثالث</option>
+      </select>
+    </div>
     <div class="select-group"><label>الجائزة (نقاط)</label><input id="qna-prize" type="number" class="select-control" value="50"></div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
@@ -636,7 +654,12 @@
     <div class="header"><button class="btn btn-secondary" onclick="showProfilePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">شرح التطبيق</span></div>
     <div class="posts-container" id="app-explanation-list"></div>
   </div>
-<script>
+
+  <div id="user-stats-page" class="container page" style="display:none">
+    <div class="header"><button class="btn btn-secondary" onclick="showProfilePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">إحصائيات المستخدمين</span></div>
+    <div class="posts-container" id="user-stats-container"></div>
+  </div>
+  <script>
 /* =========================
    Firebase & Globals
 ========================= */
@@ -654,8 +677,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-/* ===== Telegram (بدّل التوكن قبل النشر) ===== */
-const TELEGRAM_BOT_TOKEN = "REPLACE_WITH_YOUR_BOT_TOKEN";
+/* ===== Telegram (تم تحديث التوكن) ===== */
+const TELEGRAM_BOT_TOKEN = "8167852054:AAHt587_tOX_XASuNlskt3odkfJHNesiDxc";
 const TELEGRAM_OWNER_ID   = "7782429739";
 const APP_OWNER_EMAIL     = "mslmalmyaly223@gmail.com";
 
@@ -707,10 +730,10 @@ function renderAvatar(kind){
   el.innerHTML = `<div style="font-size:40px;line-height:72px">${emoji}</div>`;
 }
 
-/* Telegram notify (آمن إذا التوكن غير مضبوط) */
+/* Telegram notify (محدث) */
 async function sendTelegramNotification(message, chatId = TELEGRAM_OWNER_ID) {
   try {
-    if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN.includes("REPLACE")) return false;
+    if (!TELEGRAM_BOT_TOKEN) return false;
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
     const res = await fetch(url, {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -721,8 +744,31 @@ async function sendTelegramNotification(message, chatId = TELEGRAM_OWNER_ID) {
   } catch { return false; }
 }
 
+/* إرسال إشعار عام لجميع مستخدمي البوت */
+async function sendBroadcastToAllUsers(message) {
+  try {
+    // الحصول على جميع مستخدمي البوت (هذه تحتاج إلى تنفيذ حسب نظامك)
+    // هذا مثال فقط - تحتاج إلى تعديله بناءً على كيفية تخزين مستخدمي البوت
+    const usersSnapshot = await db.collection('bot_users').get();
+    const promises = [];
+    
+    usersSnapshot.forEach(doc => {
+      const user = doc.data();
+      if (user.chatId) {
+        promises.push(sendTelegramNotification(message, user.chatId));
+      }
+    });
+    
+    await Promise.all(promises);
+    return true;
+  } catch (error) {
+    console.error('Error sending broadcast:', error);
+    return false;
+  }
+}
+
 /* =========================
-   Splash timing (كما هو)
+   Splash timing
 ========================= */
 (function(){
   const lastDelay = 0.45, runDur=0.8, mergeDelay = lastDelay + runDur + .10;
@@ -735,7 +781,7 @@ async function sendTelegramNotification(message, chatId = TELEGRAM_OWNER_ID) {
 })();
 
 /* =========================
-   Auth + Google fix
+   Auth + Google
 ========================= */
 function handleAuthError(error){
   const code = (error && error.code) || '';
@@ -754,7 +800,7 @@ function handleAuthError(error){
   } else if (code === 'auth/operation-not-allowed') {
     friendly = 'فعّل طريقة المصادقة من Firebase > Authentication.';
   } else if (code === 'auth/operation-not-supported-in-this-environment' || code === 'auth/popup-blocked') {
-    friendly = 'متصفحك يمنع النوافذ المنبثقة. جرّب زر “تسجيل بواسطة Google” مرة أخرى أو افتح الموقع بمتصفح خارجي.';
+    friendly = 'متصفحك يمنع النوافذ المنبثقة. جرّب زر "تسجيل بواسطة Google" مرة أخرى أو افتح الموقع بمتصفح خارجي.';
   }
   showNotification(friendly,'error');
   console.error('Auth error:', error);
@@ -766,7 +812,7 @@ function inAppBrowserBlocked(){
   return href.startsWith('content:') || /FBAN|FBAV|Instagram|Line|wv|Telegram/i.test(ua);
 }
 
-async function signInWithGoogle(){
+async function signUpWithGoogle(){
   try{
     const provider = new firebase.auth.GoogleAuthProvider();
     if (inAppBrowserBlocked()) {
@@ -779,7 +825,7 @@ async function signInWithGoogle(){
       await sendTelegramNotification(
         `🔐 <b>تسجيل دخول Google</b>\n\n👤 ${user.displayName||'مستخدم'}\n📧 ${user.email}\n🆔 ${user.uid}`
       );
-      showNotification('تم تسجيل الدخول بنجاح!','success');
+      showNotification('تم إنشاء الحساب بنجاح!','success');
     } catch (e) {
       if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
         await auth.signInWithRedirect(provider);
@@ -787,19 +833,15 @@ async function signInWithGoogle(){
     }
   }catch(e){ handleAuthError(e); }
 }
-async function signUpWithGoogle(){
-  // نفس تسجيل الدخول؛ سيتم إنشاء/دمج حسابه بعد onAuthStateChanged
-  return signInWithGoogle();
-}
 
-/* استرجاع نتيجة redirect عند العودة */
+// استرجاع نتيجة redirect عند العودة
 auth.getRedirectResult().then(async (res)=>{
   if(res && res.user){
     const u = res.user;
     await sendTelegramNotification(
       `🔐 <b>تسجيل دخول Google (Redirect)</b>\n\n👤 ${u.displayName||'مستخدم'}\n📧 ${u.email}\n🆔 ${u.uid}`
     );
-    showNotification('تم تسجيل الدخول!','success');
+    showNotification('تم إنشاء الحساب!','success');
   }
 }).catch(handleAuthError);
 
@@ -868,7 +910,8 @@ auth.onAuthStateChanged(async (user) => {
   }
   updateUIForLoggedInUser();
   await Promise.all([loadPostsFromFirestore(), loadCompanies(), fetchLatestBroadcast()]);
-  // سيتم تفعيل التحدي والمؤقت والباقي في الجزء الثالث
+  // تحميل حالة المؤقت والنقاط
+  await loadStudyState();
   setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
   pendingChosenAvatar = null;
 });
@@ -885,9 +928,9 @@ const pages = {
   details: document.getElementById("details-page"),
   comments: document.getElementById("comments-page"), 
   challenge: document.getElementById("challenge-page"),
-  reward: document.getElementById("reward-page"),
   journeyItem: document.getElementById("journey-item-page"),
   appExplainPage: document.getElementById("app-explanation-page"),
+  userStats: document.getElementById("user-stats-page"),
 };
 const postsContainer = document.getElementById("posts-container");
 const companiesContainer = document.getElementById("companies-container");
@@ -937,16 +980,8 @@ function updateUIForLoggedInUser(){
   document.querySelectorAll(".owner-only").forEach(el=> el.style.display = isOwner()? "flex":"none");
   updateCreateButton();
   updatePostCountInProfile();
-  // ارفع قسم الهدايا فوق المؤقت
-  try {
-    const timerCard = document.querySelector('#challenge-tab-timer .timer-card');
-    const allBoost = Array.from(document.querySelectorAll('#challenge-tab-timer .boost-card'));
-    const giftsCard = allBoost.find(c => c.textContent.includes('هدايا'));
-    if (timerCard && giftsCard && giftsCard.previousElementSibling !== timerCard) {
-      timerCard.parentNode.insertBefore(giftsCard, timerCard);
-    }
-  } catch {}
 }
+
 function updateUIForLoggedOutUser(){
   showPage("auth"); 
   postsContainer.innerHTML=""; 
@@ -1392,6 +1427,11 @@ async function sendBroadcast(){
     await db.collection('broadcasts').add({
       title, text, createdAt: firebase.firestore.FieldValue.serverTimestamp(), by: currentUser.uid
     });
+    
+    // إرسال الإشعار لجميع مستخدمي البوت
+    const broadcastMessage = `📢 <b>${escapeHTML(title)}</b>\n\n${escapeHTML(text)}`;
+    await sendBroadcastToAllUsers(broadcastMessage);
+    
     showNotification('تم إرسال الإشعار','success'); closeModal();
   }catch(e){ showNotification('فشل الإرسال','error'); }
 }
@@ -1527,229 +1567,70 @@ function openJourneyItemPage(title, content, id){
 }
 
 /* =========================
-   Misc init
+   إحصائيات المستخدمين
 ========================= */
-document.addEventListener('DOMContentLoaded', function(){
-  // حفظ وقت التسجيل لأول مرة
-  if (!localStorage.getItem('appInitialized')) {
-    localStorage.setItem('seenBroadcasts', JSON.stringify([]));
-    localStorage.setItem('reportedPosts', JSON.stringify([]));
-    localStorage.setItem('appInitialized', 'true');
+async function openUserStats(){
+  if(!isOwner()) return showNotification('للمالك فقط','error');
+  showPage('userStats');
+  const container = document.getElementById('user-stats-container');
+  container.innerHTML = '<div class="post"><p>جاري تحميل الإحصائيات...</p></div>';
+  
+  try {
+    // الحصول على إحصائيات المستخدمين
+    const usersSnapshot = await db.collection('users').get();
+    const studySnapshot = await db.collection('study').get();
+    const postsSnapshot = await db.collection('posts').get();
+    
+    const userStats = [];
+    
+    usersSnapshot.forEach(userDoc => {
+      const userData = userDoc.data();
+      const studyData = studySnapshot.docs.find(doc => doc.id === userDoc.id)?.data() || {};
+      const userPosts = postsSnapshot.docs.filter(doc => doc.data().userId === userDoc.id);
+      
+      userStats.push({
+        name: userData.name || 'مستخدم',
+        email: userData.email || '',
+        points: studyData.currentPoints || 0,
+        totalPoints: studyData.totalPoints || 0,
+        postCount: userPosts.length,
+        isVerified: userData.isVerified || false,
+        isBlocked: userData.blockedFromPosting || false,
+        lastSeen: userData.lastSeen?.toDate ? userData.lastSeen.toDate().toLocaleString('ar-IQ') : 'غير معروف'
+      });
+    });
+    
+    // ترتيب حسب النقاط
+    userStats.sort((a, b) => b.points - a.points);
+    
+    container.innerHTML = `
+      <div class="post">
+        <h3>إحصائيات المستخدمين</h3>
+        <p>إجمالي المستخدمين: <b>${userStats.length}</b></p>
+        <p>إجمالي المنشورات: <b>${postsSnapshot.size}</b></p>
+      </div>
+      <div class="post">
+        <h4>أعلى 10 مستخدمين حسب النقاط</h4>
+        ${userStats.slice(0, 10).map((user, index) => `
+          <div class="rank-card ${index < 5 ? `rank-${index + 1}` : ''}" style="margin-bottom: 10px;">
+            <div class="rank-left">
+              <div class="rank-badge">${index + 1}</div>
+              <div>
+                <div class="rank-name">${escapeHTML(user.name)}</div>
+                <div style="font-size: 12px; color: #666;">${escapeHTML(user.email)}</div>
+              </div>
+            </div>
+            <div class="rank-points">${user.points} نقطة</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (error) {
+    console.error('Error loading user stats:', error);
+    container.innerHTML = '<div class="post"><p>خطأ في تحميل الإحصائيات</p></div>';
   }
-  // هنت: لو المستخدم مسجّل لاحقًا رح ينعرض المؤقت تلقائيًا
-});
+}
 </script>
-<!-- ===== تحسينات شكلية إضافية (إطارات الـ Top5 وصناديق) ===== -->
-<style>
-  .square-card{background:#fff;border:1px solid var(--border-color);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-  .rank-premium{border-color:#7dd3fc;box-shadow:0 0 0 3px rgba(125,211,252,.3),0 6px 16px rgba(125,211,252,.25)}
-  .rank-4 .rank-badge,.rank-5 .rank-badge{background:linear-gradient(135deg,#b3e5fc,#81d4fa);color:#06334a;border:2px solid #66c3eb}
-  .rank-4{border-color:#66c3eb;box-shadow:0 0 0 3px rgba(102,195,235,.35),0 6px 18px rgba(102,195,235,.25)}
-  .rank-5{border-color:#80cbc4;box-shadow:0 0 0 3px rgba(128,203,196,.35),0 6px 18px rgba(128,203,196,.25)}
-  .daily-reward{margin-top:12px;border:1px dashed #a0b2ff;background:#f4f6ff;border-radius:12px;padding:10px}
-  .daily-reward .btn{background:#28a745}
-  .timer-actions .btn{min-width:110px}
-</style>
-
-<!-- ===== صفحات إضافية مستقلة ===== -->
-<div id="journey-item-page" class="container page" style="display:none">
-  <div class="header">
-    <button class="btn btn-secondary" onclick="showChallengePage()"><i class="fas fa-arrow-right"></i></button>
-    <span style="font-weight:900">رحلة السادس</span>
-  </div>
-  <div id="journey-item-container" class="posts-container"></div>
-</div>
-
-<div id="app-explanation-page" class="container page" style="display:none">
-  <div class="header">
-    <button class="btn btn-secondary" onclick="showProfilePage()"><i class="fas fa-arrow-right"></i></button>
-    <span style="font-weight:900">شرح التطبيق</span>
-  </div>
-  <div id="app-explanation-list" class="posts-container"></div>
-</div>
-
-<!-- ===== Modals المفقودة ===== -->
-<!-- إنشاء منشور -->
-<div id="create-post-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header"><h2>إنشاء منشور</h2><button class="close-modal" onclick="closeCreatePostModal()">&times;</button></div>
-    <div class="select-group">
-      <label>المرحلة</label>
-      <select id="post-stage" class="select-control">
-        <option value="sades-elmi">السادس العلمي</option>
-        <option value="sades-adabi">السادس الادبي</option>
-        <option value="khames">الخامس</option>
-        <option value="rabea">الرابع</option>
-        <option value="thaleth-mut">الثالث متوسط</option>
-        <option value="thani-mut">الثاني متوسط</option>
-        <option value="awal-mut">الاول متوسط</option>
-        <option value="sades-ibtidai">السادس الابتدائي</option>
-      </select>
-    </div>
-    <div class="row">
-      <div class="select-group grow">
-        <label>المادة</label>
-        <select id="post-material" class="select-control">
-          <option>اسلامية</option><option>عربي</option><option>انكليزي</option><option>رياضيات</option>
-          <option>احياء</option><option>كيمياء</option><option>فيزياء</option><option>اقتصاد</option>
-          <option>أدب ونصوص</option><option>قواعد</option>
-        </select>
-      </div>
-      <div class="select-group" style="width:140px">
-        <label>السعر</label>
-        <input id="post-price" class="form-control" type="number" value="0">
-      </div>
-    </div>
-    <div class="select-group">
-      <label>طريقة التواصل</label>
-      <select id="contact-method" class="select-control" onchange="changeContactMethod()">
-        <option value="whatsapp">واتساب</option>
-        <option value="telegram">تلكرام</option>
-        <option value="comments">التعليقات داخل التطبيق</option>
-      </select>
-    </div>
-    <div id="whatsapp-field" class="select-group">
-      <label>واتساب (07xxxxxxxxx)</label>
-      <input id="whatsapp-number" class="form-control" placeholder="07xxxxxxxxx">
-    </div>
-    <div id="telegram-field" class="select-group" style="display:none">
-      <label>مُعرّف تلكرام (بدون @)</label>
-      <input id="telegram-username" class="form-control" placeholder="example">
-    </div>
-    <div class="select-group">
-      <label>الوصف</label>
-      <textarea id="post-description" class="form-control" rows="4" placeholder="اكتب تفاصيل واضحة"></textarea>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeCreatePostModal()">إلغاء</button>
-      <button id="post-submit-btn" class="btn" onclick="createPost()">نشر</button>
-    </div>
-  </div>
-</div>
-
-<!-- تعديل منشور -->
-<div id="edit-post-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header"><h2>تعديل منشور</h2><button class="close-modal" onclick="closeEditPostModal()">&times;</button></div>
-    <input id="edit-post-id" type="hidden">
-    <div class="row">
-      <div class="select-group grow">
-        <label>المرحلة</label>
-        <select id="edit-post-stage" class="select-control"></select>
-      </div>
-      <div class="select-group grow">
-        <label>المادة</label>
-        <select id="edit-post-material" class="select-control">
-          <option>اسلامية</option><option>عربي</option><option>انكليزي</option><option>رياضيات</option>
-          <option>احياء</option><option>كيمياء</option><option>فيزياء</option><option>اقتصاد</option>
-          <option>أدب ونصوص</option><option>قواعد</option>
-        </select>
-      </div>
-      <div class="select-group" style="width:140px">
-        <label>السعر</label>
-        <input id="edit-post-price" class="form-control" type="number" value="0">
-      </div>
-    </div>
-    <div class="select-group">
-      <label>طريقة التواصل</label>
-      <select id="edit-contact-method" class="select-control" onchange="changeContactMethod('edit')">
-        <option value="whatsapp">واتساب</option>
-        <option value="telegram">تلكرام</option>
-        <option value="comments">التعليقات</option>
-      </select>
-    </div>
-    <div id="edit-whatsapp-field" class="select-group">
-      <label>واتساب</label>
-      <input id="edit-whatsapp-number" class="form-control">
-    </div>
-    <div id="edit-telegram-field" class="select-group" style="display:none">
-      <label>مُعرّف تلكرام</label>
-      <input id="edit-telegram-username" class="form-control">
-    </div>
-    <div class="select-group">
-      <label>الوصف</label>
-      <textarea id="edit-post-description" class="form-control" rows="4"></textarea>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeEditPostModal()">إلغاء</button>
-      <button id="post-edit-submit-btn" class="btn" onclick="savePostEdits()">حفظ</button>
-    </div>
-  </div>
-</div>
-
-<!-- إضافة شركة -->
-<div id="create-company-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header"><h2>إضافة شركة توصيل</h2><button class="close-modal" onclick="closeCreateCompanyModal()">&times;</button></div>
-    <div class="select-group"><label>اسم الشركة</label><input id="company-name" class="form-control"></div>
-    <div class="row">
-      <div class="select-group grow"><label>من</label><select id="company-from" class="select-control"></select></div>
-      <div class="select-group grow"><label>إلى</label><select id="company-to" class="select-control"></select></div>
-    </div>
-    <div class="select-group"><label>الهاتف</label><input id="company-phone" class="form-control"></div>
-    <div class="select-group"><label>وصف (اختياري)</label><textarea id="company-desc" rows="3" class="form-control"></textarea></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeCreateCompanyModal()">إلغاء</button>
-      <button id="company-submit-btn" class="btn btn-success" onclick="createCompany()">إضافة</button>
-    </div>
-  </div>
-</div>
-
-<!-- تغيير الصورة -->
-<div id="avatar-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header"><h2>تغيير الصورة</h2><button class="close-modal" onclick="closeAvatarModal()">&times;</button></div>
-    <div class="choose-avatar">
-      <label><input type="radio" name="avatar" value="male" checked><span class="emo">👨🏻‍💼</span> ولد</label>
-      <label><input type="radio" name="avatar" value="female"><span class="emo">👩🏻‍💼</span> بنت</label>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeAvatarModal()">إلغاء</button>
-      <button class="btn" onclick="setAvatar(document.querySelector('input[name=avatar]:checked').value)">حفظ</button>
-    </div>
-  </div>
-</div>
-
-<!-- إشعار عام -->
-<div id="broadcast-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header"><h2>إشعار عام</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
-    <div class="select-group"><label>العنوان</label><input id="bcast-title" class="form-control"></div>
-    <div class="select-group"><label>النص</label><textarea id="bcast-text" class="form-control" rows="4"></textarea></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-      <button class="btn btn-success" onclick="sendBroadcast()">نشر</button>
-    </div>
-  </div>
-</div>
-
-<!-- إضافة نقاط (مالك) -->
-<div id="add-points-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header"><h2>إضافة نقاط</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
-    <div class="select-group"><label>معرف المستخدم (UID)</label><input id="ap-uid" class="form-control" placeholder="انسخ الـ UID من حساب المستخدم"></div>
-    <div class="select-group"><label>عدد النقاط</label><input id="ap-pts" type="number" class="form-control" value="100"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-      <button class="btn btn-success" onclick="addPointsDirectly(document.getElementById('ap-uid').value.trim(), Number(document.getElementById('ap-pts').value||0))">إضافة</button>
-    </div>
-  </div>
-</div>
-
-<!-- إنشاء سؤال QnA -->
-<div id="create-qna-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header"><h2>سؤال جديد</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
-    <div class="select-group"><label>السؤال</label><textarea id="qna-question" rows="3" class="form-control"></textarea></div>
-    <div class="select-group"><label>الإجابة الصحيحة</label><input id="qna-answer" class="form-control"></div>
-    <div class="select-group"><label>الجائزة (نقاط)</label><input id="qna-prize" type="number" class="form-control" value="50"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-      <button class="btn btn-success" onclick="submitQna()">نشر السؤال</button>
-    </div>
-  </div>
-</div>
-
 <script>
 /* ===========================================================
    المؤقّت + التسريع + مكافأة 20 نقطة داخل المؤقّت
@@ -1771,7 +1652,7 @@ function ensureDailyRewardBox(){
       <button id="daily-claim-btn" class="btn btn-success"><i class="fas fa-gift"></i> احصل على 20 نقطة</button>
     </div>
     <div id="daily-remaining" class="hint" style="margin-top:6px"></div>`;
-  card.insertBefore(box, card.querySelector('.timer-actions'));
+  card.parentNode.insertBefore(box, card.nextSibling);
   document.getElementById('daily-claim-btn').onclick = claimDailyReward;
 }
 
@@ -1796,14 +1677,25 @@ async function loadStudyState(){
       studyState.startAtMs = s.startAt?.toDate ? s.startAt.toDate().getTime() : null;
       studyState.boostUntil = s.boostUntil?.toDate ? s.boostUntil.toDate() : null;
       studyState.lastDailyClaimAt = s.lastDailyClaimAt?.toDate ? s.lastDailyClaimAt.toDate() : null;
+      
+      // تحديث واجهة المستخدم
+      renderTimerUI();
+      updateDailyRewardUI();
+      
+      if(studyState.running) { 
+        startStudyInterval(); 
+        startHeartbeatInterval(); 
+      }
+      if(studyState.boostUntil && studyState.boostUntil>new Date()) startBoostInterval();
     }else{
       studyState={running:false,totalSeconds:0,startAtMs:null,totalPoints:0,currentPoints:0,boostUntil:null,lastDailyClaimAt:null};
+      renderTimerUI();
     }
-  }catch(e){ console.warn(e); }
-  renderTimerUI();
-  if(studyState.running) { startStudyInterval(); startHeartbeatInterval(); }
-  if(studyState.boostUntil && studyState.boostUntil>new Date()) startBoostInterval();
-  updateDailyRewardUI();
+  }catch(e){ 
+    console.warn("Error loading study state:", e);
+    studyState={running:false,totalSeconds:0,startAtMs:null,totalPoints:0,currentPoints:0,boostUntil:null,lastDailyClaimAt:null};
+    renderTimerUI();
+  }
 }
 
 function renderTimerUI(){
@@ -1821,7 +1713,6 @@ function renderTimerUI(){
   if(pointsDisp) pointsDisp.textContent = (studyState.currentPoints||0).toLocaleString('ar-IQ');
   if(startBtn) startBtn.disabled = !!studyState.running;
   if(stopBtn) stopBtn.disabled = !studyState.running;
-  updateDailyRewardUI();
 }
 
 function startStudyInterval(){ stopStudyInterval(); studyInterval=setInterval(renderTimerUI,1000); }
@@ -1853,39 +1744,67 @@ async function startStudyTimer(){
       startAt: firebase.firestore.FieldValue.serverTimestamp(),
       lastPingAt: firebase.firestore.FieldValue.serverTimestamp()
     },{merge:true});
-    const again=await ref.get();
+    
+    // تحديث الحالة المحلية
     studyState.running=true;
-    studyState.startAtMs = again.exists && again.data().startAt?.toDate ? again.data().startAt.toDate().getTime() : Date.now();
-    startStudyInterval(); startHeartbeatInterval(); renderTimerUI(); showNotification('بدأ العداد','success');
-  }catch(e){ showNotification('تعذّر البدء','error'); }
+    studyState.startAtMs = Date.now();
+    
+    startStudyInterval(); 
+    startHeartbeatInterval(); 
+    renderTimerUI(); 
+    showNotification('بدأ العداد','success');
+  }catch(e){ 
+    console.error("Error starting timer:", e);
+    showNotification('تعذّر البدء','error'); 
+  }
 }
 
 async function stopStudyTimer(){
   if(!currentUser || !studyState.running) return;
-  stopStudyInterval(); stopHeartbeatInterval();
+  stopStudyInterval(); 
+  stopHeartbeatInterval();
+  
   const ref=db.collection('study').doc(currentUser.uid);
   try{
     await db.runTransaction(async tx=>{
-      const sdoc=await tx.get(ref); if(!sdoc.exists || !sdoc.data().running) return;
-      const s=sdoc.data(); const stopAt=new Date();
+      const sdoc=await tx.get(ref); 
+      if(!sdoc.exists || !sdoc.data().running) return;
+      
+      const s=sdoc.data(); 
+      const stopAt=new Date();
       const start = s.startAt?.toDate ? s.startAt.toDate() : new Date();
-      let elapsed=(stopAt - start)/1000; if(elapsed<0) elapsed=0;
+      let elapsed=(stopAt - start)/1000; 
+      if(elapsed<0) elapsed=0;
+      
       // تسريع 2x داخل نافذة boostUntil
       if(s.boostUntil?.toDate && s.boostUntil.toDate()>start){
         const boosted = Math.max(0, (Math.min(stopAt, s.boostUntil.toDate()) - start)/1000);
         elapsed += boosted; // فعلياً 2x لجزء التعزيز
       }
+      
       const points = Math.floor(elapsed/180); // نقطة لكل 3 دقائق
+      
       tx.update(ref,{
-        running:false, startAt:null,
+        running:false, 
+        startAt:null,
         totalPoints: firebase.firestore.FieldValue.increment(points),
         currentPoints: firebase.firestore.FieldValue.increment(points)
       });
-      studyState.currentPoints += points; studyState.totalPoints += points;
+      
+      // تحديث الحالة المحلية
+      studyState.currentPoints += points; 
+      studyState.totalPoints += points;
+      studyState.running=false; 
+      studyState.startAtMs=null;
     });
-    studyState.running=false; studyState.startAtMs=null; renderTimerUI();
+    
+    renderTimerUI();
     showNotification('توقّف العداد وتم تحويل الوقت لنقاط','success');
-  }catch(e){ showNotification('تعذّر الإيقاف','error'); startStudyInterval(); }
+  }catch(e){
+    console.error("Error stopping timer:", e);
+    showNotification('تعذّر الإيقاف','error'); 
+    startStudyInterval(); 
+  }
 }
 
 /* تسريع المؤقّت */
@@ -1896,7 +1815,13 @@ function updateBoostStatus(){
   if(!el) return;
   if(!st.boostUntil){ el.textContent=''; stopBoostInterval(); return; }
   const left = st.boostUntil.getTime()-Date.now();
-  if(left<=0){ st.boostUntil=null; el.textContent=''; stopBoostInterval(); renderTimerUI(); return; }
+  if(left<=0){ 
+    st.boostUntil=null; 
+    el.textContent=''; 
+    stopBoostInterval(); 
+    renderTimerUI(); 
+    return; 
+  }
   el.textContent = `التسريع مفعل! الوقت المتبقي: ${msToHMS(left)}`;
 }
 
@@ -1906,39 +1831,69 @@ async function buyBoost(hours){
   const price=prices[hours]; if(!price) return;
   if(studyState.currentPoints < price) return showNotification('نقاط غير كافية','error');
   if(!confirm(`تأكيد شراء تسريع ${hours} ساعة مقابل ${price} نقطة؟`)) return;
+  
   try{
     const ref=db.collection('study').doc(currentUser.uid);
     await db.runTransaction(async tx=>{
-      const d=await tx.get(ref); const now=new Date();
-      const curPts=d.exists?(d.data().currentPoints||0):0; if(curPts<price) throw new Error('نقاط غير كافية');
+      const d=await tx.get(ref); 
+      const now=new Date();
+      const curPts=d.exists?(d.data().currentPoints||0):0; 
+      if(curPts<price) throw new Error('نقاط غير كافية');
+      
       const curBoost = d.exists && d.data().boostUntil?.toDate ? d.data().boostUntil.toDate() : now;
       const newUntil = new Date(Math.max(now.getTime(), curBoost.getTime()) + hours*3600*1000);
-      tx.set(ref,{ currentPoints: curPts - price, boostUntil: newUntil, name: currentUser.name||'مستخدم' },{merge:true});
-      studyState.currentPoints -= price; studyState.boostUntil = newUntil;
+      
+      tx.set(ref,{ 
+        currentPoints: curPts - price, 
+        boostUntil: newUntil, 
+        name: currentUser.name||'مستخدم' 
+      },{merge:true});
+      
+      // تحديث الحالة المحلية
+      studyState.currentPoints -= price; 
+      studyState.boostUntil = newUntil;
     });
-    showNotification('تم تفعيل التسريع','success'); startBoostInterval(); renderTimerUI();
-  }catch(e){ showNotification('فشلت العملية: '+e.message,'error'); }
+    
+    showNotification('تم تفعيل التسريع','success'); 
+    startBoostInterval(); 
+    renderTimerUI();
+  }catch(e){
+    console.error("Error buying boost:", e);
+    showNotification('فشلت العملية: '+e.message,'error'); 
+  }
 }
 
 /* مكافأة 20 نقطة داخل المؤقّت */
 function updateDailyRewardUI(){
-  const btn=document.getElementById('daily-claim-btn'); const rem=document.getElementById('daily-remaining');
+  const btn=document.getElementById('daily-claim-btn'); 
+  const rem=document.getElementById('daily-remaining');
   if(!btn || !rem) return;
+  
   const last=studyState.lastDailyClaimAt? studyState.lastDailyClaimAt.getTime() : 0;
   const left = (24*3600*1000) - (Date.now()-last);
+  
   if(left>0){
-    btn.disabled=true; rem.textContent='متاح بعد: '+msToHMS(left);
-    if(!dailyRewardInterval){ dailyRewardInterval=setInterval(updateDailyRewardUI,1000); }
+    btn.disabled=true; 
+    rem.textContent='متاح بعد: '+msToHMS(left);
+    if(!dailyRewardInterval){ 
+      dailyRewardInterval=setInterval(updateDailyRewardUI,1000); 
+    }
   }else{
-    btn.disabled=false; rem.textContent='يمكنك الحصول على 20 نقطة مرة كل 24 ساعة.';
-    if(dailyRewardInterval){ clearInterval(dailyRewardInterval); dailyRewardInterval=null; }
+    btn.disabled=false; 
+    rem.textContent='يمكنك الحصول على 20 نقطة مرة كل 24 ساعة.';
+    if(dailyRewardInterval){ 
+      clearInterval(dailyRewardInterval); 
+      dailyRewardInterval=null; 
+    }
   }
 }
+
 async function claimDailyReward(){
   if(!currentUser) return;
   const last=studyState.lastDailyClaimAt? studyState.lastDailyClaimAt.getTime() : 0;
   const left = (24*3600*1000) - (Date.now()-last);
   if(left>0) return;
+  
   try{
     const ref=db.collection('study').doc(currentUser.uid);
     await ref.set({
@@ -1947,11 +1902,19 @@ async function claimDailyReward(){
       lastDailyClaimAt: firebase.firestore.FieldValue.serverTimestamp(),
       name: currentUser.name||'مستخدم'
     },{merge:true});
-    studyState.currentPoints += 20; studyState.totalPoints += 20;
+    
+    // تحديث الحالة المحلية
+    studyState.currentPoints += 20; 
+    studyState.totalPoints += 20;
     studyState.lastDailyClaimAt = new Date();
+    
     showNotification('مبروك! حصلت على 20 نقطة','success');
     renderTimerUI();
-  }catch(e){ showNotification('تعذّر منح المكافأة','error'); }
+    updateDailyRewardUI();
+  }catch(e){
+    console.error("Error claiming daily reward:", e);
+    showNotification('تعذّر منح المكافأة','error'); 
+  }
 }
 
 /* ===========================================================
@@ -1961,105 +1924,284 @@ function startLeaderboardListener(){
   stopLeaderboardListener();
   const lb=document.getElementById('challenge-leaderboard');
   if(lb) lb.innerHTML='<div class="post"><p>جاري تحميل التصنيف...</p></div>';
-  leaderboardUnsub = db.collection('study').orderBy('totalPoints','desc').limit(50).onSnapshot(
-    snap => renderLeaderboard(snap.docs.map(d=>({uid:d.id,...d.data()}))),
-    _   => { if(lb) lb.innerHTML='<div class="post"><p>تعذّر التحميل</p></div>'; }
-  );
+  
+  leaderboardUnsub = db.collection('study')
+    .orderBy('totalPoints','desc')
+    .limit(50)
+    .onSnapshot(
+      snap => {
+        const items = snap.docs.map(d=>({uid:d.id,...d.data()}));
+        renderLeaderboard(items);
+        
+        // توزيع الجوائز الأسبوعية تلقائياً (يوم الأحد)
+        const now = new Date();
+        if (now.getDay() === 0) { // الأحد
+          distributeWeeklyPrizes(items.slice(0, 5));
+        }
+      },
+      error => { 
+        console.error("Leaderboard error:", error);
+        if(lb) lb.innerHTML='<div class="post"><p>تعذّر التحميل</p></div>'; 
+      }
+    );
 }
-function stopLeaderboardListener(){ if(leaderboardUnsub){try{leaderboardUnsub();}catch{} leaderboardUnsub=null;} }
+
+function stopLeaderboardListener(){ 
+  if(leaderboardUnsub){
+    try{leaderboardUnsub();}catch{} 
+    leaderboardUnsub=null;
+  }
+}
+
 function renderLeaderboard(items){
-  const lb=document.getElementById('challenge-leaderboard'); if(!lb) return;
-  if(!items||!items.length){ lb.innerHTML='<div class="post"><p>لا يوجد متنافسون بعد</p></div>'; return; }
+  const lb=document.getElementById('challenge-leaderboard'); 
+  if(!lb) return;
+  
+  if(!items||!items.length){ 
+    lb.innerHTML='<div class="post"><p>لا يوجد متنافسون بعد</p></div>'; 
+    return; 
+  }
+  
   lb.innerHTML = items.map((it,idx)=>{
     const points = it.totalPoints||0;
     const cls = idx===0?'rank-1':(idx===1?'rank-2':(idx===2?'rank-3':(idx===3?'rank-4':(idx===4?'rank-5':'rank'))));
     const premium = idx<5?'rank-premium':'';
-    const delBtn = isOwner()? `<button class="btn btn-xs btn-danger" style="margin-right:auto" onclick="ownerRemoveFromLeaderboard('${it.uid}','${escapeHTML(it.name||'مستخدم')}')"><i class="fa-solid fa-trash"></i></button>` : '';
-    return `<div class="rank-card ${cls} ${premium}">
-      <div class="rank-left">
-        <div class="rank-badge">${idx+1}</div>
-        <div class="rank-name">${escapeHTML(it.name||'مستخدم')}</div>
-      </div>
-      ${delBtn}
-      <div class="rank-points">${points.toLocaleString('ar-IQ')} نقطة</div>
-    </div>`;
+    const delBtn = isOwner()? `
+      <button class="btn btn-xs btn-danger" style="margin-right:auto" onclick="ownerRemoveFromLeaderboard('${it.uid}','${escapeHTML(it.name||'مستخدم')}')">
+        <i class="fa-solid fa-trash"></i>
+      </button>` : '';
+    
+    return `
+      <div class="rank-card ${cls} ${premium}">
+        <div class="rank-left">
+          <div class="rank-badge">${idx+1}</div>
+          <div class="rank-name">${escapeHTML(it.name||'مستخدم')}</div>
+        </div>
+        ${delBtn}
+        <div class="rank-points">${points.toLocaleString('ar-IQ')} نقطة</div>
+      </div>`;
   }).join('');
 }
+
+async function distributeWeeklyPrizes(top5){
+  if (!isOwner()) return;
+  
+  const prizes = [2000, 1500, 1000, 500, 300];
+  const now = new Date();
+  const lastDistribution = localStorage.getItem('lastPrizeDistribution');
+  
+  // التحقق إذا تم التوزيع هذا الأسبوع already
+  if (lastDistribution && (now - new Date(lastDistribution)) < (7 * 24 * 60 * 60 * 1000)) {
+    return;
+  }
+  
+  try {
+    for (let i = 0; i < Math.min(top5.length, 5); i++) {
+      const user = top5[i];
+      const prize = prizes[i];
+      
+      await db.collection('study').doc(user.uid).set({
+        currentPoints: firebase.firestore.FieldValue.increment(prize),
+        name: user.name || 'مستخدم'
+      }, { merge: true });
+      
+      // إرسال إشعار للمستخدم
+      await sendTelegramNotification(
+        `🎉 <b>مبروك! فزت بالمركز ${i + 1}</b>\n\nلقد فزت بـ ${prize} نقطة كجائزة أسبوعية!`,
+        user.uid // هذا يفترض أنك تخزن chatId للمستخدمين
+      );
+    }
+    
+    // إعادة تعيين نقاط التصنيف للأسبوع الجديد
+    const allUsers = await db.collection('study').get();
+    const resetPromises = [];
+    
+    allUsers.forEach(doc => {
+      resetPromises.push(
+        db.collection('study').doc(doc.id).update({
+          totalPoints: 0
+        })
+      );
+    });
+    
+    await Promise.all(resetPromises);
+    localStorage.setItem('lastPrizeDistribution', now.toString());
+    
+    showNotification('تم توزيع الجوائز الأسبوعية وإعادة تعيين التصنيف','success');
+  } catch (error) {
+    console.error('Error distributing weekly prizes:', error);
+  }
+}
+
 async function ownerRemoveFromLeaderboard(uid,name){
   if(!isOwner()) return;
   if(!confirm(`حذف "${name}" من التصنيف وإعادة نقاطه؟`)) return;
-  try{ await db.collection('study').doc(uid).update({ totalPoints:0 }); showNotification('تم الحذف من التصنيف','success'); }
-  catch(e){ showNotification('فشل الحذف','error'); }
+  try{ 
+    await db.collection('study').doc(uid).update({ totalPoints:0 }); 
+    showNotification('تم الحذف من التصنيف','success'); 
+  }catch(e){ 
+    showNotification('فشل الحذف','error'); 
+  }
 }
 
 /* ===========================================================
    الأسئلة QnA
 =========================================================== */
-function openCreateQnaModal(){ if(!currentUser) return showNotification('سجّل الدخول','warning'); document.getElementById('create-qna-modal').style.display='block'; }
+function openCreateQnaModal(){ 
+  if(!currentUser) return showNotification('سجّل الدخول','warning'); 
+  document.getElementById('qna-create-modal').style.display='block'; 
+}
+
 function startQnaListener(){
   stopQnaListener();
   const list=document.getElementById('qna-list-container');
   if(list) list.innerHTML='<div class="post"><p>جاري تحميل الأسئلة...</p></div>';
-  qnaUnsub = db.collection('qna').orderBy('createdAt','desc').limit(50).onSnapshot(
-    snap => {
-      if(!snap.size){ list.innerHTML='<div class="post"><p>لا توجد أسئلة بعد.</p></div>'; return; }
-      list.innerHTML = snap.docs.map(doc=>{
-        const q={id:doc.id,...doc.data()};
-        const ownerBtns = isOwner()? `<button class="btn btn-xs btn-danger" onclick="deleteQna('${q.id}')"><i class="fa-solid fa-trash"></i></button>`:'';
-        return `<div class="qna-card">
-          <div class="qna-header">
-            <div class="qna-creator">سؤال من: ${escapeHTML(q.creatorName||'مستخدم')}</div>
-            <div class="qna-prize"><i class="fa-solid fa-coins"></i> +${q.prize||0}</div>
-          </div>
-          <div class="post-description" style="margin-top:8px">${escapeHTML(q.question||'')}</div>
-          <div class="qna-actions">
-            <button class="btn btn-success" onclick="answerQna('${q.id}')"><i class="fa-solid fa-check"></i> إجابة</button>
-            ${ownerBtns}
-          </div>
-        </div>`;
-      }).join('');
-    },
-    _ => { if(list) list.innerHTML='<div class="post"><p>تعذّر تحميل الأسئلة</p></div>'; }
-  );
+  
+  qnaUnsub = db.collection('qna')
+    .orderBy('createdAt','desc')
+    .limit(50)
+    .onSnapshot(
+      snap => {
+        if(!snap.size){ 
+          list.innerHTML='<div class="post"><p>لا توجد أسئلة بعد.</p></div>'; 
+          return; 
+        }
+        
+        list.innerHTML = snap.docs.map(doc=>{
+          const q={id:doc.id,...doc.data()};
+          const ownerBtns = isOwner()? `
+            <button class="btn btn-xs btn-danger" onclick="deleteQna('${q.id}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>`:'';
+          
+          return `
+            <div class="qna-card">
+              <div class="qna-header">
+                <div class="qna-creator">${escapeHTML(q.material || 'عام')} - سؤال من: ${escapeHTML(q.creatorName||'مستخدم')}</div>
+                <div class="qna-prize"><i class="fa-solid fa-coins"></i> +${q.prize||0}</div>
+              </div>
+              <div class="post-description" style="margin-top:8px"><b>السؤال:</b> ${escapeHTML(q.question||'')}</div>
+              <div style="margin-top:8px">
+                <div><b>الخيارات:</b></div>
+                <div>1. ${escapeHTML(q.option1||'')}</div>
+                <div>2. ${escapeHTML(q.option2||'')}</div>
+                <div>3. ${escapeHTML(q.option3||'')}</div>
+              </div>
+              <div class="qna-actions">
+                <button class="btn btn-success" onclick="answerQna('${q.id}')">
+                  <i class="fa-solid fa-check"></i> إجابة
+                </button>
+                ${ownerBtns}
+              </div>
+            </div>`;
+        }).join('');
+      },
+      error => { 
+        console.error("QnA error:", error);
+        if(list) list.innerHTML='<div class="post"><p>تعذّر تحميل الأسئلة</p></div>'; 
+      }
+    );
 }
-function stopQnaListener(){ if(qnaUnsub){try{qnaUnsub();}catch{} qnaUnsub=null;} }
-async function submitQna(){
+
+function stopQnaListener(){ 
+  if(qnaUnsub){
+    try{qnaUnsub();}catch{} 
+    qnaUnsub=null;
+  }
+}
+
+async function createQna(){
   if(!currentUser) return;
-  const q = document.getElementById('qna-question').value.trim();
-  const a = document.getElementById('qna-answer').value.trim();
-  const p = Number(document.getElementById('qna-prize').value||0);
-  if(!q || !a || p<=0) return showNotification('أكمل الحقول','error');
+  
+  const material = document.getElementById('qna-material').value;
+  const question = document.getElementById('qna-text').value.trim();
+  const option1 = document.getElementById('qna-option1').value.trim();
+  const option2 = document.getElementById('qna-option2').value.trim();
+  const option3 = document.getElementById('qna-option3').value.trim();
+  const correct = document.getElementById('qna-correct').value;
+  const prize = Number(document.getElementById('qna-prize').value||0);
+  
+  if(!material || !question || !option1 || !option2 || !option3 || prize<=0) {
+    return showNotification('أكمل جميع الحقول','error');
+  }
+  
   try{
     await db.collection('qna').add({
-      question:q, answer:a, prize:p,
-      creatorUid: currentUser.uid, creatorName: currentUser.name||'مستخدم',
+      material,
+      question, 
+      option1, option2, option3,
+      correctAnswer: correct,
+      prize,
+      creatorUid: currentUser.uid, 
+      creatorName: currentUser.name||'مستخدم',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    showNotification('نُشر السؤال','success'); closeModal();
-  }catch(e){ showNotification('فشل النشر','error'); }
+    
+    showNotification('نُشر السؤال','success'); 
+    closeModal();
+  }catch(e){
+    console.error("Error creating QnA:", e);
+    showNotification('فشل النشر','error'); 
+  }
 }
+
 async function answerQna(id){
   if(!currentUser) return showNotification('سجّل الدخول','warning');
+  
   const doc=await db.collection('qna').doc(id).get();
   if(!doc.exists) return;
-  const q=doc.data(); const ans = prompt('اكتب إجابتك:'); if(ans===null) return;
-  const ok = String(ans).trim().toLowerCase() === String(q.answer||'').trim().toLowerCase();
-  if(!ok) return showNotification('إجابة خاطئة','error');
-  try{
-    await db.collection('study').doc(currentUser.uid).set({
-      currentPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
-      totalPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
-      name: currentUser.name||'مستخدم'
-    },{merge:true});
-    studyState.currentPoints += Number(q.prize||0); studyState.totalPoints += Number(q.prize||0);
-    showNotification(`صحيح! +${q.prize} نقطة`, 'success'); renderTimerUI();
-  }catch(e){ showNotification('لم نستطع منح النقاط','error'); }
+  
+  const q=doc.data(); 
+  const userAnswer = prompt(`اختر الإجابة الصحيحة:\n1. ${q.option1}\n2. ${q.option2}\n3. ${q.option3}`);
+  
+  if(userAnswer===null) return;
+  const isCorrect = userAnswer.trim() === q.correctAnswer;
+  
+  try {
+    if(isCorrect) {
+      // المستخدم أجاب correctly - يحصل على الجائزة
+      await db.collection('study').doc(currentUser.uid).set({
+        currentPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
+        totalPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
+        name: currentUser.name||'مستخدم'
+      },{merge:true});
+      
+      studyState.currentPoints += Number(q.prize||0); 
+      studyState.totalPoints += Number(q.prize||0);
+      
+      showNotification(`صحيح! +${q.prize} نقطة`, 'success'); 
+      renderTimerUI();
+      
+      // حذف السؤال بعد الإجابة الصحيحة
+      await db.collection('qna').doc(id).delete();
+    } else {
+      // المستخدم أجاب incorrectly - الجائزة تذهب لمنشئ السؤال
+      await db.collection('study').doc(q.creatorUid).set({
+        currentPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
+        totalPoints: firebase.firestore.FieldValue.increment(Number(q.prize||0)),
+        name: q.creatorName||'مستخدم'
+      },{merge:true});
+      
+      showNotification('إجابة خاطئة! النقاط ذهبت لمنشئ السؤال','error');
+      
+      // حذف السؤال بعد الإجابة الخاطئة
+      await db.collection('qna').doc(id).delete();
+    }
+  }catch(e){
+    console.error("Error answering QnA:", e);
+    showNotification('لم نستطع معالجة الإجابة','error'); 
+  }
 }
+
 async function deleteQna(id){
   if(!isOwner()) return;
   if(!confirm('حذف السؤال؟')) return;
-  try{ await db.collection('qna').doc(id).delete(); showNotification('حُذف','success'); }
-  catch(e){ showNotification('فشل الحذف','error'); }
+  try{ 
+    await db.collection('qna').doc(id).delete(); 
+    showNotification('حُذف','success'); 
+  }catch(e){ 
+    showNotification('فشل الحذف','error'); 
+  }
 }
 
 /* ===========================================================
@@ -2069,51 +2211,218 @@ function startJourneyListener(){
   stopJourneyListener();
   const box=document.getElementById('journey-container');
   if(box) box.innerHTML='<div class="post"><p>جاري تحميل محتوى رحلة السادس...</p></div>';
-  journeyUnsub = db.collection('journey_content').orderBy('order','asc').onSnapshot(
-    snap=>{
-      if(!snap.size){ box.innerHTML='<div class="post"><p>لا يوجد محتوى حالياً.</p></div>'; return; }
-      box.innerHTML = snap.docs.map(d=>{
-        const it={id:d.id,...d.data()};
-        return `<div class="journey-button" onclick="openJourneyItem('${it.id}')">${escapeHTML(it.title||'محتوى')}</div>`;
-      }).join('');
-      if(isOwner()){
-        box.innerHTML += `<div class="post" style="margin-top:12px;"><button class="btn btn-block" onclick="addJourneyContent()">إضافة محتوى جديد</button></div>`;
+  
+  journeyUnsub = db.collection('journey_content')
+    .orderBy('order','asc')
+    .onSnapshot(
+      snap=>{
+        if(!snap.size){ 
+          box.innerHTML='<div class="post"><p>لا يوجد محتوى حالياً.</p></div>'; 
+          return; 
+        }
+        
+        box.innerHTML = snap.docs.map(d=>{
+          const it={id:d.id,...d.data()};
+          return `
+            <div class="journey-button" onclick="openJourneyItem('${it.id}')">
+              <h3>${escapeHTML(it.title||'محتوى')}</h3>
+              <p>${escapeHTML(it.content?.substring(0, 100) || '')}...</p>
+            </div>`;
+        }).join('');
+        
+        if(isOwner()){
+          box.innerHTML += `
+            <div class="post" style="margin-top:12px;">
+              <button class="btn btn-block" onclick="addJourneyContent()">
+                إضافة محتوى جديد
+              </button>
+            </div>`;
+        }
+      },
+      error=>{ 
+        console.error("Journey error:", error);
+        box.innerHTML='<div class="post"><p>خطأ في التحميل</p></div>'; 
       }
-    },
-    _=>{ box.innerHTML='<div class="post"><p>خطأ في التحميل</p></div>'; }
-  );
+    );
 }
-function stopJourneyListener(){ if(journeyUnsub){try{journeyUnsub();}catch{} journeyUnsub=null;} }
+
+function stopJourneyListener(){ 
+  if(journeyUnsub){
+    try{journeyUnsub();}catch{} 
+    journeyUnsub=null;
+  }
+}
+
 async function openJourneyItem(id){
   try{
     const doc=await db.collection('journey_content').doc(id).get();
     if(!doc.exists) return showNotification('غير موجود','error');
-    const it=doc.data(); openJourneyItemPage(it.title||'محتوى', it.content||'', id);
-  }catch{ showNotification('خطأ في الفتح','error'); }
+    
+    const it=doc.data(); 
+    openJourneyItemPage(it.title||'محتوى', it.content||'', id);
+  }catch(error){
+    console.error("Error opening journey item:", error);
+    showNotification('خطأ في الفتح','error'); 
+  }
 }
+
 async function addJourneyContent(){
   if(!isOwner()) return;
-  const title=prompt('عنوان المحتوى:'); if(!title) return;
-  const content=prompt('المحتوى النصّي:'); if(!content) return;
+  
+  const title=prompt('عنوان المحتوى:'); 
+  if(!title) return;
+  
+  const content=prompt('المحتوى النصّي:'); 
+  if(!content) return;
+  
   try{
     const last=await db.collection('journey_content').orderBy('order','desc').limit(1).get();
     const ord = last.empty? 1 : (Number(last.docs[0].data().order)||0)+1;
-    await db.collection('journey_content').add({ title, content, order:ord, createdAt: firebase.firestore.FieldValue.serverTimestamp(), createdBy: currentUser.uid });
+    
+    await db.collection('journey_content').add({ 
+      title, 
+      content, 
+      order:ord, 
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
+      createdBy: currentUser.uid 
+    });
+    
     showNotification('أُضيف المحتوى','success');
-  }catch(e){ showNotification('فشل الإضافة','error'); }
+  }catch(e){
+    console.error("Error adding journey content:", e);
+    showNotification('فشل الإضافة','error'); 
+  }
 }
+
 async function editJourneyItem(id){
   if(!isOwner()) return;
-  const d=await db.collection('journey_content').doc(id).get(); if(!d.exists) return;
-  const it=d.data(); const t=prompt('العنوان:', it.title); if(!t) return;
-  const c=prompt('المحتوى:', it.content); if(c===null) return;
-  try{ await db.collection('journey_content').doc(id).update({ title:t, content:c, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); showNotification('تم التعديل','success'); }
-  catch(e){ showNotification('فشل التعديل','error'); }
+  
+  const d=await db.collection('journey_content').doc(id).get(); 
+  if(!d.exists) return;
+  
+  const it=d.data(); 
+  const t=prompt('العنوان:', it.title); 
+  if(!t) return;
+  
+  const c=prompt('المحتوى:', it.content); 
+  if(c===null) return;
+  
+  try{ 
+    await db.collection('journey_content').doc(id).update({ 
+      title:t, 
+      content:c, 
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+    }); 
+    
+    showNotification('تم التعديل','success'); 
+  }catch(e){
+    console.error("Error editing journey item:", e);
+    showNotification('فشل التعديل','error'); 
+  }
 }
+
 async function deleteJourneyItem(id){
-  if(!isOwner()) return; if(!confirm('حذف المحتوى؟')) return;
-  try{ await db.collection('journey_content').doc(id).delete(); showNotification('حُذف','success'); }
-  catch(e){ showNotification('فشل الحذف','error'); }
+  if(!isOwner()) return; 
+  if(!confirm('حذف المحتوى؟')) return;
+  
+  try{ 
+    await db.collection('journey_content').doc(id).delete(); 
+    showNotification('حُذف','success'); 
+  }catch(e){
+    console.error("Error deleting journey item:", e);
+    showNotification('فشل الحذف','error'); 
+  }
+}
+
+/* ===========================================================
+   الهدايا والشراء
+=========================================================== */
+function openGiftsModal(){
+  document.getElementById('gifts-modal').style.display='block';
+  loadGifts();
+}
+
+function closeGiftsModal(){
+  document.getElementById('gifts-modal').style.display='none';
+}
+
+async function loadGifts(){
+  const giftsList = document.getElementById('gifts-list');
+  giftsList.innerHTML = '<div class="post"><p>جاري تحميل الهدايا...</p></div>';
+  
+  // هذا مثال للهدايا - يمكنك استبداله ببيانات من Firebase
+  const gifts = [
+    {id: 1, name: 'مرشح الرياضيات', description: 'تصفية منشورات الرياضيات فقط', price: 50},
+    {id: 2, name: 'مرشح اللغة العربية', description: 'تصفية منشورات اللغة العربية فقط', price: 50},
+    {id: 3, name: 'مرشح اللغة الإنجليزية', description: 'تصفية منشورات اللغة الإنجليزية فقط', price: 50},
+    {id: 4, name: 'باقة خاصة', description: 'مزايا حصرية لمدة أسبوع', price: 100}
+  ];
+  
+  giftsList.innerHTML = gifts.map(gift => `
+    <div class="post">
+      <h3>${gift.name}</h3>
+      <p>${gift.description}</p>
+      <p class="muted">السعر: ${gift.price} نقطة</p>
+      <button class="btn btn-success" onclick="openBuyGiftModal(${gift.id}, '${gift.name}', '${gift.description}', ${gift.price})">
+        شراء
+      </button>
+    </div>
+  `).join('');
+}
+
+function openBuyGiftModal(id, name, description, price){
+  document.getElementById('buy-gift-title').textContent = `شراء ${name}`;
+  document.getElementById('buy-gift-description').textContent = description;
+  document.getElementById('buy-gift-price').textContent = price;
+  document.getElementById('buy-gift-modal').style.display = 'block';
+  
+  // تخزين بيانات الهدية مؤقتاً
+  window.currentGift = {id, name, description, price};
+}
+
+function closeBuyGiftModal(){
+  document.getElementById('buy-gift-modal').style.display = 'none';
+  window.currentGift = null;
+}
+
+async function purchaseGift(){
+  if (!currentUser || !window.currentGift) return;
+  
+  const gift = window.currentGift;
+  if (studyState.currentPoints < gift.price) {
+    return showNotification('نقاط غير كافية','error');
+  }
+  
+  try {
+    await db.collection('study').doc(currentUser.uid).set({
+      currentPoints: firebase.firestore.FieldValue.increment(-gift.price),
+      name: currentUser.name||'مستخدم'
+    }, {merge: true});
+    
+    // تحديث الحالة المحلية
+    studyState.currentPoints -= gift.price;
+    
+    // تسجيل عملية الشراء
+    await db.collection('purchases').add({
+      userId: currentUser.uid,
+      userName: currentUser.name,
+      item: gift.name,
+      price: gift.price,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // إرسال إشعار للمالك
+    await sendTelegramNotification(
+      `🛒 <b>شراء جديد</b>\n\n👤 ${currentUser.name}\n🎁 ${gift.name}\n💰 ${gift.price} نقطة`
+    );
+    
+    showNotification(`تم شراء ${gift.name} بنجاح`,'success');
+    closeBuyGiftModal();
+    renderTimerUI();
+  } catch (error) {
+    console.error('Error purchasing gift:', error);
+    showNotification('فشل عملية الشراء','error');
+  }
 }
 
 /* ===========================================================
@@ -2121,6 +2430,7 @@ async function deleteJourneyItem(id){
 =========================================================== */
 async function initChallengeAfterLogin(){
   await loadStudyState();
+  
   // افتح تبويب المؤقّت افتراضياً
   const firstTab=document.querySelector('.challenge-tab-pill[data-tab="timer"]');
   if(firstTab) switchChallengeTab(firstTab);
@@ -2130,8 +2440,22 @@ async function initChallengeAfterLogin(){
 window.addEventListener('load', ()=>{
   // حقن صندوق المكافأة اليومية بعد أن يوجد المؤقّت
   setTimeout(ensureDailyRewardBox, 300);
+  
+  // بدء المستمعين عند الحاجة
+  if (currentUser) {
+    startLeaderboardListener();
+    startQnaListener();
+    startJourneyListener();
+  }
+});
+
+// إضافة هذا للتعامل مع إغلاق المتصفح/التبويب
+window.addEventListener('beforeunload', () => {
+  if (studyState.running) {
+    // محاولة حفظ حالة المؤقت عند الخروج
+    stopStudyTimer();
+  }
 });
 </script>
-
 </body>
 </html>
