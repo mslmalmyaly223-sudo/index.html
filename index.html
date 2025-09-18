@@ -223,6 +223,26 @@
     .stat-label { font-size: 12px; color: var(--light-text); }
     .report-reason { margin-top: 10px; padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; width: 100%; }
     .daily-reward { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid var(--border-color); border-radius: 14px; }
+    
+    /* تعديلات جديدة للمرشحات */
+    .purchased-gifts-btn { 
+      background: #fff7e6; 
+      border: 1px solid #ffd8a8; 
+      border-radius: 12px; 
+      padding: 10px; 
+      margin-bottom: 10px; 
+      cursor: pointer; 
+      text-align: center;
+      font-weight: 700;
+      color: #e67700;
+    }
+    .gift-section-sm { 
+      margin-bottom: 15px; 
+      padding: 12px; 
+      background: #fff7e6; 
+      border: 1px solid #ffd8a8; 
+      border-radius: 12px; 
+    }
   </style>
 
   <!-- Firebase -->
@@ -395,9 +415,6 @@
   <div id="challenge-page" class="container page" style="display:none">
     <div class="header">
       <span style="font-weight:900">تحدي دراسي</span>
-      <div class="owner-only" style="display: none;">
-        <button class="btn btn-xs btn-success" onclick="openAddPointsModal()"><i class="fa-solid fa-plus"></i> إضافة نقاط</button>
-      </div>
     </div>
     <div class="challenge-shell">
       <div class="challenge-tab-nav">
@@ -409,14 +426,11 @@
 
       <div id="challenge-tab-timer" class="challenge-tab-content active">
         <!-- قسم الهدايا أعلى المؤقت -->
-        <div class="gift-section">
-          <div class="boost-card">
-            <div class="timer-title">هدايا ومرشحات المواد</div>
-            <div class="hint">اشترِ مرشحات المواد واحصل على مكافآت:</div>
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-              <button class="btn btn-success" onclick="openGiftsModal()"><i class="fas fa-gift"></i> عرض الهدايا والشراء</button>
-            </div>
-            <div id="purchased-gifts" style="margin-top: 15px;"></div>
+        <div class="gift-section-sm">
+          <div style="font-weight:900;color:#0f235f;margin-bottom:8px">اشتري مرشحات المواد بالنقاط واحصل على مكافآت</div>
+          <button class="btn btn-success btn-block" onclick="openGiftsModal()"><i class="fas fa-gift"></i> عرض الهدايا والشراء</button>
+          <div id="purchased-gifts-btn" class="purchased-gifts-btn" onclick="showPurchasedGifts()" style="display:none; margin-top:10px">
+            <i class="fas fa-box-open"></i> المرشحات التي اشتريتها
           </div>
         </div>
 
@@ -433,7 +447,7 @@
           <div id="timer-hint" class="hint">1 نقطة لكل 3 دقائق. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
         </div>
 
-        <!-- مكافأة يومية مع تباعد أكبر -->
+        <!-- مكافأة يومية واحدة فقط -->
         <div class="daily-reward">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
             <div style="font-weight:800;color:#0f235f">هدية يومية</div>
@@ -472,6 +486,9 @@
       <div id="challenge-tab-journey" class="challenge-tab-content">
         <div id="journey-container" class="journey-container">
           <div class="post"><p>جاري تحميل محتوى رحلة السادس...</p></div>
+          <div class="owner-only" style="display:none; margin-top:15px">
+            <button class="btn btn-block" onclick="addJourneyContent()"><i class="fas fa-plus"></i> إضافة محتوى جديد</button>
+          </div>
         </div>
       </div>
     </div>
@@ -491,6 +508,13 @@
     <div class="modal-header"><h2>هدايا ومرشحات المواد</h2><button class="close-modal" onclick="closeGiftsModal()">&times;</button></div>
     <div id="gifts-list" style="max-height: 400px; overflow-y: auto;">
       <div class="post"><p>جاري تحميل الهدايا...</p></div>
+    </div>
+  </div></div>
+
+  <div id="purchased-gifts-modal" class="modal"><div class="modal-content">
+    <div class="modal-header"><h2>المرشحات التي اشتريتها</h2><button class="close-modal" onclick="closePurchasedGiftsModal()">&times;</button></div>
+    <div id="purchased-gifts-list" style="max-height: 400px; overflow-y: auto;">
+      <div class="post"><p>جاري تحميل المرشحات...</p></div>
     </div>
   </div></div>
 
@@ -637,7 +661,7 @@
     <div class="select-group"><label>المادة</label>
       <select id="qna-material" class="select-control">
         <option value="اسلامية">اسلامية</option><option value="عربي">عربي</option><option value="انكليزي">انكليزي</option>
-        <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="كيمياء">كيمياء</option>
+        <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="кيمياء">كيمياء</option>
         <option value="فيزياء">فيزياء</option><option value="اقتصاد">اقتصاد</option><option value="أدب ونصوص">أدب ونصوص</option>
         <option value="قواعد">قواعد</option>
       </select>
@@ -744,6 +768,19 @@ function renderAvatar(kind){
   const emoji = kind==="female" ? "👩🏻‍💼" : "👨🏻‍💼";
   el.style.background = bg;
   el.innerHTML = `<div style="font-size:40px;line-height:72px">${emoji}</div>`;
+}
+
+// توليد معرف مختصر (7 أحرف/أرقام)
+function generateShortUid(uid) {
+  if (!uid) return '';
+  // استخدام الهاش لتوليد معرف ثابت وفريد
+  let hash = 0;
+  for (let i = 0; i < uid.length; i++) {
+    hash = ((hash << 5) - hash) + uid.charCodeAt(i);
+    hash = hash & hash;
+  }
+  // تحويل إلى قاعدة 36 وأخذ 7 أحرف
+  return Math.abs(hash).toString(36).substring(0, 7).toUpperCase();
 }
 
 /* Telegram notify (محدث) */
@@ -869,10 +906,13 @@ function register(){
   if(!validateEmail(email)) return showNotification("البريد الإلكتروني غير صالح","error");
   auth.createUserWithEmailAndPassword(email,password)
     .then(cred=>{
+      // توليد معرف مختصر للمستخدم الجديد
+      const shortUid = generateShortUid(cred.user.uid);
       return db.collection("users").doc(cred.user.uid).set({
         name,email,avatar:picked, createdAt:firebase.firestore.FieldValue.serverTimestamp(),
         isVerified:false,isOwner:false,blockedFromPosting:false,
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp(), lastPromoAt: null
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(), lastPromoAt: null,
+        shortUid: shortUid // حفظ المعرف المختصر
       },{merge:true});
     })
     .then(()=>{ 
@@ -903,6 +943,8 @@ auth.onAuthStateChanged(async (user) => {
     let doc = await db.collection("users").doc(user.uid).get();
     if(!doc.exists){
       isFirstLoginSession = true;
+      // توليد معرف مختصر للمستخدم الجديد
+      const shortUid = generateShortUid(user.uid);
       await db.collection("users").doc(user.uid).set({
         name: user.displayName || user.email.split("@")[0], 
         email: user.email, 
@@ -910,12 +952,24 @@ auth.onAuthStateChanged(async (user) => {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
         isVerified:false, isOwner:false, blockedFromPosting:false, 
         lastSeen: firebase.firestore.FieldValue.serverTimestamp(), 
-        lastPromoAt: null
+        lastPromoAt: null,
+        shortUid: shortUid // حفظ المعرف المختصر
       },{merge:true});
       doc = await db.collection("users").doc(user.uid).get();
     }else{
       isFirstLoginSession = false;
-      db.collection("users").doc(user.uid).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
+      // إذا لم يكن هناك معرف مختصر، قم بإنشاء واحد
+      if (!doc.data().shortUid) {
+        const shortUid = generateShortUid(user.uid);
+        await db.collection("users").doc(user.uid).update({
+          shortUid: shortUid,
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } else {
+        await db.collection("users").doc(user.uid).update({ 
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+      }
     }
     currentUser = { uid:user.uid, ...doc.data() };
   }catch(e){
@@ -987,8 +1041,8 @@ function updateUIForLoggedInUser(){
   showPage("challenge"); // افتراضي
   document.getElementById("profile-name").textContent = currentUser.name || "";
   document.getElementById("profile-email").textContent = currentUser.email || "";
-  // تقليل حجم الـ UID
-  const shortUid = currentUser.uid ? currentUser.uid.substring(0, 8) + '...' : '';
+  // استخدام المعرف المختصر بدلاً من UID الكامل
+  const shortUid = currentUser.shortUid || generateShortUid(currentUser.uid);
   document.getElementById("profile-uid-input").value = shortUid || "";
   renderAvatar(currentUser.avatar==="female"?"female":"male");
   const pv=document.getElementById("profile-verified");
@@ -996,6 +1050,12 @@ function updateUIForLoggedInUser(){
   document.querySelectorAll(".owner-only").forEach(el=> el.style.display = isOwner()? "flex":"none");
   updateCreateButton();
   updatePostCountInProfile();
+  
+  // إخفاء زر إضافة نقاط من صفحة التحدي للمالك
+  const addPointsBtn = document.querySelector('#challenge-page .owner-only');
+  if (addPointsBtn && isOwner()) {
+    addPointsBtn.style.display = 'none';
+  }
 }
 
 function updateUIForLoggedOutUser(){
@@ -1249,12 +1309,30 @@ async function reportPost(postId){
   if(!reason) return;
   
   try{
-    await db.collection('reports').add({
+    // حفظ البلاغ في قاعدة البيانات
+    const reportData = {
       postId, 
       reporterUid: currentUser.uid, 
       reporterName: currentUser.name||'مستخدم',
       reason: reason,
       status: 'قيد المراجعة',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    await db.collection('reports').add(reportData);
+    
+    // إرسال إشعار للمالك عبر البوت
+    const post = posts.find(p => p.id === postId);
+    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${currentUser.shortUid || currentUser.uid}\n📄 المنشور: ${escapeHTML(post?.description?.substring(0, 50) || '')}...\n🔗 Post ID: ${postId}`;
+    await sendTelegramNotification(msg);
+    
+    // إرسال إشعار للمستخدم في البريد الوارد
+    await db.collection('inbox').add({
+      userId: currentUser.uid,
+      type: 'report',
+      title: 'تم استلام بلاغك',
+      message: `تم استلام بلاغك حول المنشور وسيتم مراجعته من قبل الإدارة.`,
+      status: 'unread',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
@@ -1265,10 +1343,6 @@ async function reportPost(postId){
     }
     
     showNotification('تم الإبلاغ عن المنشور وسيتم مراجعته','success');
-    
-    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${currentUser.uid}\n🔗 Post: ${location.origin}/post/${postId}`;
-    await sendTelegramNotification(msg);
-    
     renderDetails(postId);
   }catch(e){ showNotification('تعذّر إرسال البلاغ','error'); }
 }
@@ -1423,10 +1497,35 @@ async function editProfileName(){
 /* =========================
    Inbox (بسيط)
 ========================= */
-function showInbox(){
+async function showInbox(){
   if(!currentUser) return showNotification('سجّل الدخول','warning');
   showPage('inbox');
-  inboxContainer.innerHTML = '<div class="post"><p>لا توجد رسائل حالياً.</p></div>';
+  inboxContainer.innerHTML = '<div class="post"><p>جاري تحميل الرسائل...</p></div>';
+  
+  try {
+    const snapshot = await db.collection('inbox')
+      .where('userId', '==', currentUser.uid)
+      .orderBy('createdAt', 'desc')
+      .get();
+    
+    if (snapshot.empty) {
+      inboxContainer.innerHTML = '<div class="post"><p>لا توجد رسائل حالياً.</p></div>';
+      return;
+    }
+    
+    inboxContainer.innerHTML = snapshot.docs.map(doc => {
+      const msg = doc.data();
+      return `
+        <div class="post">
+          <div style="font-weight:bold;color:#0f235f">${escapeHTML(msg.title || 'إشعار')}</div>
+          <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
+          <small style="color:#777">${msg.createdAt?.toDate ? msg.createdAt.toDate().toLocaleString('ar-IQ') : ''}</small>
+        </div>`;
+    }).join('');
+  } catch (error) {
+    console.error('Error loading inbox:', error);
+    inboxContainer.innerHTML = '<div class="post"><p>خطأ في تحميل الرسائل</p></div>';
+  }
 }
 
 /* =========================
@@ -1460,9 +1559,14 @@ async function sendBroadcast(){
     
     // إرسال الإشعار لجميع مستخدمي البوت
     const broadcastMessage = `📢 <b>${escapeHTML(title)}</b>\n\n${escapeHTML(text)}`;
-    await sendBroadcastToAllUsers(broadcastMessage);
+    const sent = await sendBroadcastToAllUsers(broadcastMessage);
     
-    showNotification('تم إرسال الإشعار','success'); closeModal();
+    if (sent) {
+      showNotification('تم إرسال الإشعار لجميع المستخدمين','success'); 
+    } else {
+      showNotification('تم حفظ الإشعار ولكن حدث خطأ في الإرسال','warning');
+    }
+    closeModal();
   }catch(e){ showNotification('فشل الإرسال','error'); }
 }
 async function fetchLatestBroadcast(){
@@ -1518,7 +1622,7 @@ async function addPointsDirectly(userId, points){
     
     showNotification(`أُضيف ${points} نقطة`, 'success');
     await sendTelegramNotification(
-      `➕ <b>إضافة نقاط</b>\n👤 ${userData.name||'-'}\n📧 ${userData.email||'-'}\n🆔 ${userId}\n🎯 ${points}`
+      `➕ <b>إضافة نقاط</b>\n👤 ${userData.name||'-'}\n📧 ${userData.email||'-'}\n🆔 ${userData.shortUid || userId}\n🎯 ${points}`
     );
   } catch (e) { showNotification(`فشل الإضافة: ${e.message}`, 'error'); }
 }
@@ -2214,13 +2318,10 @@ function startJourneyListener(){
             </div>`;
         }).join('');
         
+        // إظهار زر الإضافة للمالك فقط
         if(isOwner()){
-          box.innerHTML += `
-            <div class="post" style="margin-top:12px;">
-              <button class="btn btn-block" onclick="addJourneyContent()">
-                إضافة محتوى جديد
-              </button>
-            </div>`;
+          const addBtn = document.querySelector('#challenge-tab-journey .owner-only');
+          if(addBtn) addBtn.style.display = 'block';
         }
       },
       error=>{ 
@@ -2330,6 +2431,10 @@ function closeGiftsModal(){
   document.getElementById('gifts-modal').style.display='none';
 }
 
+function closePurchasedGiftsModal(){
+  document.getElementById('purchased-gifts-modal').style.display='none';
+}
+
 async function loadGifts(){
   const giftsList = document.getElementById('gifts-list');
   giftsList.innerHTML = '<div class="post"><p>جاري تحميل الهدايا...</p></div>';
@@ -2372,11 +2477,44 @@ async function loadGifts(){
         </div>`;
     }
     
-    // عرض الهدايا المشتراة
+    // تحميل الهدايا المشتراة
     await loadPurchasedGifts();
   } catch (error) {
     console.error('Error loading gifts:', error);
     giftsList.innerHTML = '<div class="post"><p>خطأ في تحميل الهدايا</p></div>';
+  }
+}
+
+async function showPurchasedGifts(){
+  document.getElementById('purchased-gifts-modal').style.display = 'block';
+  const list = document.getElementById('purchased-gifts-list');
+  list.innerHTML = '<div class="post"><p>جاري تحميل المرشحات...</p></div>';
+  
+  try {
+    const snapshot = await db.collection('purchases')
+      .where('userId', '==', currentUser.uid)
+      .get();
+    
+    if (snapshot.empty) {
+      list.innerHTML = '<div class="post"><p>لم تشتري أي مرشحات بعد.</p></div>';
+      return;
+    }
+    
+    list.innerHTML = snapshot.docs.map(doc => {
+      const purchase = doc.data();
+      return `
+        <div class="gift-item">
+          <h4>${escapeHTML(purchase.item)}</h4>
+          <p>تم الشراء بتاريخ: ${purchase.createdAt?.toDate ? purchase.createdAt.toDate().toLocaleString('ar-IQ') : ''}</p>
+          <p class="muted">السعر: ${purchase.price} نقطة</p>
+          <button class="btn" onclick="openTelegram('MSLM_ALMYALY')">
+            <i class="fab fa-telegram"></i> تواصل مع المالك
+          </button>
+        </div>`;
+    }).join('');
+  } catch (error) {
+    console.error('Error loading purchased gifts:', error);
+    list.innerHTML = '<div class="post"><p>خطأ في التحميل</p></div>';
   }
 }
 
@@ -2388,21 +2526,9 @@ async function loadPurchasedGifts() {
       .where('userId', '==', currentUser.uid)
       .get();
     
-    const purchasedGifts = document.getElementById('purchased-gifts');
-    if (purchasedGifts && !purchasedSnapshot.empty) {
-      purchasedGifts.innerHTML = `
-        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px;">
-          <h4>هداياي المشتراة</h4>
-          ${purchasedSnapshot.docs.map(doc => {
-            const purchase = doc.data();
-            return `<div style="margin: 8px 0; padding: 8px; background: #fff; border-radius: 8px;">
-              <b>${escapeHTML(purchase.item)}</b>
-              <button class="btn btn-xs" onclick="openTelegram('MSLM_ALMYALY')" style="margin-top: 5px;">
-                <i class="fab fa-telegram"></i> تواصل مع المالك
-              </button>
-            </div>`;
-          }).join('')}
-        </div>`;
+    const purchasedBtn = document.getElementById('purchased-gifts-btn');
+    if (purchasedBtn && !purchasedSnapshot.empty) {
+      purchasedBtn.style.display = 'block';
     }
   } catch (error) {
     console.error('Error loading purchased gifts:', error);
@@ -2432,13 +2558,16 @@ async function purchaseGift(){
   }
   
   try {
+    // خصم النقاط
     await db.collection('study').doc(currentUser.uid).set({
       currentPoints: firebase.firestore.FieldValue.increment(-gift.price),
       name: currentUser.name||'مستخدم'
     }, {merge: true});
     
     studyState.currentPoints -= gift.price;
+    renderTimerUI();
     
+    // حفظ عملية الشراء
     await db.collection('purchases').add({
       userId: currentUser.uid,
       userName: currentUser.name,
@@ -2447,13 +2576,23 @@ async function purchaseGift(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
+    // إرسال إشعار للمالك
     await sendTelegramNotification(
-      `🛒 <b>شراء جديد</b>\n\n👤 ${currentUser.name}\n🎁 ${gift.name}\n💰 ${gift.price} نقطة`
+      `🛒 <b>شراء جديد</b>\n\n👤 ${currentUser.name}\n🎁 ${gift.name}\n💰 ${gift.price} نقطة\n🆔 ${currentUser.shortUid || currentUser.uid}`
     );
+    
+    // إرسال إشعار للمستخدم
+    await db.collection('inbox').add({
+      userId: currentUser.uid,
+      type: 'purchase',
+      title: 'تم شراء المرشحات',
+      message: `تم شراء ${gift.name} بنجاح. يمكنك التواصل مع المالك للحصول على المرشحات.`,
+      status: 'unread',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
     
     showNotification(`تم شراء ${gift.name} بنجاح`,'success');
     closeBuyGiftModal();
-    renderTimerUI();
     await loadPurchasedGifts();
   } catch (error) {
     console.error('Error purchasing gift:', error);
@@ -2561,6 +2700,33 @@ window.addEventListener('beforeunload', () => {
     stopStudyTimer();
   }
 });
+
+// تحديث جميع المعرفات القصيرة للمستخدمين الحاليين
+async function updateAllUserShortUids() {
+  if (!isOwner()) return;
+  
+  try {
+    const usersSnapshot = await db.collection('users').get();
+    const batch = db.batch();
+    
+    usersSnapshot.forEach(doc => {
+      const userData = doc.data();
+      if (!userData.shortUid) {
+        const shortUid = generateShortUid(doc.id);
+        batch.update(doc.ref, { shortUid });
+      }
+    });
+    
+    await batch.commit();
+    showNotification('تم تحديث جميع المعرفات','success');
+  } catch (error) {
+    console.error('Error updating short UIDs:', error);
+    showNotification('فشل تحديث المعرفات','error');
+  }
+}
+
+// استدعاء الدالة لتحديث المعرفات (يمكن استدعاؤها يدوياً من قبل المالك)
+// updateAllUserShortUids();
 </script>
 </body>
 </html>
