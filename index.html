@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
@@ -201,7 +200,7 @@
     .rank-5{border-color:#a17aff;box-shadow:0 0 0 3px rgba(161,122,255,.35),0 10px 24px rgba(161,122,255,.25)}
     .rank-5 .rank-badge{background:linear-gradient(135deg,#d1c4e9,#b39ddb);color:#382a4e;border:2px solid #9575cd}
 
-    /* زر المطالبة اليومية داخل المؤقت */
+    /* زر المطالبة اليومية داخل المؤقت (الإصدار الوحيد المفعَّل) */
     .daily-claim{display:inline-flex;align-items:center;justify-content:center;width:120px;height:56px;border-radius:12px;font-weight:900;border:2px dashed #ff8c00;background:#fff7e6;cursor:pointer}
     .daily-claim[disabled]{opacity:.6;cursor:not-allowed;border-style:solid}
     .daily-claim small{display:block;font-weight:700;color:#a85}
@@ -243,6 +242,13 @@
       border: 1px solid #ffd8a8; 
       border-radius: 12px; 
     }
+
+    /* ===== مكافآت التصنيف + العد التنازلي ===== */
+    .lb-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0;}
+    .countdown{font-weight:900;color:#0f235f;font-size:14px;display:flex;align-items:center;gap:6px}
+    .cd-box{background:#f2f4ff;border:1px solid #dfe4ff;border-radius:10px;padding:6px 10px;min-width:58px;text-align:center}
+    .cd-num{font-size:16px;font-weight:900;display:block}
+    .cd-lbl{font-size:11px;color:#3a5bef;display:block}
   </style>
 
   <!-- Firebase -->
@@ -447,7 +453,7 @@
           <div id="timer-hint" class="hint">1 نقطة لكل 3 دقائق. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
         </div>
 
-        <!-- مكافأة يومية واحدة فقط -->
+        <!-- مكافأة يومية واحدة فقط (الإصدار الفعّال) -->
         <div class="daily-reward">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
             <div style="font-weight:800;color:#0f235f">هدية يومية</div>
@@ -478,21 +484,35 @@
 
       <div id="challenge-tab-leaderboard" class="challenge-tab-content">
         <div class="post-title" style="font-size:16px;color:#0f235f;font-weight:900">التصنيف العالمي (أعلى 50)</div>
+
+        <!-- شريط أدوات التصنيف: زر مكافآت + عد تنازلي أسبوعي -->
+        <div class="lb-tools">
+          <button class="btn" id="lb-rewards-btn" onclick="openLbRewardsModal()"><i class="fa-solid fa-trophy"></i> مكافئات التصنيف</button>
+          <div class="countdown" id="leaderboard-countdown" aria-label="الوقت المتبقي لتحديث التصنيف">
+            <span class="cd-box"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">أيام</span></span>
+            <span class="cd-box"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">ساعات</span></span>
+            <span class="cd-box"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">دقائق</span></span>
+            <span class="cd-box"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">ثواني</span></span>
+          </div>
+        </div>
+
         <div id="challenge-leaderboard" class="rank-list">
           <div class="post"><p>جاري تحميل التصنيف...</p></div>
         </div>
       </div>
 
-<div id="challenge-tab-journey" class="challenge-tab-content">
-  <!-- زر إضافة محتوى للمالك فقط -->
-  <div class="owner-only" style="display:none; margin-bottom:15px">
-    <button class="btn btn-block" onclick="addJourneyContent()"><i class="fas fa-plus"></i> إضافة محتوى جديد</button>
+      <div id="challenge-tab-journey" class="challenge-tab-content">
+        <!-- زر إضافة محتوى (للمالك فقط) -->
+        <button class="btn btn-block owner-only" id="add-journey-btn" style="display:none" onclick="addJourneyContent()">
+          <i class="fas fa-plus"></i> إضافة محتوى
+        </button>
+
+        <div id="journey-container" class="journey-container">
+          <div class="post"><p>جاري تحميل محتوى رحلة السادس...</p></div>
+        </div>
+      </div>
+    </div>
   </div>
-  
-  <div id="journey-container" class="journey-container">
-    <div class="post"><p>جاري تحميل محتوى رحلة السادس...</p></div>
-  </div>
-</div>
 
   <!-- Bottom nav -->
   <div id="bottom-nav" class="bottom-nav">
@@ -638,7 +658,7 @@
 
   <div id="add-points-modal" class="modal"><div class="modal-content">
     <div class="modal-header"><h2>إضافة نقاط</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
-    <div class="select-group"><label>UID المستخدم</label><input id="addpoints-uid" class="select-control"></div>
+    <div class="select-group"><label>UID/المعرف المختصر</label><input id="addpoints-uid" class="select-control" placeholder="أدخل UID الكامل أو المعرف المختصر (مثال: ABC12DE)"></div>
     <div class="select-group"><label>عدد النقاط</label><input id="addpoints-num" type="number" class="select-control" value="50"></div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
@@ -699,6 +719,26 @@
     <div class="header"><button class="btn btn-secondary" onclick="showProfilePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">إحصائيات المستخدمين</span></div>
     <div class="posts-container" id="user-stats-container"></div>
   </div>
+
+  <!-- Modal: مكافآت التصنيف -->
+  <div id="lb-rewards-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>مكافئات التصنيف</h2>
+        <button class="close-modal" onclick="closeLbRewardsModal()">&times;</button>
+      </div>
+      <div class="post">
+        <ul style="line-height:2">
+          <li><b>المركز الأول:</b> 2000 نقطة</li>
+          <li><b>المركز الثاني:</b> 1500 نقطة</li>
+          <li><b>المركز الثالث:</b> 1000 نقطة</li>
+          <li><b>المركز الرابع:</b> 500 نقطة</li>
+          <li><b>المركز الخامس:</b> 300 نقطة</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <script>
 /* =========================
    Firebase & Globals
@@ -717,7 +757,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-/* ===== Telegram (تم تحديث التوكن) ===== */
+/* ===== Telegram (تم تحسين الإرسال) ===== */
 const TELEGRAM_BOT_TOKEN = "8167852054:AAHt587_tOX_XASuNlskt3odkfJHNesiDxc";
 const TELEGRAM_OWNER_ID   = "7782429739";
 const APP_OWNER_EMAIL     = "mslmalmyaly223@gmail.com";
@@ -773,27 +813,33 @@ function renderAvatar(kind){
 // توليد معرف مختصر (7 أحرف/أرقام)
 function generateShortUid(uid) {
   if (!uid) return '';
-  // استخدام الهاش لتوليد معرف ثابت وفريد
   let hash = 0;
   for (let i = 0; i < uid.length; i++) {
     hash = ((hash << 5) - hash) + uid.charCodeAt(i);
     hash = hash & hash;
   }
-  // تحويل إلى قاعدة 36 وأخذ 7 أحرف
   return Math.abs(hash).toString(36).substring(0, 7).toUpperCase();
 }
 
-/* Telegram notify (محدث) */
+/* Telegram notify (تحسين: تقسيم الرسائل الطويلة) */
 async function sendTelegramNotification(message, chatId = TELEGRAM_OWNER_ID) {
   try {
     if (!TELEGRAM_BOT_TOKEN) return false;
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const res = await fetch(url, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' })
-    });
-    const data = await res.json();
-    return !!data.ok;
+    const MAX = 3900; // أقل من حد 4096 مع هامش
+    const chunks = [];
+    for (let i = 0; i < message.length; i += MAX) {
+      chunks.push(message.slice(i, i + MAX));
+    }
+    for (const chunk of chunks) {
+      const res = await fetch(url, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ chat_id: chatId, text: chunk, parse_mode: 'HTML' })
+      });
+      const data = await res.json();
+      if (!data.ok) return false;
+    }
+    return true;
   } catch { return false; }
 }
 
@@ -802,14 +848,12 @@ async function sendBroadcastToAllUsers(message) {
   try {
     const usersSnapshot = await db.collection('users').get();
     const promises = [];
-    
     usersSnapshot.forEach(doc => {
       const user = doc.data();
       if (user.telegramId) {
         promises.push(sendTelegramNotification(message, user.telegramId));
       }
     });
-    
     await Promise.all(promises);
     return true;
   } catch (error) {
@@ -906,13 +950,12 @@ function register(){
   if(!validateEmail(email)) return showNotification("البريد الإلكتروني غير صالح","error");
   auth.createUserWithEmailAndPassword(email,password)
     .then(cred=>{
-      // توليد معرف مختصر للمستخدم الجديد
       const shortUid = generateShortUid(cred.user.uid);
       return db.collection("users").doc(cred.user.uid).set({
         name,email,avatar:picked, createdAt:firebase.firestore.FieldValue.serverTimestamp(),
         isVerified:false,isOwner:false,blockedFromPosting:false,
         lastSeen: firebase.firestore.FieldValue.serverTimestamp(), lastPromoAt: null,
-        shortUid: shortUid // حفظ المعرف المختصر
+        shortUid: shortUid
       },{merge:true});
     })
     .then(()=>{ 
@@ -943,7 +986,6 @@ auth.onAuthStateChanged(async (user) => {
     let doc = await db.collection("users").doc(user.uid).get();
     if(!doc.exists){
       isFirstLoginSession = true;
-      // توليد معرف مختصر للمستخدم الجديد
       const shortUid = generateShortUid(user.uid);
       await db.collection("users").doc(user.uid).set({
         name: user.displayName || user.email.split("@")[0], 
@@ -953,12 +995,11 @@ auth.onAuthStateChanged(async (user) => {
         isVerified:false, isOwner:false, blockedFromPosting:false, 
         lastSeen: firebase.firestore.FieldValue.serverTimestamp(), 
         lastPromoAt: null,
-        shortUid: shortUid // حفظ المعرف المختصر
+        shortUid: shortUid
       },{merge:true});
       doc = await db.collection("users").doc(user.uid).get();
     }else{
       isFirstLoginSession = false;
-      // إذا لم يكن هناك معرف مختصر، قم بإنشاء واحد
       if (!doc.data().shortUid) {
         const shortUid = generateShortUid(user.uid);
         await db.collection("users").doc(user.uid).update({
@@ -978,7 +1019,6 @@ auth.onAuthStateChanged(async (user) => {
   }
   updateUIForLoggedInUser();
   await Promise.all([loadPostsFromFirestore(), loadCompanies(), fetchLatestBroadcast()]);
-  // تحميل حالة المؤقت والنقاط
   await loadStudyState();
   setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
   pendingChosenAvatar = null;
@@ -1038,26 +1078,23 @@ function switchAuthTab(tab){
 }
 
 function updateUIForLoggedInUser(){
-  showPage("challenge"); // افتراضي
+  showPage("challenge");
   document.getElementById("profile-name").textContent = currentUser.name || "";
   document.getElementById("profile-email").textContent = currentUser.email || "";
-  // استخدام المعرف المختصر بدلاً من UID الكامل
   const shortUid = currentUser.shortUid || generateShortUid(currentUser.uid);
   document.getElementById("profile-uid-input").value = shortUid || "";
   renderAvatar(currentUser.avatar==="female"?"female":"male");
   const pv=document.getElementById("profile-verified");
   pv.innerHTML = currentUser.isVerified? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>` : '';
   document.querySelectorAll(".owner-only").forEach(el=> el.style.display = isOwner()? "flex":"none");
+
+  // إظهار زر إضافة محتوى رحلة السادس للمالك فقط
+  const addJourneyBtn = document.getElementById('add-journey-btn');
+  if (addJourneyBtn) addJourneyBtn.style.display = isOwner()? 'block' : 'none';
+
   updateCreateButton();
   updatePostCountInProfile();
-  
-  // إخفاء زر إضافة نقاط من صفحة التحدي للمالك
-  const addPointsBtn = document.querySelector('#challenge-page .owner-only');
-  if (addPointsBtn && isOwner()) {
-    addPointsBtn.style.display = 'none';
-  }
 }
-
 function updateUIForLoggedOutUser(){
   showPage("auth"); 
   postsContainer.innerHTML=""; 
@@ -1302,14 +1339,13 @@ async function renderDetails(postId){
   detailsContainer.innerHTML = ''; detailsContainer.appendChild(card);
 }
 
-/* إبلاغ + تعليقات */
+/* إبلاغ + تعليقات (تحسينات الابلاغ) */
 async function reportPost(postId){
   if(!currentUser) return showNotification('يلزم تسجيل الدخول','warning');
   const reason = prompt('سبب الإبلاغ:');
   if(!reason) return;
   
   try{
-    // حفظ البلاغ في قاعدة البيانات
     const reportData = {
       postId, 
       reporterUid: currentUser.uid, 
@@ -1318,15 +1354,15 @@ async function reportPost(postId){
       status: 'قيد المراجعة',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    
     await db.collection('reports').add(reportData);
     
-    // إرسال إشعار للمالك عبر البوت
+    // إشعار للمالك (مع تقسيم وحماية HTML)
     const post = posts.find(p => p.id === postId);
-    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${currentUser.shortUid || currentUser.uid}\n📄 المنشور: ${escapeHTML(post?.description?.substring(0, 50) || '')}...\n🔗 Post ID: ${postId}`;
+    const snippet = escapeHTML(post?.description?.substring(0, 100) || '');
+    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${escapeHTML(currentUser.shortUid || currentUser.uid)}\n📄 المنشور: ${snippet}...\n🔗 Post ID: ${escapeHTML(postId)}`;
     await sendTelegramNotification(msg);
     
-    // إرسال إشعار للمستخدم في البريد الوارد
+    // إشعار للمستخدم في البريد الوارد
     await db.collection('inbox').add({
       userId: currentUser.uid,
       type: 'report',
@@ -1344,7 +1380,10 @@ async function reportPost(postId){
     
     showNotification('تم الإبلاغ عن المنشور وسيتم مراجعته','success');
     renderDetails(postId);
-  }catch(e){ showNotification('تعذّر إرسال البلاغ','error'); }
+  }catch(e){ 
+    console.error('Report error:', e);
+    showNotification('تعذّر إرسال البلاغ','error'); 
+  }
 }
 async function openCommentsPage(postId) { if (!currentUser) return; currentCommentsPostId = postId; showPage("comments"); await renderComments(postId); }
 async function renderComments(postId) {
@@ -1557,7 +1596,6 @@ async function sendBroadcast(){
       title, text, createdAt: firebase.firestore.FieldValue.serverTimestamp(), by: currentUser.uid
     });
     
-    // إرسال الإشعار لجميع مستخدمي البوت
     const broadcastMessage = `📢 <b>${escapeHTML(title)}</b>\n\n${escapeHTML(text)}`;
     const sent = await sendBroadcastToAllUsers(broadcastMessage);
     
@@ -1599,21 +1637,38 @@ function dismissBroadcast(){
 }
 
 /* =========================
-   Owner: Add points dialog
+   Owner: Add points dialog (يدعم المعرف المختصر)
 ========================= */
 function openAddPointsModal(){
   if (!isOwner()) return showNotification('للمالك فقط','error');
   document.getElementById('add-points-modal').style.display='block';
 }
-async function addPointsDirectly(userId, points){
+async function addPointsDirectly(userIdOrShort, points){
   if (!isOwner()) return;
   try {
-    const userDoc = await db.collection('users').doc(userId).get();
-    if (!userDoc.exists) throw new Error('المستخدم غير موجود');
-    const userData = userDoc.data();
+    let targetUid = null;
+    let userData = null;
+
+    // إذا أُدخل معرف مختصر (<= 8 حروف/أرقام) ابحث عنه
+    const token = (userIdOrShort || '').trim();
+    if (token.length <= 8) {
+      const q = await db.collection('users').where('shortUid', '==', token.toUpperCase()).limit(1).get();
+      if (!q.empty) {
+        const doc = q.docs[0];
+        targetUid = doc.id;
+        userData = doc.data();
+      }
+    }
+
+    // وإلا اعتبره UID كامل
+    if (!targetUid) {
+      const userDoc = await db.collection('users').doc(token).get();
+      if (!userDoc.exists) throw new Error('المعرف غير موجود');
+      targetUid = userDoc.id;
+      userData = userDoc.data();
+    }
     
-    // تحديث النقاط مباشرة
-    await db.collection('study').doc(userId).set({
+    await db.collection('study').doc(targetUid).set({
       currentPoints: firebase.firestore.FieldValue.increment(points),
       totalPoints: firebase.firestore.FieldValue.increment(points),
       name: userData.name || 'مستخدم',
@@ -1622,7 +1677,7 @@ async function addPointsDirectly(userId, points){
     
     showNotification(`أُضيف ${points} نقطة`, 'success');
     await sendTelegramNotification(
-      `➕ <b>إضافة نقاط</b>\n👤 ${userData.name||'-'}\n📧 ${userData.email||'-'}\n🆔 ${userData.shortUid || userId}\n🎯 ${points}`
+      `➕ <b>إضافة نقاط</b>\n👤 ${escapeHTML(userData.name||'-')}\n📧 ${escapeHTML(userData.email||'-')}\n🆔 ${escapeHTML(userData.shortUid || targetUid)}\n🎯 ${points}`
     );
   } catch (e) { showNotification(`فشل الإضافة: ${e.message}`, 'error'); }
 }
@@ -1691,7 +1746,7 @@ function switchChallengeTab(btn){
   const tabName = btn.dataset.tab;
   document.querySelectorAll('.challenge-tab-pill, .challenge-tab-content').forEach(el => el.classList.remove('active'));
   btn.classList.add('active'); document.getElementById(`challenge-tab-${tabName}`).classList.add('active');
-  if (tabName === 'leaderboard' && !window._leaderboardInit) { window._leaderboardInit=true; startLeaderboardListener(); }
+  if (tabName === 'leaderboard' && !window._leaderboardInit) { window._leaderboardInit=true; startLeaderboardListener(); startLeaderboardCountdown(); }
   if (tabName === 'qna' && !window._qnaInit) { window._qnaInit=true; startQnaListener(); }
   if (tabName === 'journey' && !window._journeyInit) { window._journeyInit=true; startJourneyListener(); }
 }
@@ -1712,7 +1767,6 @@ async function openUserStats(){
   container.innerHTML = '<div class="post"><p>جاري تحميل الإحصائيات...</p></div>';
   
   try {
-    // الحصول على إحصائيات المستخدمين
     const usersSnapshot = await db.collection('users').get();
     const studySnapshot = await db.collection('study').get();
     const postsSnapshot = await db.collection('posts').get();
@@ -1720,14 +1774,12 @@ async function openUserStats(){
     const totalUsers = usersSnapshot.size;
     const totalPosts = postsSnapshot.size;
     
-    // المستخدمين النشطين اليوم (آخر 24 ساعة)
     const activeToday = usersSnapshot.docs.filter(doc => {
       const userData = doc.data();
       const lastSeen = userData.lastSeen?.toDate ? userData.lastSeen.toDate() : null;
       return lastSeen && (Date.now() - lastSeen.getTime()) < (24 * 60 * 60 * 1000);
     }).length;
     
-    // المستخدمين النشطين حالياً (آخر 5 دقائق)
     const activeNow = usersSnapshot.docs.filter(doc => {
       const userData = doc.data();
       const lastSeen = userData.lastSeen?.toDate ? userData.lastSeen.toDate() : null;
@@ -1764,28 +1816,12 @@ async function openUserStats(){
 }
 
 /* ===========================================================
-   المؤقّت + التسريع + مكافأة 20 نقطة داخل المؤقّت
+   المؤقّت + التسريع + مكافأة 20 نقطة (نسخة واحدة فقط)
 =========================================================== */
 let studyInterval=null, boostInterval=null, heartbeatInterval=null, lastHeartbeatSentAt=0;
 let leaderboardUnsub=null, qnaUnsub=null, journeyUnsub=null;
 let studyState = {running:false,totalSeconds:0,startAtMs:null,totalPoints:0,currentPoints:0,boostUntil:null,lastDailyClaimAt:null};
 let dailyRewardInterval=null;
-
-function ensureDailyRewardBox(){
-  const card=document.querySelector('#challenge-tab-timer .timer-card');
-  if(!card || document.getElementById('daily-reward-box')) return;
-  const box=document.createElement('div');
-  box.id='daily-reward-box';
-  box.className='daily-reward';
-  box.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <div style="font-weight:800;color:#0f235f">هدية يومية</div>
-      <button id="daily-claim-btn" class="btn btn-success"><i class="fas fa-gift"></i> احصل على 20 نقطة</button>
-    </div>
-    <div id="daily-remaining" class="hint" style="margin-top:10px"></div>`;
-  card.parentNode.insertBefore(box, card.nextSibling);
-  document.getElementById('daily-claim-btn').onclick = claimDailyReward;
-}
 
 function msToHMS(ms){
   let s=Math.max(0,Math.floor(ms/1000));
@@ -1796,7 +1832,6 @@ function msToHMS(ms){
 
 async function loadStudyState(){
   if(!currentUser) return;
-  ensureDailyRewardBox();
   const ref=db.collection('study').doc(currentUser.uid);
   try{
     const d=await ref.get();
@@ -1809,7 +1844,6 @@ async function loadStudyState(){
       studyState.boostUntil = s.boostUntil?.toDate ? s.boostUntil.toDate() : null;
       studyState.lastDailyClaimAt = s.lastDailyClaimAt?.toDate ? s.lastDailyClaimAt.toDate() : null;
       
-      // تحديث واجهة المستخدم
       renderTimerUI();
       updateDailyRewardUI();
       
@@ -1821,11 +1855,13 @@ async function loadStudyState(){
     }else{
       studyState={running:false,totalSeconds:0,startAtMs:null,totalPoints:0,currentPoints:0,boostUntil:null,lastDailyClaimAt:null};
       renderTimerUI();
+      updateDailyRewardUI();
     }
   }catch(e){ 
     console.warn("Error loading study state:", e);
     studyState={running:false,totalSeconds:0,startAtMs:null,totalPoints:0,currentPoints:0,boostUntil:null,lastDailyClaimAt:null};
     renderTimerUI();
+    updateDailyRewardUI();
   }
 }
 
@@ -1876,7 +1912,6 @@ async function startStudyTimer(){
       lastPingAt: firebase.firestore.FieldValue.serverTimestamp()
     },{merge:true});
     
-    // تحديث الحالة المحلية
     studyState.running=true;
     studyState.startAtMs = Date.now();
     
@@ -1907,13 +1942,12 @@ async function stopStudyTimer(){
       let elapsed=(stopAt - start)/1000; 
       if(elapsed<0) elapsed=0;
       
-      // تسريع 2x داخل نافذة boostUntil
       if(s.boostUntil?.toDate && s.boostUntil.toDate()>start){
         const boosted = Math.max(0, (Math.min(stopAt, s.boostUntil.toDate()) - start)/1000);
-        elapsed += boosted; // فعلياً 2x لجزء التعزيز
+        elapsed += boosted;
       }
       
-      const points = Math.floor(elapsed/180); // نقطة لكل 3 دقائق
+      const points = Math.floor(elapsed/180);
       
       tx.update(ref,{
         running:false, 
@@ -1922,7 +1956,6 @@ async function stopStudyTimer(){
         currentPoints: firebase.firestore.FieldValue.increment(points)
       });
       
-      // تحديث الحالة المحلية
       studyState.currentPoints += points; 
       studyState.totalPoints += points;
       studyState.running=false; 
@@ -1956,45 +1989,7 @@ function updateBoostStatus(){
   el.textContent = `التسريع مفعل! الوقت المتبقي: ${msToHMS(left)}`;
 }
 
-async function buyBoost(hours){
-  if(!currentUser) return;
-  const prices={1:25,2:50,3:75,5:100};
-  const price=prices[hours]; if(!price) return;
-  if(studyState.currentPoints < price) return showNotification('نقاط غير كافية','error');
-  if(!confirm(`تأكيد شراء تسريع ${hours} ساعة مقابل ${price} نقطة؟`)) return;
-  
-  try{
-    const ref=db.collection('study').doc(currentUser.uid);
-    await db.runTransaction(async tx=>{
-      const d=await tx.get(ref); 
-      const now=new Date();
-      const curPts=d.exists?(d.data().currentPoints||0):0; 
-      if(curPts<price) throw new Error('نقاط غير كافية');
-      
-      const curBoost = d.exists && d.data().boostUntil?.toDate ? d.data().boostUntil.toDate() : now;
-      const newUntil = new Date(Math.max(now.getTime(), curBoost.getTime()) + hours*3600*1000);
-      
-      tx.set(ref,{ 
-        currentPoints: curPts - price, 
-        boostUntil: newUntil, 
-        name: currentUser.name||'مستخدم' 
-      },{merge:true});
-      
-      // تحديث الحالة المحلية
-      studyState.currentPoints -= price; 
-      studyState.boostUntil = newUntil;
-    });
-    
-    showNotification('تم تفعيل التسريع','success'); 
-    startBoostInterval(); 
-    renderTimerUI();
-  }catch(e){
-    console.error("Error buying boost:", e);
-    showNotification('فشلت العملية: '+e.message,'error'); 
-  }
-}
-
-/* مكافأة 20 نقطة داخل المؤقّت */
+/* مكافأة 20 نقطة داخل المؤقّت (نسخة واحدة) */
 function updateDailyRewardUI(){
   const btn=document.getElementById('daily-claim-btn'); 
   const rem=document.getElementById('daily-remaining');
@@ -2034,7 +2029,6 @@ async function claimDailyReward(){
       name: currentUser.name||'مستخدم'
     },{merge:true});
     
-    // تحديث الحالة المحلية
     studyState.currentPoints += 20; 
     studyState.totalPoints += 20;
     studyState.lastDailyClaimAt = new Date();
@@ -2049,7 +2043,7 @@ async function claimDailyReward(){
 }
 
 /* ===========================================================
-   التصنيف (Top 50) + إطارات الخمسة الأوائل
+   التصنيف (Top 50) + إطارات الخمسة + مكافآت + عد تنازلي أسبوعي
 =========================================================== */
 function startLeaderboardListener(){
   stopLeaderboardListener();
@@ -2070,14 +2064,12 @@ function startLeaderboardListener(){
       }
     );
 }
-
 function stopLeaderboardListener(){ 
   if(leaderboardUnsub){
     try{leaderboardUnsub();}catch{} 
     leaderboardUnsub=null;
   }
 }
-
 function renderLeaderboard(items){
   const lb=document.getElementById('challenge-leaderboard'); 
   if(!lb) return;
@@ -2090,14 +2082,13 @@ function renderLeaderboard(items){
   lb.innerHTML = items.map((it,idx)=>{
     const points = it.totalPoints||0;
     const cls = idx===0?'rank-1':(idx===1?'rank-2':(idx===2?'rank-3':(idx===3?'rank-4':(idx===4?'rank-5':'rank'))));
-    const premium = idx<5?'rank-premium':'';
     const delBtn = isOwner()? `
       <button class="btn btn-xs btn-danger" style="margin-right:auto" onclick="ownerRemoveFromLeaderboard('${it.uid}','${escapeHTML(it.name||'مستخدم')}')">
         <i class="fa-solid fa-trash"></i>
       </button>` : '';
     
     return `
-      <div class="rank-card ${cls} ${premium}">
+      <div class="rank-card ${cls}">
         <div class="rank-left">
           <div class="rank-badge">${idx+1}</div>
           <div class="rank-name">${escapeHTML(it.name||'مستخدم')}</div>
@@ -2108,15 +2099,46 @@ function renderLeaderboard(items){
   }).join('');
 }
 
-async function ownerRemoveFromLeaderboard(uid,name){
-  if(!isOwner()) return;
-  if(!confirm(`حذف "${name}" من التصنيف وإعادة نقاطه؟`)) return;
-  try{ 
-    await db.collection('study').doc(uid).update({ totalPoints:0 }); 
-    showNotification('تم الحذف من التصنيف','success'); 
-  }catch(e){ 
-    showNotification('فشل الحذف','error'); 
-  }
+/* زر مكافآت التصنيف */
+function openLbRewardsModal(){ document.getElementById('lb-rewards-modal').style.display='block'; }
+function closeLbRewardsModal(){ document.getElementById('lb-rewards-modal').style.display='none'; }
+
+/* عدّ تنازلي أسبوعي لتحديث التصنيف
+   يعتمد على تحديث كل يوم أحد الساعة 00:00 بالتوقيت المحلي للمتصفح */
+let lbCountdownInterval=null;
+function getNextWeeklyReset(){
+  const now = new Date();
+  const day = now.getDay(); // 0: Sunday
+  const daysToNextSunday = (7 - day) % 7 || 7; // إذا كان اليوم أحد، نذهب للأحد القادم
+  const next = new Date(now);
+  next.setHours(0,0,0,0);
+  next.setDate(now.getDate() + daysToNextSunday);
+  return next;
+}
+function startLeaderboardCountdown(){
+  const daysEl = document.getElementById('cd-days');
+  const hrsEl  = document.getElementById('cd-hours');
+  const minEl  = document.getElementById('cd-mins');
+  const secEl  = document.getElementById('cd-secs');
+  if(!daysEl||!hrsEl||!minEl||!secEl) return;
+  let target = getNextWeeklyReset();
+  if (lbCountdownInterval) clearInterval(lbCountdownInterval);
+  const tick = ()=>{
+    const now = new Date();
+    let diff = target - now;
+    if (diff <= 0) { target = getNextWeeklyReset(); diff = target - now; }
+    const totalSeconds = Math.floor(diff/1000);
+    const days = Math.floor(totalSeconds / (24*3600));
+    const hours = Math.floor((totalSeconds % (24*3600)) / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    daysEl.textContent = String(days).padStart(2,'0');
+    hrsEl.textContent  = String(hours).padStart(2,'0');
+    minEl.textContent  = String(mins).padStart(2,'0');
+    secEl.textContent  = String(secs).padStart(2,'0');
+  };
+  tick();
+  lbCountdownInterval = setInterval(tick, 1000);
 }
 
 /* ===========================================================
@@ -2189,7 +2211,6 @@ async function startQnaChallenge(qnaId, price){
   }
   
   try{
-    // خصم النقاط مقدماً
     await db.collection('study').doc(currentUser.uid).update({
       currentPoints: firebase.firestore.FieldValue.increment(-price)
     });
@@ -2197,7 +2218,6 @@ async function startQnaChallenge(qnaId, price){
     studyState.currentPoints -= price;
     renderTimerUI();
     
-    // عرض السؤال
     const qnaDoc = await db.collection('qna').doc(qnaId).get();
     if(!qnaDoc.exists) return;
     
@@ -2207,18 +2227,17 @@ async function startQnaChallenge(qnaId, price){
     );
     
     if(answer === null){
-      // المستخدم انسحب - النقاط تذهب لمنشئ السؤال
       await db.collection('study').doc(qna.creatorUid).update({
         currentPoints: firebase.firestore.FieldValue.increment(price)
       });
       showNotification('تم خصم النقاط بسبب الانسحاب','error');
+      await db.collection('qna').doc(qnaId).delete();
       return;
     }
     
     if(answer.trim() === qna.correctAnswer){
-      // إجابة صحيحة - يحصل على الجائزة
       await db.collection('study').doc(currentUser.uid).update({
-        currentPoints: firebase.firestore.FieldValue.increment(price * 2), // يحصل على ضعف المبلغ
+        currentPoints: firebase.firestore.FieldValue.increment(price * 2),
         totalPoints: firebase.firestore.FieldValue.increment(price * 2)
       });
       
@@ -2228,16 +2247,12 @@ async function startQnaChallenge(qnaId, price){
       showNotification(`مبروك! إجابة صحيحة +${price * 2} نقطة`,'success');
       renderTimerUI();
       
-      // حذف السؤال بعد الإجابة الصحيحة
       await db.collection('qna').doc(qnaId).delete();
     }else{
-      // إجابة خاطئة - النقاط تذهب لمنشئ السؤال
       await db.collection('study').doc(qna.creatorUid).update({
         currentPoints: firebase.firestore.FieldValue.increment(price)
       });
       showNotification('إجابة خاطئة! النقاط ذهبت لمنشئ السؤال','error');
-      
-      // حذف السؤال بعد الإجابة الخاطئة
       await db.collection('qna').doc(qnaId).delete();
     }
   }catch(e){
@@ -2318,11 +2333,7 @@ function startJourneyListener(){
             </div>`;
         }).join('');
         
-        // إظهار زر الإضافة للمالك فقط
-        if(isOwner()){
-          const addBtn = document.querySelector('#challenge-tab-journey .owner-only');
-          if(addBtn) addBtn.style.display = 'block';
-        }
+        // زر الإضافة موجود أعلى القسم ويظهر للمالك فقط (تم التعامل معه في updateUIForLoggedInUser)
       },
       error=>{ 
         console.error("Journey error:", error);
@@ -2330,14 +2341,12 @@ function startJourneyListener(){
       }
     );
 }
-
 function stopJourneyListener(){ 
   if(journeyUnsub){
     try{journeyUnsub();}catch{} 
     journeyUnsub=null;
   }
 }
-
 async function openJourneyItem(id){
   try{
     const doc=await db.collection('journey_content').doc(id).get();
@@ -2350,20 +2359,15 @@ async function openJourneyItem(id){
     showNotification('خطأ في الفتح','error'); 
   }
 }
-
 async function addJourneyContent(){
   if(!isOwner()) return;
-  
   const title=prompt('عنوان المحتوى:'); 
   if(!title) return;
-  
   const content=prompt('المحتوى النصّي:'); 
   if(!content) return;
-  
   try{
     const last=await db.collection('journey_content').orderBy('order','desc').limit(1).get();
     const ord = last.empty? 1 : (Number(last.docs[0].data().order)||0)+1;
-    
     await db.collection('journey_content').add({ 
       title, 
       content, 
@@ -2371,45 +2375,36 @@ async function addJourneyContent(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
       createdBy: currentUser.uid 
     });
-    
     showNotification('أُضيف المحتوى','success');
   }catch(e){
     console.error("Error adding journey content:", e);
     showNotification('فشل الإضافة','error'); 
   }
 }
-
 async function editJourneyItem(id){
   if(!isOwner()) return;
-  
   const d=await db.collection('journey_content').doc(id).get(); 
   if(!d.exists) return;
-  
   const it=d.data(); 
   const t=prompt('العنوان:', it.title); 
   if(!t) return;
-  
   const c=prompt('المحتوى:', it.content); 
   if(c===null) return;
-  
   try{ 
     await db.collection('journey_content').doc(id).update({ 
       title:t, 
       content:c, 
       updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
     }); 
-    
     showNotification('تم التعديل','success'); 
   }catch(e){
     console.error("Error editing journey item:", e);
     showNotification('فشل التعديل','error'); 
   }
 }
-
 async function deleteJourneyItem(id){
   if(!isOwner()) return; 
   if(!confirm('حذف المحتوى؟')) return;
-  
   try{ 
     await db.collection('journey_content').doc(id).delete(); 
     showNotification('حُذف','success'); 
@@ -2426,22 +2421,17 @@ function openGiftsModal(){
   document.getElementById('gifts-modal').style.display='block';
   loadGifts();
 }
-
 function closeGiftsModal(){
   document.getElementById('gifts-modal').style.display='none';
 }
-
 function closePurchasedGiftsModal(){
   document.getElementById('purchased-gifts-modal').style.display='none';
 }
-
 async function loadGifts(){
   const giftsList = document.getElementById('gifts-list');
   giftsList.innerHTML = '<div class="post"><p>جاري تحميل الهدايا...</p></div>';
-  
   try {
     const snapshot = await db.collection('gifts').orderBy('price', 'asc').get();
-    
     if (snapshot.empty) {
       giftsList.innerHTML = `
         <div class="post">
@@ -2450,7 +2440,6 @@ async function loadGifts(){
         </div>`;
       return;
     }
-    
     giftsList.innerHTML = snapshot.docs.map(doc => {
       const gift = { id: doc.id, ...doc.data() };
       return `
@@ -2469,37 +2458,30 @@ async function loadGifts(){
           </div>
         </div>`;
     }).join('');
-    
     if (isOwner()) {
       giftsList.innerHTML += `
         <div class="post" style="margin-top: 15px;">
           <button class="btn btn-block" onclick="addGift()">إضافة هدية جديدة</button>
         </div>`;
     }
-    
-    // تحميل الهدايا المشتراة
     await loadPurchasedGifts();
   } catch (error) {
     console.error('Error loading gifts:', error);
     giftsList.innerHTML = '<div class="post"><p>خطأ في تحميل الهدايا</p></div>';
   }
 }
-
 async function showPurchasedGifts(){
   document.getElementById('purchased-gifts-modal').style.display = 'block';
   const list = document.getElementById('purchased-gifts-list');
   list.innerHTML = '<div class="post"><p>جاري تحميل المرشحات...</p></div>';
-  
   try {
     const snapshot = await db.collection('purchases')
       .where('userId', '==', currentUser.uid)
       .get();
-    
     if (snapshot.empty) {
       list.innerHTML = '<div class="post"><p>لم تشتري أي مرشحات بعد.</p></div>';
       return;
     }
-    
     list.innerHTML = snapshot.docs.map(doc => {
       const purchase = doc.data();
       return `
@@ -2517,15 +2499,12 @@ async function showPurchasedGifts(){
     list.innerHTML = '<div class="post"><p>خطأ في التحميل</p></div>';
   }
 }
-
 async function loadPurchasedGifts() {
   if (!currentUser) return;
-  
   try {
     const purchasedSnapshot = await db.collection('purchases')
       .where('userId', '==', currentUser.uid)
       .get();
-    
     const purchasedBtn = document.getElementById('purchased-gifts-btn');
     if (purchasedBtn && !purchasedSnapshot.empty) {
       purchasedBtn.style.display = 'block';
@@ -2534,40 +2513,30 @@ async function loadPurchasedGifts() {
     console.error('Error loading purchased gifts:', error);
   }
 }
-
 function openBuyGiftModal(id, name, description, price){
   document.getElementById('buy-gift-title').textContent = `شراء ${name}`;
   document.getElementById('buy-gift-description').textContent = description;
   document.getElementById('buy-gift-price').textContent = price;
   document.getElementById('buy-gift-modal').style.display = 'block';
-  
   window.currentGift = {id, name, description, price};
 }
-
 function closeBuyGiftModal(){
   document.getElementById('buy-gift-modal').style.display = 'none';
   window.currentGift = null;
 }
-
 async function purchaseGift(){
   if (!currentUser || !window.currentGift) return;
-  
   const gift = window.currentGift;
   if (studyState.currentPoints < gift.price) {
     return showNotification('نقاط غير كافية','error');
   }
-  
   try {
-    // خصم النقاط
     await db.collection('study').doc(currentUser.uid).set({
       currentPoints: firebase.firestore.FieldValue.increment(-gift.price),
       name: currentUser.name||'مستخدم'
     }, {merge: true});
-    
     studyState.currentPoints -= gift.price;
     renderTimerUI();
-    
-    // حفظ عملية الشراء
     await db.collection('purchases').add({
       userId: currentUser.uid,
       userName: currentUser.name,
@@ -2575,13 +2544,9 @@ async function purchaseGift(){
       price: gift.price,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    
-    // إرسال إشعار للمالك
     await sendTelegramNotification(
-      `🛒 <b>شراء جديد</b>\n\n👤 ${currentUser.name}\n🎁 ${gift.name}\n💰 ${gift.price} نقطة\n🆔 ${currentUser.shortUid || currentUser.uid}`
+      `🛒 <b>شراء جديد</b>\n\n👤 ${escapeHTML(currentUser.name)}\n🎁 ${escapeHTML(gift.name)}\n💰 ${gift.price} نقطة\n🆔 ${escapeHTML(currentUser.shortUid || currentUser.uid)}`
     );
-    
-    // إرسال إشعار للمستخدم
     await db.collection('inbox').add({
       userId: currentUser.uid,
       type: 'purchase',
@@ -2590,7 +2555,6 @@ async function purchaseGift(){
       status: 'unread',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    
     showNotification(`تم شراء ${gift.name} بنجاح`,'success');
     closeBuyGiftModal();
     await loadPurchasedGifts();
@@ -2599,19 +2563,11 @@ async function purchaseGift(){
     showNotification('فشل عملية الشراء','error');
   }
 }
-
 async function addGift() {
   if (!isOwner()) return;
-  
-  const name = prompt('اسم الهدية:');
-  if (!name) return;
-  
-  const description = prompt('وصف الهدية:');
-  if (!description) return;
-  
-  const price = parseInt(prompt('سعر الهدية (نقاط):'));
-  if (isNaN(price) || price <= 0) return;
-  
+  const name = prompt('اسم الهدية:'); if (!name) return;
+  const description = prompt('وصف الهدية:'); if (!description) return;
+  const price = parseInt(prompt('سعر الهدية (نقاط):')); if (isNaN(price) || price <= 0) return;
   try {
     await db.collection('gifts').add({
       name,
@@ -2619,7 +2575,6 @@ async function addGift() {
       price,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    
     showNotification('تم إضافة الهدية','success');
     loadGifts();
   } catch (error) {
@@ -2627,23 +2582,14 @@ async function addGift() {
     showNotification('فشل إضافة الهدية','error');
   }
 }
-
 async function editGift(id) {
   if (!isOwner()) return;
-  
   const doc = await db.collection('gifts').doc(id).get();
   if (!doc.exists) return;
-  
   const gift = doc.data();
-  const name = prompt('اسم الهدية:', gift.name);
-  if (!name) return;
-  
-  const description = prompt('وصف الهدية:', gift.description);
-  if (!description) return;
-  
-  const price = parseInt(prompt('سعر الهدية (نقاط):', gift.price));
-  if (isNaN(price) || price <= 0) return;
-  
+  const name = prompt('اسم الهدية:', gift.name); if (!name) return;
+  const description = prompt('وصف الهدية:', gift.description); if (!description) return;
+  const price = parseInt(prompt('سعر الهدية (نقاط):', gift.price)); if (isNaN(price) || price <= 0) return;
   try {
     await db.collection('gifts').doc(id).update({
       name,
@@ -2651,7 +2597,6 @@ async function editGift(id) {
       price,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    
     showNotification('تم تعديل الهدية','success');
     loadGifts();
   } catch (error) {
@@ -2659,12 +2604,9 @@ async function editGift(id) {
     showNotification('فشل تعديل الهدية','error');
   }
 }
-
 async function deleteGift(id) {
   if (!isOwner()) return;
-  
   if (!confirm('حذف الهدية؟')) return;
-  
   try {
     await db.collection('gifts').doc(id).delete();
     showNotification('تم حذف الهدية','success');
@@ -2680,35 +2622,28 @@ async function deleteGift(id) {
 =========================================================== */
 async function initChallengeAfterLogin(){
   await loadStudyState();
-  
   const firstTab=document.querySelector('.challenge-tab-pill[data-tab="timer"]');
   if(firstTab) switchChallengeTab(firstTab);
 }
-
 window.addEventListener('load', ()=>{
-  setTimeout(ensureDailyRewardBox, 300);
-  
   if (currentUser) {
     startLeaderboardListener();
     startQnaListener();
     startJourneyListener();
   }
 });
-
 window.addEventListener('beforeunload', () => {
   if (studyState.running) {
     stopStudyTimer();
   }
 });
 
-// تحديث جميع المعرفات القصيرة للمستخدمين الحاليين
+// تحديث جميع المعرفات القصيرة (اختياري للمالك)
 async function updateAllUserShortUids() {
   if (!isOwner()) return;
-  
   try {
     const usersSnapshot = await db.collection('users').get();
     const batch = db.batch();
-    
     usersSnapshot.forEach(doc => {
       const userData = doc.data();
       if (!userData.shortUid) {
@@ -2716,7 +2651,6 @@ async function updateAllUserShortUids() {
         batch.update(doc.ref, { shortUid });
       }
     });
-    
     await batch.commit();
     showNotification('تم تحديث جميع المعرفات','success');
   } catch (error) {
@@ -2724,8 +2658,6 @@ async function updateAllUserShortUids() {
     showNotification('فشل تحديث المعرفات','error');
   }
 }
-
-// استدعاء الدالة لتحديث المعرفات (يمكن استدعاؤها يدوياً من قبل المالك)
 // updateAllUserShortUids();
 </script>
 </body>
