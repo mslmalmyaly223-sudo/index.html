@@ -1398,427 +1398,71 @@ async function renderDetails(postId){
   detailsContainer.innerHTML = ''; detailsContainer.appendChild(card);
 }
 
-// ==================== [1] دوال الإبلاغات ====================
-
-// دالة الإبلاغ عن منشور (للمستخدمين)
-async function reportPost(postId) {
+/* إبلاغ + تعليقات (تحسينات الابلاغ) */
+async function reportPost(postId){
   if(!currentUser) return showNotification('يلزم تسجيل الدخول','warning');
-  
   const reason = prompt('سبب الإبلاغ:');
   if(!reason) return;
   
-  try {
+  try{
     const post = posts.find(p => p.id === postId);
-    
-    // إنشاء البلاغ
     const reportData = {
-      postId: postId,
-      reporterUid: currentUser.uid,
-      reporterName: currentUser.name || 'مستخدم',
+      postId, 
+      reporterUid: currentUser.uid, 
+      reporterName: currentUser.name||'مستخدم',
       posterUid: post?.userId || null,
       posterName: post?.userName || 'مستخدم',
       reason: reason,
       status: 'قيد المراجعة',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
+    const repRef = await db.collection('reports').add(reportData);
     
-    const reportRef = await db.collection('reports').add(reportData);
+    // إشعار للمالك (لوحة إدارة داخل البريد)
+    const ownerUid = await getOwnerUid();
+    if (ownerUid) {
+      await db.collection('inbox').add({
+        userId: ownerUid,
+        type: 'admin_report',
+        reportId: repRef.id,
+        postId: postId,
+        reporterUid: currentUser.uid,
+        posterUid: post?.userId || null,
+        title: 'بلاغ جديد - لوحة الإدارة',
+        message: `بلاغ حول منشور (${postId}). السبب: ${reason}`,
+        status: 'unread',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    // إشعار للمالك عبر تيليجرام
+    const snippet = escapeHTML(post?.description?.substring(0, 100) || '');
+    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${escapeHTML(currentUser.shortUid || currentUser.uid)}\n📄 المنشور: ${snippet}...\n🔗 Post ID: ${escapeHTML(postId)}`;
+    await sendTelegramNotification(msg);
     
-    // إشعار للمستخدم - حالة البلاغ فقط
-    await db.collection('user_notifications').doc(currentUser.uid).collection('notifications').add({
-      type: 'report_status',
+    // إشعار للمستخدم في البريد الوارد
+    await db.collection('inbox').add({
+      userId: currentUser.uid,
+      type: 'report',
       title: 'تم استلام بلاغك',
-      message: `تم استلام بلاغك وسيتم مراجعته. رقم البلاغ: ${reportRef.id.substring(0, 8)}`,
+      message: `تم استلام بلاغك حول المنشور وسيتم مراجعته من قبل الإدارة.`,
       status: 'unread',
-      reportId: reportRef.id,
-      reportStatus: 'قيد المراجعة',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
-    // إشعار للمالك - تفاصيل كاملة عن البلاغ
-    await db.collection('admin_notifications').add({
-      type: 'new_report',
-      title: 'بلاغ جديد على منشور',
-      message: `تم الإبلاغ على منشور ${postId.substring(0, 8)} بواسطة ${currentUser.name}`,
-      status: 'unread',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      reportId: reportRef.id,
-      reporterId: currentUser.uid,
-      reporterName: currentUser.name,
-      postId: postId,
-      reason: reason,
-      postTitle: post?.title || 'بدون عنوان',
-      postDescription: post?.description ? post.description.substring(0, 100) + '...' : 'بدون وصف'
-    });
+    const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
+    if(!reportedPosts.includes(postId)){ 
+      reportedPosts.push(postId); 
+      localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts)); 
+    }
     
     showNotification('تم الإبلاغ عن المنشور وسيتم مراجعته','success');
-  } catch(e) { 
+    renderDetails(postId);
+  }catch(e){ 
     console.error('Report error:', e);
     showNotification('تعذّر إرسال البلاغ','error'); 
   }
 }
-
-// تحديث حالة البلاغ (للمالك فقط)
-async function updateReportStatus(reportId, status) {
-  if(!isOwner()) return;
-  
-  try {
-    // تحديث حالة البلاغ
-    await db.collection('reports').doc(reportId).update({
-      status: status,
-      resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    // الحصول على معلومات البلاغ
-    const reportDoc = await db.collection('reports').doc(reportId).get();
-    if(!reportDoc.exists) return;
-    
-    const reportData = reportDoc.data();
-    
-    // إرسال إشعار للمستخدم عن حالة البلاغ فقط
-    await db.collection('user_notifications').doc(reportData.reporterUid).collection('notifications').add({
-      type: 'report_status',
-      title: 'تحديث حالة البلاغ',
-      message: `بلاغك رقم ${reportId.substring(0, 8)} الآن "${status}"`,
-      status: 'unread',
-      reportId: reportId,
-      reportStatus: status,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    showNotification(`تم تحديث حالة البلاغ إلى "${status}"`,'success');
-  } catch(error) {
-    console.error('Error updating report status:', error);
-    showNotification('فشل تحديث حالة البلاغ','error');
-  }
-}
-
-// ==================== [2] دوال الشراء والهدايا ====================
-
-// دالة شراء هدية (للمستخدمين)
-async function purchaseGift(giftId, giftName, giftPrice) {
-  if (!currentUser) return;
-  
-  if (studyState.currentPoints < giftPrice) {
-    return showNotification('نقاط غير كافية','error');
-  }
-  
-  try {
-    const operationId = Math.random().toString(36).substring(2,10).toUpperCase();
-    
-    // خصم النقاط
-    await db.collection('study').doc(currentUser.uid).update({
-      currentPoints: firebase.firestore.FieldValue.increment(-giftPrice)
-    });
-    
-    // تسجيل عملية الشراء
-    await db.collection('purchases').add({
-      userId: currentUser.uid,
-      userName: currentUser.name,
-      userEmail: currentUser.email,
-      userShortUid: currentUser.shortUid || generateShortUid(currentUser.uid),
-      itemId: giftId,
-      item: giftName,
-      price: giftPrice,
-      operationId: operationId,
-      status: 'معلق',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    // إشعار للمستخدم - تأكيد الشراء فقط
-    await db.collection('user_notifications').doc(currentUser.uid).collection('notifications').add({
-      type: 'purchase_confirmation',
-      title: 'تمت عملية الشراء',
-      message: `تم شراء ${giftName} بنجاح بسعر ${giftPrice} نقطة. رقم العملية: ${operationId}`,
-      status: 'unread',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      item: giftName,
-      price: giftPrice,
-      operationId: operationId
-    });
-    
-    // إشعار للمالك - تفاصيل كاملة عن الشراء
-    await db.collection('admin_notifications').add({
-      type: 'new_purchase',
-      title: 'شراء جديد',
-      message: `تم شراء ${giftName} من قبل ${currentUser.name}`,
-      status: 'unread',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      buyerId: currentUser.uid,
-      buyerName: currentUser.name,
-      buyerEmail: currentUser.email,
-      buyerShortUid: currentUser.shortUid || generateShortUid(currentUser.uid),
-      itemId: giftId,
-      item: giftName,
-      price: giftPrice,
-      operationId: operationId,
-      contactInfo: currentUser.contactInfo || 'لا يوجد معلومات اتصال'
-    });
-    
-    // تحديث الرصيد المحلي
-    studyState.currentPoints -= giftPrice;
-    renderTimerUI();
-    
-    showNotification(`تم شراء ${giftName} بنجاح`,'success');
-  } catch (error) {
-    console.error('Error purchasing gift:', error);
-    showNotification('فشل عملية الشراء','error');
-  }
-}
-
-// ==================== [3] دوال عرض الإشعارات ====================
-
-// عرض إشعارات المستخدم (البلاغات والشراء فقط)
-async function showUserNotifications() {
-  if (!currentUser) return;
-  
-  try {
-    const notificationsContainer = document.getElementById('user-notifications-container');
-    if (!notificationsContainer) return;
-    
-    notificationsContainer.innerHTML = '<div class="post"><p>جاري تحميل الإشعارات...</p></div>';
-    
-    const snapshot = await db.collection('user_notifications')
-      .doc(currentUser.uid)
-      .collection('notifications')
-      .orderBy('createdAt', 'desc')
-      .limit(20)
-      .get();
-    
-    if (snapshot.empty) {
-      notificationsContainer.innerHTML = '<div class="post"><p>لا توجد إشعارات</p></div>';
-      return;
-    }
-    
-    notificationsContainer.innerHTML = '';
-    snapshot.forEach(doc => {
-      const notification = doc.data();
-      const date = notification.createdAt?.toDate ? notification.createdAt.toDate().toLocaleString('ar-IQ') : '';
-      
-      let icon = '🔔';
-      if (notification.type === 'report_status') icon = '🚨';
-      if (notification.type === 'purchase_confirmation') icon = '🎁';
-      
-      const notificationElement = `
-        <div class="post">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-            <span style="font-size: 20px;">${icon}</span>
-            <h4 style="margin: 0;">${escapeHTML(notification.title)}</h4>
-          </div>
-          <p>${escapeHTML(notification.message)}</p>
-          <small style="color: #777;">${date}</small>
-        </div>
-      `;
-      notificationsContainer.innerHTML += notificationElement;
-    });
-  } catch (error) {
-    console.error('Error fetching user notifications:', error);
-    const container = document.getElementById('user-notifications-container');
-    if (container) {
-      container.innerHTML = '<div class="post"><p>خطأ في تحميل الإشعارات</p></div>';
-    }
-  }
-}
-
-// عرض إشعارات المالك (التفاصيل الكاملة)
-async function showAdminNotifications() {
-  if (!isOwner()) return;
-  
-  try {
-    const notificationsContainer = document.getElementById('admin-notifications-container');
-    if (!notificationsContainer) return;
-    
-    notificationsContainer.innerHTML = '<div class="post"><p>جاري تحميل الإشعارات...</p></div>';
-    
-    const snapshot = await db.collection('admin_notifications')
-      .orderBy('createdAt', 'desc')
-      .limit(50)
-      .get();
-    
-    if (snapshot.empty) {
-      notificationsContainer.innerHTML = '<div class="post"><p>لا توجد إشعارات</p></div>';
-      return;
-    }
-    
-    notificationsContainer.innerHTML = '';
-    snapshot.forEach(doc => {
-      const notification = doc.data();
-      const date = notification.createdAt?.toDate ? notification.createdAt.toDate().toLocaleString('ar-IQ') : '';
-      
-      let icon = '📋';
-      if (notification.type === 'new_report') icon = '🚨';
-      if (notification.type === 'new_purchase') icon = '💰';
-      
-      let actions = '';
-      if (notification.type === 'new_report') {
-        actions = `
-          <div class="post-actions" style="margin-top: 10px;">
-            <button class="btn btn-xs" onclick="updateReportStatus('${notification.reportId}', 'مقبول')">قبول البلاغ</button>
-            <button class="btn btn-xs btn-secondary" onclick="updateReportStatus('${notification.reportId}', 'مرفوض')">رفض البلاغ</button>
-            <button class="btn btn-xs btn-warning" onclick="viewPost('${notification.postId}')">عرض المنشور</button>
-          </div>
-        `;
-      } else if (notification.type === 'new_purchase') {
-        actions = `
-          <div class="post-actions" style="margin-top: 10px;">
-            <button class="btn btn-xs" onclick="contactBuyer('${notification.buyerId}')">التواصل مع المشتري</button>
-            <button class="btn btn-xs btn-success" onclick="markAsDelivered('${notification.operationId}')">تم التسليم</button>
-          </div>
-        `;
-      }
-      
-      const notificationElement = `
-        <div class="post">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-            <span style="font-size: 20px;">${icon}</span>
-            <h4 style="margin: 0;">${escapeHTML(notification.title)}</h4>
-          </div>
-          <p>${escapeHTML(notification.message)}</p>
-          ${notification.reason ? `<p><strong>السبب:</strong> ${escapeHTML(notification.reason)}</p>` : ''}
-          ${notification.buyerName ? `<p><strong>المشتري:</strong> ${escapeHTML(notification.buyerName)}</p>` : ''}
-          ${notification.price ? `<p><strong>السعر:</strong> ${notification.price} نقطة</p>` : ''}
-          ${notification.operationId ? `<p><strong>رقم العملية:</strong> ${notification.operationId}</p>` : ''}
-          <small style="color: #777;">${date}</small>
-          ${actions}
-        </div>
-      `;
-      notificationsContainer.innerHTML += notificationElement;
-    });
-  } catch (error) {
-    console.error('Error fetching admin notifications:', error);
-    const container = document.getElementById('admin-notifications-container');
-    if (container) {
-      container.innerHTML = '<div class="post"><p>خطأ في تحميل الإشعارات</p></div>';
-    }
-  }
-}
-
-// ==================== [4] دوال مساعدة للمالك ====================
-
-// التواصل مع المشتري (للمالك فقط)
-async function contactBuyer(buyerId) {
-  if (!isOwner()) return;
-  
-  try {
-    const userDoc = await db.collection('users').doc(buyerId).get();
-    if (userDoc.exists) {
-      const userData = userDoc.data();
-      const contactInfo = userData.contactInfo || userData.email || 'لا يوجد معلومات اتصال';
-      alert(`معلومات الاتصال بالمشتري: ${contactInfo}`);
-    } else {
-      showNotification('لم يتم العثور على معلومات المشتري', 'error');
-    }
-  } catch (error) {
-    console.error('Error contacting buyer:', error);
-    showNotification('فشل الوصول إلى معلومات المشتري', 'error');
-  }
-}
-
-//标记 عملية الشراء как مكتملة (للمالك فقط)
-async function markAsDelivered(operationId) {
-  if (!isOwner()) return;
-  
-  try {
-    const querySnapshot = await db.collection('purchases')
-      .where('operationId', '==', operationId)
-      .get();
-    
-    if (!querySnapshot.empty) {
-      querySnapshot.forEach(async doc => {
-        await doc.ref.update({
-          status: 'مكتمل',
-          deliveredAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // إشعار للمستخدم
-        const purchaseData = doc.data();
-        await db.collection('user_notifications').doc(purchaseData.userId).collection('notifications').add({
-          type: 'purchase_delivered',
-          title: 'تم تسليم طلبك',
-          message: `تم تسليم ${purchaseData.item} بنجاح. شكراً لثقتك بنا!`,
-          status: 'unread',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          item: purchaseData.item,
-          operationId: operationId
-        });
-      });
-      
-      showNotification('تم标记 العملية как مكتملة', 'success');
-    }
-  } catch (error) {
-    console.error('Error marking as delivered:', error);
-    showNotification('فشل标记 العملية', 'error');
-  }
-}
-
-// عرض المنشور (للمالك فقط)
-async function viewPost(postId) {
-  if (!isOwner()) return;
-  
-  try {
-    const postDoc = await db.collection('posts').doc(postId).get();
-    if (postDoc.exists) {
-      const postData = postDoc.data();
-      alert(`عنوان المنشور: ${postData.title || 'بدون عنوان'}\nالوصف: ${postData.description || 'بدون وصف'}`);
-    } else {
-      showNotification('لم يتم العثور على المنشور', 'error');
-    }
-  } catch (error) {
-    console.error('Error viewing post:', error);
-    showNotification('فشل تحميل المنشور', 'error');
-  }
-}
-
-// ==================== [5] التهيئة والأحداث ====================
-
-// تهيئة صفحة الإشعارات عند فتحها
-function setupNotificationsPage() {
-  if (isOwner()) {
-    showAdminNotifications();
-  } else {
-    showUserNotifications();
-  }
-}
-
-// استمع لأحداث التحديث في الإشعارات
-function setupNotificationsListener() {
-  if (isOwner()) {
-    // المالك يستمع لإشعارات الأدمن
-    db.collection('admin_notifications')
-      .orderBy('createdAt', 'desc')
-      .limit(10)
-      .onSnapshot(snapshot => {
-        snapshot.docChanges().forEach(change => {
-          if (change.type === 'added') {
-            const notification = change.doc.data();
-            showNotification(`إشعار جديد: ${notification.title}`, 'info');
-          }
-        });
-      });
-  } else {
-    // المستخدم العادي يستمع لإشعاراته
-    db.collection('user_notifications')
-      .doc(currentUser.uid)
-      .collection('notifications')
-      .orderBy('createdAt', 'desc')
-      .limit(10)
-      .onSnapshot(snapshot => {
-        snapshot.docChanges().forEach(change => {
-          if (change.type === 'added') {
-            const notification = change.doc.data();
-            showNotification(notification.message, 'info');
-          }
-        });
-      });
-  }
-}
-
-// تفعيل المستمع عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function() {
-  if (currentUser) {
-    setTimeout(setupNotificationsListener, 2000);
-  }
-});
 async function openCommentsPage(postId) { if (!currentUser) return; currentCommentsPostId = postId; showPage("comments"); await renderComments(postId); }
 async function renderComments(postId) {
   const container = document.getElementById("comments-list-page");
@@ -2674,112 +2318,78 @@ function renderLeaderboard(items){
 function openLbRewardsModal(){ document.getElementById('lb-rewards-modal').style.display='block'; }
 function closeLbRewardsModal(){ document.getElementById('lb-rewards-modal').style.display='none'; }
 
-// دالة تأجيل إعادة ضبط التصنيف (الإصلاح النهائي)
-async function ownerSetLbDelay() {
-  if(!isOwner()) {
-    showNotification('للمالك فقط','error');
-    return;
-  }
-  
-  const hoursInput = document.getElementById('lb-delay-hours');
-  if (!hoursInput) return;
-  
-  const hours = parseInt(hoursInput.value || '0', 10);
-  if(!hours || hours < 1 || hours > 168) {
-    showNotification('أدخل عدد ساعات صحيح بين 1 و 168','error');
-    return;
-  }
-  
-  try {
+// تأجيل إعادة الضبط (مالك)
+function openLbDelayModal(){
+  if(!isOwner()) return showNotification('للمالك فقط','error');
+  document.getElementById('lb-delay-modal').style.display = 'block';
+}
+function closeLbDelayModal(){
+  document.getElementById('lb-delay-modal').style.display = 'none';
+}
+async function ownerSetLbDelay(){
+  if(!isOwner()) return;
+  const hours = parseInt(document.getElementById('lb-delay-hours').value||'0',10);
+  if(!hours || hours<1) return showNotification('أدخل عدد ساعات صحيح','error');
+  try{
     const base = getNextWeeklyResetBaseOnly();
-    const newDelayUntil = new Date(base.getTime() + hours * 3600 * 1000);
-    
-    // التأكد من أننا نستخدم merge صحيح
+    const newDelayUntil = new Date(base.getTime() + hours*3600*1000);
     await db.collection('settings').doc('leaderboard').set({
       delayUntil: firebase.firestore.Timestamp.fromDate(newDelayUntil),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedBy: currentUser.uid,
-      lastUpdated: new Date().toISOString()
+      updatedBy: currentUser.uid
     }, { merge: true });
-    
-    // تحديث الإعدادات المحلية
-    if (!leaderboardSettings) leaderboardSettings = {};
     leaderboardSettings.delayUntil = newDelayUntil;
-    
-    showNotification('تم تأجيل إعادة الضبط لمدة ' + hours + ' ساعة','success');
-    
-    // إغلاق النافذة المنبثقة
-    const modal = document.getElementById('lb-delay-modal');
-    if (modal) modal.style.display = 'none';
-    
-    // تحديث العد التنازلي
-    if (typeof updateCountdownForAllUsers === 'function') {
-      updateCountdownForAllUsers();
-    }
-  } catch(e) {
+    showNotification('تم تأجيل إعادة الضبط','success');
+    closeLbDelayModal();
+  }catch(e){
     console.error('ownerSetLbDelay error', e);
-    showNotification('فشل التأجيل: ' + (e.message || e),'error');
+    showNotification('فشل التأجيل','error');
   }
 }
 
-// دالة مساعدة للحصول على وقت التحديث الأساسي
-function getNextWeeklyResetBaseOnly() {
+/* عدّ تنازلي أسبوعي لتحديث التصنيف مع أخذ التأجيل بالحسبان */
+let lbCountdownInterval=null;
+function getNextWeeklyResetBaseOnly(){
   const now = new Date();
-  const day = now.getDay(); // 0: الأحد, 1: الإثنين, ..., 6: السبت
-  const daysToNextSunday = day === 0 ? 7 : (7 - day); // إذا كان اليوم أحد، ننتظر أسبوعًا كاملاً
+  const day = now.getDay(); // 0: Sunday
+  const daysToNextSunday = (7 - day) % 7 || 7; // إذا كان اليوم أحد، نذهب للأحد القادم
   const next = new Date(now);
-  next.setHours(0, 0, 0, 0);
+  next.setHours(0,0,0,0);
   next.setDate(now.getDate() + daysToNextSunday);
   return next;
 }
-
-// دالة بديلة إذا كانت هناك مشاكل في الدالة الأصلية
-function startSimpleCountdown() {
-  const countdownElement = document.getElementById('leaderboard-countdown');
-  if (!countdownElement) return;
-  
-  const update = () => {
-    const target = getNextWeeklyReset();
+function getNextWeeklyReset(){
+  const base = getNextWeeklyResetBaseOnly();
+  if (leaderboardSettings.delayUntil && leaderboardSettings.delayUntil > base) {
+    return leaderboardSettings.delayUntil;
+  }
+  return base;
+}
+function startLeaderboardCountdown(){
+  const daysEl = document.getElementById('cd-days');
+  const hrsEl  = document.getElementById('cd-hours');
+  const minEl  = document.getElementById('cd-mins');
+  const secEl  = document.getElementById('cd-secs');
+  if(!daysEl||!hrsEl||!minEl||!secEl) return;
+  let target = getNextWeeklyReset();
+  if (lbCountdownInterval) clearInterval(lbCountdownInterval);
+  const tick = ()=>{
     const now = new Date();
-    const diff = target - now;
-    
-    if (diff <= 0) {
-      countdownElement.innerHTML = '<span>تم التحديث</span>';
-      return;
-    }
-    
-    const totalSeconds = Math.floor(diff / 1000);
-    const days = Math.floor(totalSeconds / (24 * 3600));
-    const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+    let diff = target - now;
+    if (diff <= 0) { target = getNextWeeklyReset(); diff = target - now; }
+    const totalSeconds = Math.floor(diff/1000);
+    const days = Math.floor(totalSeconds / (24*3600));
+    const hours = Math.floor((totalSeconds % (24*3600)) / 3600);
     const mins = Math.floor((totalSeconds % 3600) / 60);
     const secs = totalSeconds % 60;
-    
-    countdownElement.innerHTML = `
-      <span class="cd-box"><span class="cd-num">${String(days).padStart(2, '0')}</span><span class="cd-lbl">أيام</span></span>
-      <span class="cd-box"><span class="cd-num">${String(hours).padStart(2, '0')}</span><span class="cd-lbl">ساعات</span></span>
-      <span class="cd-box"><span class="cd-num">${String(mins).padStart(2, '0')}</span><span class="cd-lbl">دقائق</span></span>
-      <span class="cd-box"><span class="cd-num">${String(secs).padStart(2, '0')}</span><span class="cd-lbl">ثواني</span></span>
-    `;
-    
-    setTimeout(update, 1000);
+    daysEl.textContent = String(days).padStart(2,'0');
+    hrsEl.textContent  = String(hours).padStart(2,'0');
+    minEl.textContent  = String(mins).padStart(2,'0');
+    secEl.textContent  = String(secs).padStart(2,'0');
   };
-  
-  update();
+  tick();
+  lbCountdownInterval = setInterval(tick, 1000);
 }
-
-// تهيئة العد التنازلي عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function() {
-  // بدء العد التنازلي بعد تحميل الصفحة
-  setTimeout(startSimpleCountdown, 1000);
-  
-  // أيضًا عند التبديل إلى تبويب التصنيف
-  const leaderboardTab = document.querySelector('[data-tab="leaderboard"]');
-  if (leaderboardTab) {
-    leaderboardTab.addEventListener('click', function() {
-      setTimeout(startSimpleCountdown, 500);
-    });
-  }
-});
 
 /* مالك: حذف/تصفير نقاط المستخدم من التصنيف */
 async function ownerRemoveFromLeaderboard(uid, name){
