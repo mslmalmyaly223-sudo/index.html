@@ -1419,10 +1419,30 @@ async function reportPost(postId){
     const repRef = await db.collection('reports').add(reportData);
     
     // إشعار للمالك (لوحة إدارة داخل البريد)
+async function reportPost(postId){
+  if(!currentUser) return showNotification('يلزم تسجيل الدخول','warning');
+  const reason = prompt('سبب الإبلاغ:');
+  if(!reason) return;
+  
+  try{
+    const post = posts.find(p => p.id === postId);
+    const reportData = {
+      postId, 
+      reporterUid: currentUser.uid, 
+      reporterName: currentUser.name||'مستخدم',
+      posterUid: post?.userId || null,
+      posterName: post?.userName || 'مستخدم',
+      reason: reason,
+      status: 'قيد المراجعة',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const repRef = await db.collection('reports').add(reportData);
+    
+    // 🔥 التصحيح: الرسالة تكون للمالك فقط (الإدارة)
     const ownerUid = await getOwnerUid();
     if (ownerUid) {
       await db.collection('inbox').add({
-        userId: ownerUid,
+        userId: ownerUid,  // ✅ الآن للمالك فقط
         type: 'admin_report',
         reportId: repRef.id,
         postId: postId,
@@ -1434,6 +1454,28 @@ async function reportPost(postId){
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
+
+    // 🔥 إزالة الرسالة التلقائية للمستخدم العادي
+    // await db.collection('inbox').add({ ... }); // احذف هذا الكود
+
+    // إشعار تيليجرام (يبقى كما هو)
+    const snippet = escapeHTML(post?.description?.substring(0, 100) || '');
+    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${escapeHTML(currentUser.shortUid || currentUser.uid)}\n📄 المنشور: ${snippet}...\n🔗 Post ID: ${escapeHTML(postId)}`;
+    await sendTelegramNotification(msg);
+    
+    const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
+    if(!reportedPosts.includes(postId)){ 
+      reportedPosts.push(postId); 
+      localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts)); 
+    }
+    
+    showNotification('تم الإبلاغ عن المنشور وسيتم مراجعته','success');
+    renderDetails(postId);
+  }catch(e){ 
+    console.error('Report error:', e);
+    showNotification('تعذّر إرسال البلاغ','error'); 
+  }
+}
 
     // إشعار للمالك عبر تيليجرام
     const snippet = escapeHTML(post?.description?.substring(0, 100) || '');
@@ -2182,31 +2224,46 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if (btn) btn.addEventListener('click', claimDailyReward);
 });
 
+let isClaiming = false; // 🔥 نضيف متغير تحكم
+
 async function claimDailyReward(){
+  // 🔥 نضيف تحكم لمنع التكرار
+  if(isClaiming) return;
   if(!currentUser) return;
-  const last=studyState.lastDailyClaimAt? studyState.lastDailyClaimAt.getTime() : 0;
-  const left = (24*3600*1000) - (Date.now()-last);
-  if(left>0) { updateDailyRewardUI(); return; }
   
-  try{
-    const ref=db.collection('study').doc(currentUser.uid);
+  const last = studyState.lastDailyClaimAt ? studyState.lastDailyClaimAt.getTime() : 0;
+  const left = (24 * 3600 * 1000) - (Date.now() - last);
+  
+  if(left > 0) {
+    updateDailyRewardUI();
+    return;
+  }
+  
+  isClaiming = true; // 🔥 نمنع أي عملية ثانية
+  
+  try {
+    const ref = db.collection('study').doc(currentUser.uid);
+    
     await ref.set({
       currentPoints: firebase.firestore.FieldValue.increment(20),
       totalPoints: firebase.firestore.FieldValue.increment(20),
       lastDailyClaimAt: firebase.firestore.FieldValue.serverTimestamp(),
-      name: currentUser.name||'مستخدم'
-    },{merge:true});
+      name: currentUser.name || 'مستخدم'
+    }, { merge: true });
     
-    studyState.currentPoints += 20; 
+    studyState.currentPoints += 20;
     studyState.totalPoints += 20;
     studyState.lastDailyClaimAt = new Date();
     
-    showNotification('مبروك! حصلت على 20 نقطة','success');
+    showNotification('مبروك! حصلت على 20 نقطة', 'success');
     renderTimerUI();
     updateDailyRewardUI();
-  }catch(e){
+    
+  } catch(e) {
     console.error("Error claiming daily reward:", e);
-    showNotification('تعذّر منح المكافأة','error'); 
+    showNotification('تعذّر منح المكافأة', 'error');
+  } finally {
+    isClaiming = false; // 🔥 نرجع نفتح الإمكانية
   }
 }
 
