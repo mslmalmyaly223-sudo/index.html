@@ -297,15 +297,6 @@
             <label><input type="radio" name="register-avatar" value="female"><span class="emo">👩🏻‍💼</span> بنت</label>
           </div>
         </div>
-        <div style="margin-top: 20px; text-align: center;">
-          <div style="margin: 15px 0; position: relative;">
-            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-color);"></div>
-            <div style="position: relative; display: inline-block; background: #fff; padding: 0 10px; color: var(--light-text);">أو</div>
-          </div>
-          <button type="button" class="btn btn-secondary btn-block" onclick="signUpWithGoogle()">
-            <i class="fab fa-google" style="margin-left: 8px;"></i> إنشاء حساب بواسطة Google
-          </button>
-        </div>
         <button type="button" id="register-submit" class="btn btn-block" onclick="register()" style="margin-top: 15px;">إنشاء حساب</button>
       </form>
     </div>
@@ -944,45 +935,6 @@ function handleAuthError(error){
   console.error('Auth error:', error);
 }
 
-function inAppBrowserBlocked(){
-  const href = (location && location.href) ? location.href : '';
-  const ua = navigator.userAgent || '';
-  return href.startsWith('content:') || /FBAN|FBAV|Instagram|Line|wv|Telegram/i.test(ua);
-}
-
-async function signUpWithGoogle(){
-  try{
-    const provider = new firebase.auth.GoogleAuthProvider();
-    if (inAppBrowserBlocked()) {
-      await auth.signInWithRedirect(provider);
-      return;
-    }
-    try {
-      const result = await auth.signInWithPopup(provider);
-      const user = result.user;
-      await sendTelegramNotification(
-        `🔐 <b>تسجيل دخول Google</b>\n\n👤 ${user.displayName||'مستخدم'}\n📧 ${user.email}\n🆔 ${user.uid}`
-      );
-      showNotification('تم إنشاء الحساب بنجاح!','success');
-    } catch (e) {
-      if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
-        await auth.signInWithRedirect(provider);
-      } else { throw e; }
-    }
-  }catch(e){ handleAuthError(e); }
-}
-
-// استرجاع نتيجة redirect عند العودة
-auth.getRedirectResult().then(async (res)=>{
-  if(res && res.user){
-    const u = res.user;
-    await sendTelegramNotification(
-      `🔐 <b>تسجيل دخول Google (Redirect)</b>\n\n👤 ${u.displayName||'مستخدم'}\n📧 ${u.email}\n🆔 ${u.uid}`
-    );
-    showNotification('تم إنشاء الحساب!','success');
-  }
-}).catch(handleAuthError);
-
 function register(){
   const name=document.getElementById("register-name").value.trim();
   const email=document.getElementById("register-email").value.trim();
@@ -1008,14 +960,54 @@ function register(){
     .catch(handleAuthError);
 }
 function login(){
-  const email=document.getElementById("login-email").value.trim();
-  const password=document.getElementById("login-password").value;
-  if(!email||!password) return showNotification("يرجى ملء جميع الحقول","error");
+  const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value;
+  
+  if(!email || !password) {
+    return showNotification("يرجى ملء جميع الحقول", "error");
+  }
+  
+  // 🔥 تحقق إضافي من صحة البريد
+  if(!validateEmail(email)) {
+    return showNotification("صيغة البريد الإلكتروني غير صحيحة", "error");
+  }
+  
+  // 🔥 تحقق من قوة كلمة المرور
+  if(password.length < 6) {
+    return showNotification("كلمة المرور يجب أن تكون 6 أحرف على الأقل", "error");
+  }
+  
   const btn = document.querySelector('#login-form button[type="submit"]');
-  if (btn) { btn.disabled = true; btn.textContent = "جاري تسجيل الدخول…"; }
-  auth.signInWithEmailAndPassword(email,password)
-    .catch(handleAuthError)
-    .finally(()=>{ if (btn) { btn.disabled = false; btn.textContent = "تسجيل الدخول"; } });
+  if (btn) { 
+    btn.disabled = true; 
+    btn.textContent = "جاري تسجيل الدخول…"; 
+  }
+  
+  auth.signInWithEmailAndPassword(email, password)
+    .catch(error => {
+      // 🔥 تحسين رسائل الخطأ
+      let message = "خطأ في تسجيل الدخول";
+      
+      if (error.code === 'auth/user-not-found') {
+        message = "البريد الإلكتروني غير مسجل";
+      } else if (error.code === 'auth/wrong-password') {
+        message = "كلمة المرور غير صحيحة";
+      } else if (error.code === 'auth/invalid-email') {
+        message = "صيغة البريد الإلكتروني غير صحيحة";
+      } else if (error.code === 'auth/too-many-requests') {
+        message = "محاولات كثيرة، حاول لاحقاً";
+      } else if (error.code === 'auth/network-request-failed') {
+        message = "تحقق من اتصال الإنترنت";
+      }
+      
+      showNotification(message, "error");
+    })
+    .finally(() => { 
+      if (btn) { 
+        btn.disabled = false; 
+        btn.textContent = "تسجيل الدخول"; 
+      } 
+    });
 }
 function logout(){ auth.signOut(); }
 
