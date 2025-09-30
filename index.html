@@ -1406,83 +1406,25 @@ async function reportPost(postId){
   
   try{
     const post = posts.find(p => p.id === postId);
-    const reportData = {
-      postId, 
-      reporterUid: currentUser.uid, 
-      reporterName: currentUser.name||'مستخدم',
-      posterUid: post?.userId || null,
-      posterName: post?.userName || 'مستخدم',
-      reason: reason,
-      status: 'قيد المراجعة',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    const repRef = await db.collection('reports').add(reportData);
     
-    // إشعار للمالك (لوحة إدارة داخل البريد)
-async function reportPost(postId){
-  if(!currentUser) return showNotification('يلزم تسجيل الدخول','warning');
-  const reason = prompt('سبب الإبلاغ:');
-  if(!reason) return;
-  
-  try{
-    const post = posts.find(p => p.id === postId);
-    const reportData = {
-      postId, 
-      reporterUid: currentUser.uid, 
-      reporterName: currentUser.name||'مستخدم',
-      posterUid: post?.userId || null,
-      posterName: post?.userName || 'مستخدم',
-      reason: reason,
-      status: 'قيد المراجعة',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    const repRef = await db.collection('reports').add(reportData);
+    // 1. أولاً نبحث عن المالك باستخدام الـ shortUid
+    const ownerQuery = await db.collection('users')
+      .where('shortUid', '==', '82JDU7')
+      .limit(1)
+      .get();
     
-    // 🔥 التصحيح: الرسالة تكون للمالك فقط (الإدارة)
-    const ownerUid = await getOwnerUid();
-    if (ownerUid) {
-      await db.collection('inbox').add({
-        userId: ownerUid,  // ✅ الآن للمالك فقط
-        type: 'admin_report',
-        reportId: repRef.id,
-        postId: postId,
-        reporterUid: currentUser.uid,
-        posterUid: post?.userId || null,
-        title: 'بلاغ جديد - لوحة الإدارة',
-        message: `بلاغ حول منشور (${postId}). السبب: ${reason}`,
-        status: 'unread',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-
-    // 🔥 إزالة الرسالة التلقائية للمستخدم العادي
-    // await db.collection('inbox').add({ ... }); // احذف هذا الكود
-
-    // إشعار تيليجرام (يبقى كما هو)
-    const snippet = escapeHTML(post?.description?.substring(0, 100) || '');
-    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${escapeHTML(currentUser.shortUid || currentUser.uid)}\n📄 المنشور: ${snippet}...\n🔗 Post ID: ${escapeHTML(postId)}`;
-    await sendTelegramNotification(msg);
-    
-    const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
-    if(!reportedPosts.includes(postId)){ 
-      reportedPosts.push(postId); 
-      localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts)); 
+    if (ownerQuery.empty) {
+      console.log('❌ لم يتم العثور على المالك بـ shortUid: 82JDU7');
+      return;
     }
     
-    showNotification('تم الإبلاغ عن المنشور وسيتم مراجعته','success');
-    renderDetails(postId);
-  }catch(e){ 
-    console.error('Report error:', e);
-    showNotification('تعذّر إرسال البلاغ','error'); 
-  }
-}
-
-    // إشعار للمالك عبر تيليجرام
-    const snippet = escapeHTML(post?.description?.substring(0, 100) || '');
-    const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${escapeHTML(reason)}\n👤 المبلّغ: ${escapeHTML(currentUser.name||'مستخدم')}\n🆔 ${escapeHTML(currentUser.shortUid || currentUser.uid)}\n📄 المنشور: ${snippet}...\n🔗 Post ID: ${escapeHTML(postId)}`;
-    await sendTelegramNotification(msg);
+    const ownerDoc = ownerQuery.docs[0];
+    const ownerUid = ownerDoc.id; // هذا هو الـ UID الحقيقي
+    const ownerData = ownerDoc.data();
     
-    // إشعار للمستخدم في البريد الوارد
+    console.log('✅ وجدنا المالك:', ownerData.name, 'بـ UID:', ownerUid);
+
+    // 2. رسالة للمستخدم العادي
     await db.collection('inbox').add({
       userId: currentUser.uid,
       type: 'report',
@@ -1491,7 +1433,32 @@ async function reportPost(postId){
       status: 'unread',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    // 3. 🔥 رسالة للمالك - باستخدام الـ UID الحقيقي
+    await db.collection('inbox').add({
+      userId: ownerUid, // الـ UID الحقيقي للمالك
+      type: 'admin_report',
+      postId: postId,
+      reporterUid: currentUser.uid,
+      reporterName: currentUser.name || 'مستخدم',
+      reporterShortUid: currentUser.shortUid || 'غير معروف',
+      title: '🚨 بلاغ جديد',
+      message: `👤 المبلغ: ${currentUser.name || 'مستخدم'}\n📝 السبب: ${reason}\n🆔 معرف المبلغ: ${currentUser.shortUid || currentUser.uid.substring(0, 8)}`,
+      status: 'unread',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    console.log('✅ تم إرسال البلاغ للمالك بنجاح');
+
+    // 4. إشعار تيليجرام
+    try {
+      const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${reason}\n👤 المبلّغ: ${currentUser.name||'مستخدم'}\n🆔 ${currentUser.shortUid || currentUser.uid.substring(0, 8)}`;
+      await sendTelegramNotification(msg);
+    } catch(tgError) {
+      console.log('⚠️ فشل إرسال تيليجرام');
+    }
     
+    // 5. تحديث الواجهة
     const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
     if(!reportedPosts.includes(postId)){ 
       reportedPosts.push(postId); 
@@ -1499,9 +1466,9 @@ async function reportPost(postId){
     }
     
     showNotification('تم الإبلاغ عن المنشور وسيتم مراجعته','success');
-    renderDetails(postId);
+    
   }catch(e){ 
-    console.error('Report error:', e);
+    console.error('❌ Report error:', e);
     showNotification('تعذّر إرسال البلاغ','error'); 
   }
 }
