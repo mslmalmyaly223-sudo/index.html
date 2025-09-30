@@ -386,388 +386,411 @@
           <div class="menu-item" onclick="openTelegram('MSLM_ALMYALY')"><i class="fas fa-thumbtack"></i><span>تثبيت المنشور بـ 1$</span></div>
           <div class="menu-item owner-only" style="display:none" onclick="openBroadcastModal()"><i class="fas fa-bullhorn"></i><span>إشعار عام</span></div>
           <div class="menu-item owner-only" style="display:none" onclick="openAddPointsModal()"><i class="fas fa-plus"></i><span>إضافة نقاط</span></div>
-          <div class="menu-item owner-only" style="display:none" onclick="openLbDelayModal()"><i class="fa-solid fa-clock"></i><span>تأجيل إعادة ضبط التصنيف</span></div>
+          <div class="menu-item owner-only" style="display:none" onclick="openLbScheduleModal()"><i class="fa-solid fa-clock"></i><span>موعد تحديث التصنيف</span></div>
           <div class="menu-item" onclick="logout()" style="color: var(--danger-color);"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></div>
         </div>
       </div>
     </div>
   </div>
-
   <!-- User posts -->
-  <div id="user-posts-page" class="container page" style="display:none">
-    <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">منشوراتي</span></div>
-    <div class="posts-container" id="user-posts-container"></div>
-  </div>
+<div id="user-posts-page" class="container page" style="display:none">
+  <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">منشوراتي</span></div>
+  <div class="posts-container" id="user-posts-container"></div>
+</div>
 
-  <!-- Inbox -->
-  <div id="inbox-page" class="container page" style="display:none">
-    <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">البريد الوارد</span></div>
-    <div class="posts-container" id="inbox-container"></div>
-  </div>
+<!-- Inbox -->
+<div id="inbox-page" class="container page" style="display:none">
+  <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">البريد الوارد</span></div>
+  <div class="posts-container" id="inbox-container"></div>
+</div>
 
-  <!-- Details -->
-  <div id="details-page" class="container page" style="display:none">
-    <div class="header"><button class="btn btn-secondary" onclick="backToMainFromDetails()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">تفاصيل المنشور</span></div>
-    <div class="posts-container" id="details-container"></div>
-  </div>
+<!-- Details -->
+<div id="details-page" class="container page" style="display:none">
+  <div class="header"><button class="btn btn-secondary" onclick="backToMainFromDetails()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">تفاصيل المنشور</span></div>
+  <div class="posts-container" id="details-container"></div>
+</div>
 
-  <!-- Comments -->
-  <div id="comments-page" class="container page" style="display:none">
-    <div class="header"><button class="btn btn-secondary" onclick="backToMainFromComments()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">التعليقات</span></div>
-    <div class="posts-container">
-      <div id="comments-list-page"></div>
-      <div class="row" style="margin-top:10px;">
-        <input type="text" id="comment-text-page" class="form-control grow" placeholder="أضف تعليقًا...">
-        <button id="send-comment-btn" class="btn" onclick="addCommentFromPage()">إرسال</button>
-      </div>
+<!-- Comments -->
+<div id="comments-page" class="container page" style="display:none">
+  <div class="header"><button class="btn btn-secondary" onclick="backToMainFromComments()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">التعليقات</span></div>
+  <div class="posts-container">
+    <div id="comments-list-page"></div>
+    <div class="row" style="margin-top:10px;">
+      <input type="text" id="comment-text-page" class="form-control grow" placeholder="أضف تعليقًا...">
+      <button id="send-comment-btn" class="btn" onclick="addCommentFromPage()">إرسال</button>
     </div>
   </div>
+</div>
 
-  <!-- Challenge (الرئيسية الجديدة) -->
-  <div id="challenge-page" class="container page" style="display:none">
-    <div class="header">
-      <span style="font-weight:900">تحدي دراسي</span>
+<!-- Challenge (الرئيسية الجديدة) -->
+<div id="challenge-page" class="container page" style="display:none">
+  <div class="header">
+    <span style="font-weight:900">تحدي دراسي</span>
+  </div>
+  <div class="challenge-shell">
+    <div class="challenge-tab-nav">
+      <button class="challenge-tab-pill active" data-tab="timer" onclick="switchChallengeTab(this)">تحدي المؤقت</button>
+      <button class="challenge-tab-pill" data-tab="qna" onclick="switchChallengeTab(this)">تحدي الأسئلة</button>
+      <button class="challenge-tab-pill" data-tab="leaderboard" onclick="switchChallengeTab(this)">التصنيف العالمي</button>
+      <button class="challenge-tab-pill" data-tab="journey" onclick="switchChallengeTab(this)">رحلة السادس</button>
     </div>
-    <div class="challenge-shell">
-      <div class="challenge-tab-nav">
-        <button class="challenge-tab-pill active" data-tab="timer" onclick="switchChallengeTab(this)">تحدي المؤقت</button>
-        <button class="challenge-tab-pill" data-tab="qna" onclick="switchChallengeTab(this)">تحدي الأسئلة</button>
-        <button class="challenge-tab-pill" data-tab="leaderboard" onclick="switchChallengeTab(this)">التصنيف العالمي</button>
-        <button class="challenge-tab-pill" data-tab="journey" onclick="switchChallengeTab(this)">رحلة السادس</button>
-      </div>
 
-      <div id="challenge-tab-timer" class="challenge-tab-content active">
-        <!-- قسم الهدايا أعلى المؤقت -->
-        <div class="gift-section-sm">
-          <div style="font-weight:900;color:#0f235f;margin-bottom:8px">اشتري مرشحات المواد بالنقاط واحصل على مكافآت</div>
-          <button class="btn btn-success btn-block" onclick="openGiftsModal()"><i class="fas fa-gift"></i> عرض الهدايا والشراء</button>
-          <div id="purchased-gifts-btn" class="purchased-gifts-btn" onclick="showPurchasedGifts()" style="display:none; margin-top:10px">
-            <i class="fas fa-box-open"></i> المرشحات التي اشتريتها
-          </div>
-        </div>
-
-        <div class="timer-card">
-          <div class="timer-title">عدّاد دراستك</div>
-          <div id="timer-display" class="timer-display">00:00:00</div>
-          <div class="points-display">
-            رصيدك: <b id="current-points-display">0</b> نقطة
-          </div>
-          <div class="timer-actions">
-            <button id="timer-start-btn" class="btn" onclick="startStudyTimer()"><i class="fa-solid fa-play"></i> بدء</button>
-            <button id="timer-stop-btn" class="btn btn-warning" onclick="stopStudyTimer()" disabled><i class="fa-solid fa-stop"></i> إيقاف</button>
-          </div>
-          <div id="timer-hint" class="hint">1 نقطة لكل 3 دقائق. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
-        </div>
-
-        <!-- مكافأة يومية واحدة فقط (الإصدار الفعّال) -->
-        <div class="daily-reward">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <div style="font-weight:800;color:#0f235f">هدية يومية</div>
-            <button id="daily-claim-btn" class="btn btn-success" onclick="claimDailyReward()"><i class="fas fa-gift"></i> احصل على 20 نقطة</button>
-          </div>
-          <div id="daily-remaining" class="hint" style="margin-top:10px"></div>
-        </div>
-
-        <div class="boost-card">
-          <div class="timer-title">تسريع المؤقت</div>
-          <div class="hint">اختر حزمة التسريع المناسبة لك:</div>
-          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-            <button class="btn" onclick="buyBoost(1)">1 ساعة (25 نقطة)</button>
-            <button class="btn" onclick="buyBoost(2)">2 ساعات (50 نقطة)</button>
-            <button class="btn" onclick="buyBoost(3)">3 ساعات (75 نقطة)</button>
-            <button class="btn" onclick="buyBoost(5)">5 ساعات (100 نقطة)</button>
-          </div>
-          <div id="boost-status" class="hint" style="margin-top: 10px; font-weight: 700;"></div>
+    <div id="challenge-tab-timer" class="challenge-tab-content active">
+      <!-- قسم الهدايا أعلى المؤقت -->
+      <div class="gift-section-sm">
+        <div style="font-weight:900;color:#0f235f;margin-bottom:8px">اشتري مرشحات المواد بالنقاط واحصل على مكافآت</div>
+        <button class="btn btn-success btn-block" onclick="openGiftsModal()"><i class="fas fa-gift"></i> عرض الهدايا والشراء</button>
+        <div id="purchased-gifts-btn" class="purchased-gifts-btn" onclick="showPurchasedGifts()" style="display:none; margin-top:10px">
+          <i class="fas fa-box-open"></i> المرشحات التي اشتريتها
         </div>
       </div>
 
-      <div id="challenge-tab-qna" class="challenge-tab-content">
-        <button class="btn btn-block" onclick="openCreateQnaModal()"><i class="fa-solid fa-plus"></i> إنشاء سؤال جديد</button>
-        <div id="qna-list-container" class="posts-container">
-          <div class="post"><p>جاري تحميل الأسئلة...</p></div>
+      <div class="timer-card">
+        <div class="timer-title">عدّاد دراستك</div>
+        <div id="timer-display" class="timer-display">00:00:00</div>
+        <div class="points-display">
+          رصيدك: <b id="current-points-display">0</b> نقطة
+        </div>
+        <div class="timer-actions">
+          <button id="timer-start-btn" class="btn" onclick="startStudyTimer()"><i class="fa-solid fa-play"></i> بدء</button>
+          <button id="timer-stop-btn" class="btn btn-warning" onclick="stopStudyTimer()" disabled><i class="fa-solid fa-stop"></i> إيقاف</button>
+        </div>
+        <div id="timer-hint" class="hint">1 نقطة لكل 3 دقائق. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
+      </div>
+
+      <!-- مكافأة يومية واحدة فقط (الإصدار الفعّال) -->
+      <div class="daily-reward">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="font-weight:800;color:#0f235f">هدية يومية</div>
+          <button id="daily-claim-btn" class="btn btn-success" onclick="claimDailyReward()"><i class="fas fa-gift"></i> احصل على 20 نقطة</button>
+        </div>
+        <div id="daily-remaining" class="hint" style="margin-top:10px"></div>
+      </div>
+
+      <div class="boost-card">
+        <div class="timer-title">تسريع المؤقت</div>
+        <div class="hint">اختر حزمة التسريع المناسبة لك:</div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+          <button class="btn" onclick="buyBoost(1)">1 ساعة (25 نقطة)</button>
+          <button class="btn" onclick="buyBoost(2)">2 ساعات (50 نقطة)</button>
+          <button class="btn" onclick="buyBoost(3)">3 ساعات (75 نقطة)</button>
+          <button class="btn" onclick="buyBoost(5)">5 ساعات (100 نقطة)</button>
+        </div>
+        <div id="boost-status" class="hint" style="margin-top: 10px; font-weight: 700;"></div>
+      </div>
+    </div>
+
+    <div id="challenge-tab-qna" class="challenge-tab-content">
+      <button class="btn btn-block" onclick="openCreateQnaModal()"><i class="fa-solid fa-plus"></i> إنشاء سؤال جديد</button>
+      <div id="qna-list-container" class="posts-container">
+        <div class="post"><p>جاري تحميل الأسئلة...</p></div>
+      </div>
+    </div>
+
+    <div id="challenge-tab-leaderboard" class="challenge-tab-content">
+      <div class="post-title" style="font-size:16px;color:#0f235f;font-weight:900">التصنيف العالمي (أعلى 50)</div>
+
+      <!-- شريط أدوات التصنيف: زر مكافآت + عد تنازلي أسبوعي -->
+      <div class="lb-tools">
+        <button class="btn" id="lb-rewards-btn" onclick="openLbRewardsModal()"><i class="fa-solid fa-trophy"></i> مكافئات التصنيف</button>
+        <div class="countdown" id="leaderboard-countdown" aria-label="الوقت المتبقي لتحديث التصنيف">
+          <span class="cd-box"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">أيام</span></span>
+          <span class="cd-box"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">ساعات</span></span>
+          <span class="cd-box"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">دقائق</span></span>
+          <span class="cd-box"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">ثواني</span></span>
         </div>
       </div>
 
-      <div id="challenge-tab-leaderboard" class="challenge-tab-content">
-        <div class="post-title" style="font-size:16px;color:#0f235f;font-weight:900">التصنيف العالمي (أعلى 50)</div>
-
-        <!-- شريط أدوات التصنيف: زر مكافآت + عد تنازلي أسبوعي -->
-        <div class="lb-tools">
-          <button class="btn" id="lb-rewards-btn" onclick="openLbRewardsModal()"><i class="fa-solid fa-trophy"></i> مكافئات التصنيف</button>
-          <div class="countdown" id="leaderboard-countdown" aria-label="الوقت المتبقي لتحديث التصنيف">
-            <span class="cd-box"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">أيام</span></span>
-            <span class="cd-box"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">ساعات</span></span>
-            <span class="cd-box"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">دقائق</span></span>
-            <span class="cd-box"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">ثواني</span></span>
-          </div>
-        </div>
-
-        <div id="challenge-leaderboard" class="rank-list">
-          <div class="post"><p>جاري تحميل التصنيف...</p></div>
-        </div>
+      <div id="challenge-leaderboard" class="rank-list">
+        <div class="post"><p>جاري تحميل التصنيف...</p></div>
       </div>
+    </div>
 
-      <div id="challenge-tab-journey" class="challenge-tab-content">
-        <!-- زر إضافة محتوى (للمالك فقط) -->
-        <button class="btn btn-block owner-only" id="add-journey-btn" style="display:none" onclick="addJourneyContent()">
-          <i class="fas fa-plus"></i> إضافة محتوى
-        </button>
+    <div id="challenge-tab-journey" class="challenge-tab-content">
+      <!-- زر إضافة محتوى (للمالك فقط) -->
+      <button class="btn btn-block owner-only" id="add-journey-btn" style="display:none" onclick="addJourneyContent()">
+        <i class="fas fa-plus"></i> إضافة محتوى
+      </button>
 
-        <div id="journey-container" class="journey-container">
-          <div class="post"><p>جاري تحميل محتوى رحلة السادس...</p></div>
-        </div>
+      <div id="journey-container" class="journey-container">
+        <div class="post"><p>جاري تحميل محتوى رحلة السادس...</p></div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Bottom nav -->
-  <div id="bottom-nav" class="bottom-nav">
-    <div class="nav-item" data-page="challenge" onclick="showChallengePage()"><i class="fas fa-fire"></i><span>تحدي دراسي</span></div>
-    <div class="nav-item active" data-page="main" onclick="showMainPage()"><i class="fas fa-home"></i><span>المنشورات</span></div>
-    <div class="nav-item" data-page="profile" onclick="showProfilePage()"><i class="fas fa-user"></i><span>حسابي</span></div>
+<!-- Bottom nav -->
+<div id="bottom-nav" class="bottom-nav">
+  <div class="nav-item" data-page="challenge" onclick="showChallengePage()"><i class="fas fa-fire"></i><span>تحدي دراسي</span></div>
+  <div class="nav-item active" data-page="main" onclick="showMainPage()"><i class="fas fa-home"></i><span>المنشورات</span></div>
+  <div class="nav-item" data-page="profile" onclick="showProfilePage()"><i class="fas fa-user"></i><span>حسابي</span></div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<!-- Modals: الهدايا / شراء هدية / شرح التطبيق -->
+<div id="gifts-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>هدايا ومرشحات المواد</h2><button class="close-modal" onclick="closeGiftsModal()">&times;</button></div>
+  <div id="gifts-list" style="max-height: 400px; overflow-y: auto;">
+    <div class="post"><p>جاري تحميل الهدايا...</p></div>
   </div>
+</div></div>
 
-  <div id="notification" class="notification"></div>
+<div id="purchased-gifts-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>المرشحات التي اشتريتها</h2><button class="close-modal" onclick="closePurchasedGiftsModal()">&times;</button></div>
+  <div id="purchased-gifts-list" style="max-height: 400px; overflow-y: auto;">
+    <div class="post"><p>جاري تحميل المرشحات...</p></div>
+  </div>
+</div></div>
 
-  <!-- Modals: الهدايا / شراء هدية / شرح التطبيق -->
-  <div id="gifts-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>هدايا ومرشحات المواد</h2><button class="close-modal" onclick="closeGiftsModal()">&times;</button></div>
-    <div id="gifts-list" style="max-height: 400px; overflow-y: auto;">
-      <div class="post"><p>جاري تحميل الهدايا...</p></div>
-    </div>
-  </div></div>
-
-  <div id="purchased-gifts-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>المرشحات التي اشتريتها</h2><button class="close-modal" onclick="closePurchasedGiftsModal()">&times;</button></div>
-    <div id="purchased-gifts-list" style="max-height: 400px; overflow-y: auto;">
-      <div class="post"><p>جاري تحميل المرشحات...</p></div>
-    </div>
-  </div></div>
-
-  <div id="buy-gift-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2 id="buy-gift-title">شراء هدية</h2><button class="close-modal" onclick="closeBuyGiftModal()">&times;</button></div>
-    <div class="post">
-      <p id="buy-gift-description"></p>
-      <p class="muted">السعر: <span id="buy-gift-price"></span> نقطة</p>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeBuyGiftModal()">إلغاء</button>
-        <button class="btn btn-success" onclick="purchaseGift()">شراء</button>
-      </div>
-    </div>
-  </div></div>
-
-  <div id="app-explanation-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>شرح التطبيق</h2><button class="close-modal" onclick="closeAppExplanationModal()">&times;</button></div>
-    <div id="app-explanation-content" style="max-height: 400px; overflow-y: auto;">
-      <div class="post"><p>جاري تحميل شرح التطبيق...</p></div>
-    </div>
-  </div></div>
-
-  <!-- مودالات إضافية ليشتغل كل الأزرار -->
-  <div id="create-post-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>إنشاء منشور</h2><button class="close-modal" onclick="closeCreatePostModal()">&times;</button></div>
-    <div class="select-group"><label>المرحلة</label>
-      <select id="post-stage" class="select-control">
-        <option value="sades-elmi">السادس العلمي</option>
-        <option value="sades-adabi">السادس الادبي</option>
-        <option value="khames">الخامس</option>
-        <option value="rabea">الرابع</option>
-        <option value="thaleth-mut">الثالث متوسط</option>
-        <option value="thani-mut">الثاني متوسط</option>
-        <option value="awal-mut">الاول متوسط</option>
-        <option value="sades-ibtidai">السادس الابتدائي</option>
-      </select>
-    </div>
-    <div class="select-group"><label>المادة</label>
-      <select id="post-material" class="select-control">
-        <option>اسلامية</option><option>عربي</option><option>انكليزي</option>
-        <option>رياضيات</option><option>احياء</option><option>كيمياء</option>
-        <option>فيزياء</option><option>اقتصاد</option><option>أدب ونصوص</option><option>قواعد</option>
-      </select>
-    </div>
-    <div class="select-group"><label>السعر</label><input id="post-price" class="select-control" type="number" value="0"></div>
-    <div class="select-group"><label>الوصف</label><textarea id="post-description" class="select-control" rows="4"></textarea></div>
-    <div class="select-group"><label>طريقة التواصل</label>
-      <select id="contact-method" class="select-control" onchange="changeContactMethod()">
-        <option value="whatsapp">واتساب</option>
-        <option value="telegram">تلكرام</option>
-        <option value="comments">تعليقات</option>
-      </select>
-    </div>
-    <div id="whatsapp-field" class="select-group"><label>رقم واتساب</label><input id="whatsapp-number" class="select-control" placeholder="9647xxxxxxxxx"></div>
-    <div id="telegram-field" class="select-group" style="display:none"><label>معرّف تلكرام</label><input id="telegram-username" class="select-control" placeholder="username بدون @"></div>
+<div id="buy-gift-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2 id="buy-gift-title">شراء هدية</h2><button class="close-modal" onclick="closeBuyGiftModal()">&times;</button></div>
+  <div class="post">
+    <p id="buy-gift-description"></p>
+    <p class="muted">السعر: <span id="buy-gift-price"></span> نقطة</p>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeCreatePostModal()">إلغاء</button>
-      <button id="post-submit-btn" class="btn" onclick="createPost()">نشر</button>
+      <button class="btn btn-secondary" onclick="closeBuyGiftModal()">إلغاء</button>
+      <button class="btn btn-success" onclick="purchaseGift()">شراء</button>
     </div>
-  </div></div>
+  </div>
+</div></div>
 
-  <div id="edit-post-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>تعديل منشور</h2><button class="close-modal" onclick="closeEditPostModal()">&times;</button></div>
-    <input type="hidden" id="edit-post-id"/>
-    <div class="select-group"><label>المرحلة</label>
-      <select id="edit-post-stage" class="select-control">
-        <option value="sades-elmi">السادس العلمي</option>
-        <option value="sades-adabi">السادس الادبي</option>
-        <option value="khames">الخامس</option>
-        <option value="rabea">الرابع</option>
-        <option value="thaleth-mut">الثالث متوسط</option>
-        <option value="thani-mut">الثاني متوسط</option>
-        <option value="awal-mut">الاول متوسط</option>
-        <option value="sades-ibtidai">السادس الابتدائي</option>
-      </select>
-    </div>
-    <div class="select-group"><label>السعر</label><input id="edit-post-price" class="select-control" type="number"></div>
-    <div class="select-group"><label>المادة</label>
-      <select id="edit-post-material" class="select-control">
-        <option>اسلامية</option><option>عربي</option><option>انكليزي</option>
-        <option>رياضيات</option><option>احياء</option><option>كيمياء</option>
-        <option>فيزياء</option><option>اقتصاد</option><option>أدب ونصوص</option><option>قواعد</option>
-      </select>
-    </div>
-    <div class="select-group"><label>الوصف</label><textarea id="edit-post-description" class="select-control" rows="4"></textarea></div>
-    <div class="select-group"><label>طريقة التواصل</label>
-      <select id="edit-contact-method" class="select-control" onchange="changeContactMethod('edit')">
-        <option value="whatsapp">واتساب</option>
-        <option value="telegram">تلكرام</option>
-        <option value="comments">تعليقات</option>
-      </select>
-    </div>
-    <div id="edit-whatsapp-field" class="select-group"><label>رقم واتساب</label><input id="edit-whatsapp-number" class="select-control"></div>
-    <div id="edit-telegram-field" class="select-group" style="display:none"><label>معرّف تلكرام</label><input id="edit-telegram-username" class="select-control"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeEditPostModal()">إلغاء</button>
-      <button id="post-edit-submit-btn" class="btn" onclick="savePostEdits()">حفظ</button>
-    </div>
-  </div></div>
+<div id="app-explanation-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>شرح التطبيق</h2><button class="close-modal" onclick="closeAppExplanationModal()">&times;</button></div>
+  <div id="app-explanation-content" style="max-height: 400px; overflow-y: auto;">
+    <div class="post"><p>جاري تحميل شرح التطبيق...</p></div>
+  </div>
+</div></div>
 
-  <div id="create-company-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>إضافة شركة توصيل</h2><button class="close-modal" onclick="closeCreateCompanyModal()">&times;</button></div>
-    <div class="select-group"><label>اسم الشركة</label><input id="company-name" class="select-control"></div>
-    <div class="select-group"><label>من</label><select id="company-from" class="select-control"></select></div>
-    <div class="select-group"><label>إلى</label><select id="company-to" class="select-control"></select></div>
-    <div class="select-group"><label>الهاتف</label><input id="company-phone" class="select-control"></div>
-    <div class="select-group"><label>وصف</label><textarea id="company-desc" class="select-control" rows="3"></textarea></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeCreateCompanyModal()">إلغاء</button>
-      <button id="company-submit-btn" class="btn btn-success" onclick="createCompany()">إضافة</button>
-    </div>
-  </div></div>
+<!-- مودالات إضافية ليشتغل كل الأزرار -->
+<div id="create-post-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>إنشاء منشور</h2><button class="close-modal" onclick="closeCreatePostModal()">&times;</button></div>
+  <div class="select-group"><label>المرحلة</label>
+    <select id="post-stage" class="select-control">
+      <option value="sades-elmi">السادس العلمي</option>
+      <option value="sades-adabi">السادس الادبي</option>
+      <option value="khames">الخامس</option>
+      <option value="rabea">الرابع</option>
+      <option value="thaleth-mut">الثالث متوسط</option>
+      <option value="thani-mut">الثاني متوسط</option>
+      <option value="awal-mut">الاول متوسط</option>
+      <option value="sades-ibtidai">السادس الابتدائي</option>
+    </select>
+  </div>
+  <div class="select-group"><label>المادة</label>
+    <select id="post-material" class="select-control">
+      <option>اسلامية</option><option>عربي</option><option>انكليزي</option>
+      <option>رياضيات</option><option>احياء</option><option>كيمياء</option>
+      <option>فيزياء</option><option>اقتصاد</option><option>أدب ونصوص</option><option>قواعد</option>
+    </select>
+  </div>
+  <div class="select-group"><label>السعر</label><input id="post-price" class="select-control" type="number" value="0"></div>
+  <div class="select-group"><label>الوصف</label><textarea id="post-description" class="select-control" rows="4"></textarea></div>
+  <div class="select-group"><label>طريقة التواصل</label>
+    <select id="contact-method" class="select-control" onchange="changeContactMethod()">
+      <option value="whatsapp">واتساب</option>
+      <option value="telegram">تلكرام</option>
+      <option value="comments">تعليقات</option>
+    </select>
+  </div>
+  <div id="whatsapp-field" class="select-group"><label>رقم واتساب</label><input id="whatsapp-number" class="select-control" placeholder="9647xxxxxxxxx"></div>
+  <div id="telegram-field" class="select-group" style="display:none"><label>معرّف تلكرام</label><input id="telegram-username" class="select-control" placeholder="username بدون @"></div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeCreatePostModal()">إلغاء</button>
+    <button id="post-submit-btn" class="btn" onclick="createPost()">نشر</button>
+  </div>
+</div></div>
 
-  <div id="avatar-modal" class="modal"><div class="modal-content">
+<div id="edit-post-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>تعديل منشور</h2><button class="close-modal" onclick="closeEditPostModal()">&times;</button></div>
+  <input type="hidden" id="edit-post-id"/>
+  <div class="select-group"><label>المرحلة</label>
+    <select id="edit-post-stage" class="select-control">
+      <option value="sades-elmi">السادس العلمي</option>
+      <option value="sades-adabi">السادس الادبي</option>
+      <option value="khames">الخامس</option>
+      <option value="rabea">الرابع</option>
+      <option value="thaleth-mut">الثالث متوسط</option>
+      <option value="thani-mut">الثاني متوسط</option>
+      <option value="awal-mut">الاول متوسط</option>
+      <option value="sades-ibtidai">السادس الابتدائي</option>
+    </select>
+  </div>
+  <div class="select-group"><label>السعر</label><input id="edit-post-price" class="select-control" type="number"></div>
+  <div class="select-group"><label>المادة</label>
+    <select id="edit-post-material" class="select-control">
+      <option>اسلامية</option><option>عربي</option><option>انكليزي</option>
+      <option>رياضيات</option><option>احياء</option><option>كيمياء</option>
+      <option>فيزياء</option><option>اقتصاد</option><option>أدب ونصوص</option><option>قواعد</option>
+    </select>
+  </div>
+  <div class="select-group"><label>الوصف</label><textarea id="edit-post-description" class="select-control" rows="4"></textarea></div>
+  <div class="select-group"><label>طريقة التواصل</label>
+    <select id="edit-contact-method" class="select-control" onchange="changeContactMethod('edit')">
+      <option value="whatsapp">واتساب</option>
+      <option value="telegram">تلكرام</option>
+      <option value="comments">تعليقات</option>
+    </select>
+  </div>
+  <div id="edit-whatsapp-field" class="select-group"><label>رقم واتساب</label><input id="edit-whatsapp-number" class="select-control"></div>
+  <div id="edit-telegram-field" class="select-group" style="display:none"><label>معرّف تلكرام</label><input id="edit-telegram-username" class="select-control"></div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeEditPostModal()">إلغاء</button>
+    <button id="post-edit-submit-btn" class="btn" onclick="savePostEdits()">حفظ</button>
+  </div>
+</div></div>
+
+<div id="create-company-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>إضافة شركة توصيل</h2><button class="close-modal" onclick="closeCreateCompanyModal()">&times;</button></div>
+  <div class="select-group"><label>اسم الشركة</label><input id="company-name" class="select-control"></div>
+  <div class="select-group"><label>من</label><select id="company-from" class="select-control"></select></div>
+  <div class="select-group"><label>إلى</label><select id="company-to" class="select-control"></select></div>
+  <div class="select-group"><label>الهاتف</label><input id="company-phone" class="select-control"></div>
+  <div class="select-group"><label>وصف</label><textarea id="company-desc" class="select-control" rows="3"></textarea></div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeCreateCompanyModal()">إلغاء</button>
+    <button id="company-submit-btn" class="btn btn-success" onclick="createCompany()">إضافة</button>
+  </div>
+</div></div>
+
+<div id="avatar-modal" class="modal"><div class="modal-content">
+  <div class="modal-header">
+    <h2>تغيير الصورة</h2><button class="close-modal" onclick="closeAvatarModal()">&times;</button></div>
+  <div class="choose-avatar">
+    <button class="btn" onclick="setAvatar('male')">👨🏻‍💼 ولد</button>
+    <button class="btn" onclick="setAvatar('female')">👩🏻‍💼 بنت</button>
+  </div>
+</div></div>
+
+<div id="add-points-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>إضافة نقاط</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
+  <div class="select-group"><label>UID/المعرف المختصر</label><input id="addpoints-uid" class="select-control" placeholder="أدخل UID الكامل أو المعرف المختصر (مثال: ABC12DE)"></div>
+  <div class="select-group"><label>عدد النقاط</label><input id="addpoints-num" type="number" class="select-control" value="50"></div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+    <button class="btn btn-success" onclick="(function(){ const uid=document.getElementById('addpoints-uid').value.trim(); const n=parseInt(document.getElementById('addpoints-num').value||'0',10); if(uid && n){ addPointsDirectly(uid,n);} })()">إضافة</button>
+  </div>
+</div></div>
+
+<div id="broadcast-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>إشعار عام</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
+  <div class="select-group"><label>العنوان</label><input id="bcast-title" class="select-control"></div>
+  <div class="select-group"><label>النص</label><textarea id="bcast-text" class="select-control" rows="4"></textarea></div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+    <button class="btn btn-success" onclick="sendBroadcast()">إرسال</button>
+  </div>
+</div></div>
+
+<div id="qna-create-modal" class="modal"><div class="modal-content">
+  <div class="modal-header"><h2>سؤال جديد</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
+  <div class="select-group"><label>المادة</label>
+    <select id="qna-material" class="select-control">
+      <option value="اسلامية">اسلامية</option><option value="عربي">عربي</option><option value="انكليزي">انكليزي</option>
+      <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="كيمياء">كيمياء</option>
+      <option value="فيزياء">فيزياء</option><option value="اقتصاد">اقتصاد</option><option value="أدب ونصوص">أدب ونصوص</option>
+      <option value="قواعد">قواعد</option>
+    </select>
+  </div>
+  <div class="select-group"><label>السؤال</label><textarea id="qna-text" class="select-control" rows="3"></textarea></div>
+  <div class="select-group"><label>الخيار الأول</label><input id="qna-option1" class="select-control"></div>
+  <div class="select-group"><label>الخيار الثاني</label><input id="qna-option2" class="select-control"></div>
+  <div class="select-group"><label>الخيار الثالث</label><input id="qna-option3" class="select-control"></div>
+  <div class="select-group"><label>الإجابة الصحيحة</label>
+    <select id="qna-correct" class="select-control">
+      <option value="1">الخيار الأول</option>
+      <option value="2">الخيار الثاني</option>
+      <option value="3">الخيار الثالث</option>
+    </select>
+  </div>
+  <div class="select-group"><label>الجائزة (نقاط)</label><input id="qna-prize" type="number" class="select-control" value="50"></div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+    <button class="btn btn-success" onclick="createQna()">نشر السؤال</button>
+  </div>
+</div></div>
+
+<!-- صفحات مستقلّة -->
+<div id="journey-item-page" class="container page" style="display:none">
+  <div class="header"><button class="btn btn-secondary" onclick="showChallengePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">رحلة السادس</span></div>
+  <div class="posts-container" id="journey-item-container"></div>
+</div>
+
+<div id="app-explanation-page" class="container page" style="display:none">
+  <div class="header"><button class="btn btn-secondary" onclick="showProfilePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">شرح التطبيق</span></div>
+  <div class="posts-container" id="app-explanation-list"></div>
+</div>
+
+<div id="user-stats-page" class="container page" style="display:none">
+  <div class="header"><button class="btn btn-secondary" onclick="showProfilePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">إحصائيات المستخدمين</span></div>
+  <div class="posts-container" id="user-stats-container"></div>
+</div>
+
+<!-- Modal: مكافآت التصنيف -->
+<div id="lb-rewards-modal" class="modal">
+  <div class="modal-content">
     <div class="modal-header">
-      <h2>تغيير الصورة</h2><button class="close-modal" onclick="closeAvatarModal()">&times;</button></div>
-    <div class="choose-avatar">
-      <button class="btn" onclick="setAvatar('male')">👨🏻‍💼 ولد</button>
-      <button class="btn" onclick="setAvatar('female')">👩🏻‍💼 بنت</button>
+      <h2>مكافئات التصنيف</h2>
+      <button class="close-modal" onclick="closeLbRewardsModal()">&times;</button>
     </div>
-  </div></div>
-
-  <div id="add-points-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>إضافة نقاط</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
-    <div class="select-group"><label>UID/المعرف المختصر</label><input id="addpoints-uid" class="select-control" placeholder="أدخل UID الكامل أو المعرف المختصر (مثال: ABC12DE)"></div>
-    <div class="select-group"><label>عدد النقاط</label><input id="addpoints-num" type="number" class="select-control" value="50"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-      <button class="btn btn-success" onclick="(function(){ const uid=document.getElementById('addpoints-uid').value.trim(); const n=parseInt(document.getElementById('addpoints-num').value||'0',10); if(uid && n){ addPointsDirectly(uid,n);} })()">إضافة</button>
+    <div class="post">
+      <ul style="line-height:2">
+        <li><b>المركز الأول:</b> 2000 نقطة</li>
+        <li><b>المركز الثاني:</b> 1500 نقطة</li>
+        <li><b>المركز الثالث:</b> 1000 نقطة</li>
+        <li><b>المركز الرابع:</b> 500 نقطة</li>
+        <li><b>المركز الخامس:</b> 300 نقطة</li>
+      </ul>
+      <div class="lb-note">
+        ✅ <b>تنبيه مهم:</b> لا تُصرف المكافآت إلا إذا كانت نقاطك <u>200 نقطة فأكثر</u> عند نهاية الأسبوع، حتى لو كنت ضمن المراكز الخمسة الأولى.
+      </div>
     </div>
-  </div></div>
+  </div>
+</div>
 
-  <div id="broadcast-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>إشعار عام</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
-    <div class="select-group"><label>العنوان</label><input id="bcast-title" class="select-control"></div>
-    <div class="select-group"><label>النص</label><textarea id="bcast-text" class="select-control" rows="4"></textarea></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-      <button class="btn btn-success" onclick="sendBroadcast()">إرسال</button>
+<!-- Modal: موعد تحديث التصنيف (بدلاً من التأجيل) -->
+<div id="lb-schedule-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>موعد تحديث التصنيف</h2>
+      <button class="close-modal" onclick="closeLbScheduleModal()">&times;</button>
     </div>
-  </div></div>
-
-  <div id="qna-create-modal" class="modal"><div class="modal-content">
-    <div class="modal-header"><h2>سؤال جديد</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
-    <div class="select-group"><label>المادة</label>
-      <select id="qna-material" class="select-control">
-        <option value="اسلامية">اسلامية</option><option value="عربي">عربي</option><option value="انكليزي">انكليزي</option>
-        <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="كيمياء">كيمياء</option>
-        <option value="فيزياء">فيزياء</option><option value="اقتصاد">اقتصاد</option><option value="أدب ونصوص">أدب ونصوص</option>
-        <option value="قواعد">قواعد</option>
+    <div class="select-group">
+      <label>اليوم الأسبوعي للتحديث</label>
+      <select id="lb-schedule-day" class="select-control">
+        <option value="0">الأحد</option>
+        <option value="1">الإثنين</option>
+        <option value="2">الثلاثاء</option>
+        <option value="3">الأربعاء</option>
+        <option value="4">الخميس</option>
+        <option value="5">الجمعة</option>
+        <option value="6">السبت</option>
       </select>
     </div>
-    <div class="select-group"><label>السؤال</label><textarea id="qna-text" class="select-control" rows="3"></textarea></div>
-    <div class="select-group"><label>الخيار الأول</label><input id="qna-option1" class="select-control"></div>
-    <div class="select-group"><label>الخيار الثاني</label><input id="qna-option2" class="select-control"></div>
-    <div class="select-group"><label>الخيار الثالث</label><input id="qna-option3" class="select-control"></div>
-    <div class="select-group"><label>الإجابة الصحيحة</label>
-      <select id="qna-correct" class="select-control">
-        <option value="1">الخيار الأول</option>
-        <option value="2">الخيار الثاني</option>
-        <option value="3">الخيار الثالث</option>
-      </select>
+    <div class="select-group">
+      <label>وقت التحديث</label>
+      <input id="lb-schedule-time" class="select-control" type="time" value="00:00">
     </div>
-    <div class="select-group"><label>الجائزة (نقاط)</label><input id="qna-prize" type="number" class="select-control" value="50"></div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-      <button class="btn btn-success" onclick="createQna()">نشر السؤال</button>
-    </div>
-  </div></div>
-
-  <!-- صفحات مستقلّة -->
-  <div id="journey-item-page" class="container page" style="display:none">
-    <div class="header"><button class="btn btn-secondary" onclick="showChallengePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">رحلة السادس</span></div>
-    <div class="posts-container" id="journey-item-container"></div>
-  </div>
-
-  <div id="app-explanation-page" class="container page" style="display:none">
-    <div class="header"><button class="btn btn-secondary" onclick="showProfilePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">شرح التطبيق</span></div>
-    <div class="posts-container" id="app-explanation-list"></div>
-  </div>
-
-  <div id="user-stats-page" class="container page" style="display:none">
-    <div class="header"><button class="btn btn-secondary" onclick="showProfilePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">إحصائيات المستخدمين</span></div>
-    <div class="posts-container" id="user-stats-container"></div>
-  </div>
-
-  <!-- Modal: مكافآت التصنيف -->
-  <div id="lb-rewards-modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>مكافئات التصنيف</h2>
-        <button class="close-modal" onclick="closeLbRewardsModal()">&times;</button>
-      </div>
-      <div class="post">
-        <ul style="line-height:2">
-          <li><b>المركز الأول:</b> 2000 نقطة</li>
-          <li><b>المركز الثاني:</b> 1500 نقطة</li>
-          <li><b>المركز الثالث:</b> 1000 نقطة</li>
-          <li><b>المركز الرابع:</b> 500 نقطة</li>
-          <li><b>المركز الخامس:</b> 300 نقطة</li>
-        </ul>
-        <div class="lb-note">
-          ✅ <b>تنبيه مهم:</b> لا تُصرف المكافآت إلا إذا كانت نقاطك <u>200 نقطة فأكثر</u> عند نهاية الأسبوع، حتى لو كنت ضمن المراكز الخمسة الأولى.
-        </div>
-      </div>
+      <button class="btn btn-secondary" onclick="closeLbScheduleModal()">إلغاء</button>
+      <button class="btn btn-success" onclick="ownerSetLbSchedule()"><i class="fa-solid fa-calendar-alt"></i> حفظ الموعد</button>
     </div>
   </div>
+</div>
 
-  <!-- Modal: تأجيل إعادة ضبط التصنيف -->
-  <div id="lb-delay-modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>تأجيل إعادة ضبط التصنيف</h2>
-        <button class="close-modal" onclick="closeLbDelayModal()">&times;</button>
-      </div>
-      <div class="select-group">
-        <label>عدد الساعات لإضافتها إلى موعد إعادة الضبط القادم</label>
-        <input id="lb-delay-hours" class="select-control" type="number" value="12" min="1" max="168">
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeLbDelayModal()">إلغاء</button>
-        <button class="btn btn-success" onclick="ownerSetLbDelay()"><i class="fa-solid fa-clock"></i> تأكيد التأجيل</button>
-      </div>
+<!-- إشعار المكافأة الأسبوعية -->
+<div id="weekly-reward-overlay" class="modal">
+  <div class="modal-content" style="max-width: 400px;">
+    <div class="modal-header">
+      <h2>🎉 مبروك! فوز أسبوعي</h2>
+      <button class="close-modal" onclick="dismissWeeklyReward()">&times;</button>
+    </div>
+    <div class="post" id="weekly-reward-content">
+      <!-- سيتم ملؤه ديناميكياً -->
     </div>
   </div>
-
-  <script>
+</div>
+<script>
 /* =========================
    Firebase & Globals
 ========================= */
@@ -804,7 +827,11 @@ let currentCommentsPostId = null;
 const userMetaCache = {};
 
 // إعدادات التصنيف (يتم تحميلها من Firestore)
-let leaderboardSettings = { delayUntil: null };
+let leaderboardSettings = { 
+  nextReset: null,
+  scheduleDay: 0, // الأحد
+  scheduleTime: "00:00"
+};
 
 // كاش UID المالك
 let _ownerUidCache = null;
@@ -1064,6 +1091,7 @@ auth.onAuthStateChanged(async (user) => {
   await Promise.all([loadPostsFromFirestore(), loadCompanies(), fetchLatestBroadcast()]);
   await loadStudyState();
   await loadLeaderboardSettings();
+  checkWeeklyRewards();
   setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
   pendingChosenAvatar = null;
 });
@@ -1735,7 +1763,6 @@ if(isOwner() && msg.type === 'admin_report'){
     inboxContainer.innerHTML = '<div class="post"><p>خطأ في تحميل الرسائل: ' + error.message + '</p></div>';
   }
 }
-
 async function adminReportAction(inboxDocId, reportId, action, targetId, reporterUid){
   if(!isOwner()) return;
   
@@ -2371,16 +2398,317 @@ async function buyBoost(hours){
 }
 
 /* ===========================================================
-   التصنيف (Top 50) + إطارات الخمسة + مكافآت + عد تنازلي أسبوعي + تأجيل + شرط 200 نقطة
+   نظام التصنيف والمكافآت الأسبوعية الجديد
 =========================================================== */
+
+/* تحميل إعدادات التصنيف */
 async function loadLeaderboardSettings(){
   try{
     const doc = await db.collection('settings').doc('leaderboard').get();
-    leaderboardSettings.delayUntil = doc.exists && doc.data().delayUntil?.toDate ? doc.data().delayUntil.toDate() : null;
+    if(doc.exists){
+      const data = doc.data();
+      leaderboardSettings.nextReset = data.nextReset?.toDate ? data.nextReset.toDate() : null;
+      leaderboardSettings.scheduleDay = data.scheduleDay || 0;
+      leaderboardSettings.scheduleTime = data.scheduleTime || "00:00";
+      
+      // إذا لم يكن هناك موعد قادم، ضع موعد افتراضي
+      if(!leaderboardSettings.nextReset){
+        await calculateNextReset();
+      }
+    } else {
+      // الإعدادات غير موجودة، أنشئها
+      await calculateNextReset();
+    }
   }catch(e){
-    leaderboardSettings.delayUntil = null;
+    console.error('Error loading leaderboard settings:', e);
+    await calculateNextReset();
   }
 }
+
+/* حساب الموعد القادم لإعادة الضبط */
+async function calculateNextReset(){
+  const now = new Date();
+  const targetDay = leaderboardSettings.scheduleDay || 0; // الأحد
+  const [targetHours, targetMinutes] = (leaderboardSettings.scheduleTime || "00:00").split(':').map(Number);
+  
+  let nextReset = new Date(now);
+  nextReset.setDate(now.getDate() + ((7 + targetDay - now.getDay()) % 7));
+  nextReset.setHours(targetHours, targetMinutes, 0, 0);
+  
+  // إذا كان الموعد قد فات هذا الأسبوع، انتقل للأسبوع القادم
+  if(nextReset <= now){
+    nextReset.setDate(nextReset.getDate() + 7);
+  }
+  
+  leaderboardSettings.nextReset = nextReset;
+  
+  // حفظ في قاعدة البيانات
+  try{
+    await db.collection('settings').doc('leaderboard').set({
+      nextReset: firebase.firestore.Timestamp.fromDate(nextReset),
+      scheduleDay: leaderboardSettings.scheduleDay,
+      scheduleTime: leaderboardSettings.scheduleTime,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  }catch(e){
+    console.error('Error saving leaderboard settings:', e);
+  }
+}
+
+/* فتح موعد تحديث التصنيف */
+function openLbScheduleModal(){
+  if(!isOwner()) return showNotification('للمالك فقط','error');
+  
+  // تعبئة القيم الحالية
+  document.getElementById('lb-schedule-day').value = leaderboardSettings.scheduleDay;
+  document.getElementById('lb-schedule-time').value = leaderboardSettings.scheduleTime;
+  
+  document.getElementById('lb-schedule-modal').style.display = 'block';
+}
+
+function closeLbScheduleModal(){
+  document.getElementById('lb-schedule-modal').style.display = 'none';
+}
+
+/* حفظ موعد التحديث */
+async function ownerSetLbSchedule(){
+  if(!isOwner()) return;
+  
+  const day = parseInt(document.getElementById('lb-schedule-day').value);
+  const time = document.getElementById('lb-schedule-time').value;
+  
+  if(isNaN(day) || day < 0 || day > 6) {
+    return showNotification('اليوم غير صالح','error');
+  }
+  
+  if(!time) {
+    return showNotification('الوقت غير صالح','error');
+  }
+  
+  try {
+    leaderboardSettings.scheduleDay = day;
+    leaderboardSettings.scheduleTime = time;
+    
+    // إعادة حساب الموعد القادم
+    await calculateNextReset();
+    
+    showNotification('تم حفظ موعد تحديث التصنيف','success');
+    closeLbScheduleModal();
+    
+    // إعادة تشغيل العد التنازلي
+    startLeaderboardCountdown();
+    
+  } catch(e) {
+    console.error('Error setting leaderboard schedule:', e);
+    showNotification('فشل حفظ الموعد','error');
+  }
+}
+
+/* توزيع المكافآت الأسبوعية */
+async function distributeWeeklyRewards(){
+  if(!isOwner()) return;
+  
+  try {
+    // جلب أفضل 50 مستخدم
+    const leaderboardSnapshot = await db.collection('study')
+      .orderBy('totalPoints', 'desc')
+      .limit(50)
+      .get();
+    
+    if(leaderboardSnapshot.empty) {
+      console.log('لا يوجد مستخدمين في التصنيف');
+      return;
+    }
+    
+    const topUsers = leaderboardSnapshot.docs.map(doc => ({
+      uid: doc.id,
+      ...doc.data()
+    }));
+    
+    const rewards = {
+      0: 2000, // المركز الأول
+      1: 1500, // المركز الثاني  
+      2: 1000, // المركز الثالث
+      3: 500,  // المركز الرابع
+      4: 300   // المركز الخامس
+    };
+    
+    const winners = [];
+    
+    // توزيع المكافآت على أول 5 مراكز
+    for(let i = 0; i < Math.min(5, topUsers.length); i++){
+      const user = topUsers[i];
+      const reward = rewards[i];
+      
+      // التحقق من أن النقاط 200 أو أكثر
+      if(user.totalPoints >= 200){
+        winners.push({
+          rank: i + 1,
+          name: user.name,
+          uid: user.uid,
+          shortUid: user.shortUid,
+          oldPoints: user.totalPoints,
+          reward: reward,
+          newPoints: user.totalPoints + reward
+        });
+        
+        // إضافة النقاط للمستخدم
+        await db.collection('study').doc(user.uid).update({
+          currentPoints: firebase.firestore.FieldValue.increment(reward),
+          totalPoints: firebase.firestore.FieldValue.increment(reward),
+          lastWeeklyReward: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // إرسال إشعار للمستخدم الفائز
+        await db.collection('inbox').add({
+          userId: user.uid,
+          type: 'weekly_reward',
+          title: '🎉 مبروك! فوز أسبوعي',
+          message: `لقد حصلت على المركز ${i + 1} في التصنيف الأسبوعي وفزت بـ ${reward} نقطة!`,
+          status: 'unread',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    }
+    
+    // تصفير نقاط التصنيف (وليس نقاط الحساب)
+    const batch = db.batch();
+    leaderboardSnapshot.docs.forEach(doc => {
+      batch.update(doc.ref, {
+        totalPoints: 0 // تصفير نقاط التصنيف فقط
+        // currentPoints تبقى كما هي (نقاط الحساب)
+      });
+    });
+    await batch.commit();
+    
+    // حفظ سجل التوزيع
+    const distributionRecord = {
+      winners: winners,
+      distributedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      totalWinners: winners.length,
+      totalPointsDistributed: winners.reduce((sum, winner) => sum + winner.reward, 0)
+    };
+    
+    await db.collection('weekly_distributions').add(distributionRecord);
+    
+    // إشعار للمالك
+    let ownerMessage = `✅ تم توزيع المكافآت الأسبوعية بنجاح\n\n`;
+    ownerMessage += `📊 إجمالي الفائزين: ${winners.length}\n`;
+    ownerMessage += `💰 إجمالي النقاط الموزعة: ${distributionRecord.totalPointsDistributed}\n\n`;
+    
+    if(winners.length > 0){
+      ownerMessage += `🏆 الفائزون:\n`;
+      winners.forEach(winner => {
+        ownerMessage += `${winner.rank}. ${winner.name} (${winner.shortUid}) - ${winner.reward} نقطة\n`;
+      });
+    } else {
+      ownerMessage += `⚠️ لا يوجد فائزون مؤهلون هذه الأسبوع`;
+    }
+    
+    await sendTelegramNotification(ownerMessage);
+    
+    // إعادة حساب الموعد القادم
+    await calculateNextReset();
+    
+    console.log('تم توزيع المكافآت الأسبوعية بنجاح');
+    
+  } catch(e) {
+    console.error('Error distributing weekly rewards:', e);
+    await sendTelegramNotification(`❌ فشل توزيع المكافآت الأسبوعية: ${e.message}`);
+  }
+}
+
+/* التحقق من المكافآت الأسبوعية عند الدخول */
+async function checkWeeklyRewards(){
+  if(!currentUser) return;
+  
+  try {
+    const now = new Date();
+    
+    // إذا حان وقت إعادة الضبط
+    if(leaderboardSettings.nextReset && now >= leaderboardSettings.nextReset){
+      if(isOwner()){
+        // المالك يقوم بالتوزيع
+        await distributeWeeklyRewards();
+        showNotification('تم توزيع المكافآت الأسبوعية','success');
+      } else {
+        // المستخدم العادي يتحقق إذا كان فائزاً
+        await checkUserWeeklyReward();
+      }
+    }
+  } catch(e) {
+    console.error('Error checking weekly rewards:', e);
+  }
+}
+
+/* التحقق من مكافأة المستخدم الأسبوعية */
+async function checkUserWeeklyReward(){
+  if(!currentUser) return;
+  
+  try {
+    // التحقق من آخر إشعار مكافأة أسبوعية
+    const lastRewardQuery = await db.collection('inbox')
+      .where('userId', '==', currentUser.uid)
+      .where('type', '==', 'weekly_reward')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get();
+    
+    if(!lastRewardQuery.empty){
+      const lastReward = lastRewardQuery.docs[0].data();
+      const lastRewardTime = lastReward.createdAt?.toDate ? lastReward.createdAt.toDate() : null;
+      
+      // إذا كان الإشعار حديث (أقل من 24 ساعة) ولم يتم عرضه
+      if(lastRewardTime && (Date.now() - lastRewardTime.getTime()) < (24 * 60 * 60 * 1000)){
+        showWeeklyRewardNotification(lastReward);
+      }
+    }
+  } catch(e) {
+    console.error('Error checking user weekly reward:', e);
+  }
+}
+
+/* عرض إشعار المكافأة الأسبوعية */
+function showWeeklyRewardNotification(rewardData){
+  const overlay = document.getElementById('weekly-reward-overlay');
+  const content = document.getElementById('weekly-reward-content');
+  
+  if(!overlay || !content) return;
+  
+  // استخراج معلومات المركز من الرسالة
+  const message = rewardData.message || '';
+  const rankMatch = message.match(/المركز (\d+)/);
+  const pointsMatch = message.match(/فزت بـ (\d+) نقطة/);
+  
+  const rank = rankMatch ? rankMatch[1] : '?';
+  const points = pointsMatch ? pointsMatch[1] : '?';
+  
+  content.innerHTML = `
+    <div style="text-align: center; padding: 20px;">
+      <div style="font-size: 48px; margin-bottom: 10px;">🎉</div>
+      <h3 style="color: #28a745; margin-bottom: 15px;">مبروك! فوز أسبوعي</h3>
+      <p style="font-size: 18px; margin-bottom: 10px;">لقد حصلت على المركز <strong>${rank}</strong></p>
+      <p style="font-size: 16px; margin-bottom: 20px;">ولقد حصلت على <strong>${points} نقطة</strong></p>
+      <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+        <p style="margin: 5px 0;">نقاطك السابقة: <strong>${studyState.totalPoints - parseInt(points)}</strong></p>
+        <p style="margin: 5px 0;">نقاطك الحالية: <strong>${studyState.totalPoints}</strong></p>
+      </div>
+      <button class="btn btn-success" onclick="dismissWeeklyReward()" style="width: 100%;">
+        <i class="fas fa-check"></i> تم
+      </button>
+    </div>
+  `;
+  
+  overlay.style.display = 'block';
+}
+
+function dismissWeeklyReward(){
+  document.getElementById('weekly-reward-overlay').style.display = 'none';
+}
+
+/* ===========================================================
+   التصنيف (Top 50) + إطارات الخمسة + مكافآت + عد تنازلي أسبوعي
+=========================================================== */
 function startLeaderboardListener(){
   stopLeaderboardListener();
   const lb=document.getElementById('challenge-leaderboard');
@@ -2452,75 +2780,50 @@ function renderLeaderboard(items){
 function openLbRewardsModal(){ document.getElementById('lb-rewards-modal').style.display='block'; }
 function closeLbRewardsModal(){ document.getElementById('lb-rewards-modal').style.display='none'; }
 
-// تأجيل إعادة الضبط (مالك)
-function openLbDelayModal(){
-  if(!isOwner()) return showNotification('للمالك فقط','error');
-  document.getElementById('lb-delay-modal').style.display = 'block';
-}
-function closeLbDelayModal(){
-  document.getElementById('lb-delay-modal').style.display = 'none';
-}
-async function ownerSetLbDelay(){
-  if(!isOwner()) return;
-  const hours = parseInt(document.getElementById('lb-delay-hours').value||'0',10);
-  if(!hours || hours<1) return showNotification('أدخل عدد ساعات صحيح','error');
-  try{
-    const base = getNextWeeklyResetBaseOnly();
-    const newDelayUntil = new Date(base.getTime() + hours*3600*1000);
-    await db.collection('settings').doc('leaderboard').set({
-      delayUntil: firebase.firestore.Timestamp.fromDate(newDelayUntil),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedBy: currentUser.uid
-    }, { merge: true });
-    leaderboardSettings.delayUntil = newDelayUntil;
-    showNotification('تم تأجيل إعادة الضبط','success');
-    closeLbDelayModal();
-  }catch(e){
-    console.error('ownerSetLbDelay error', e);
-    showNotification('فشل التأجيل','error');
-  }
-}
-
-/* عدّ تنازلي أسبوعي لتحديث التصنيف مع أخذ التأجيل بالحسبان */
+/* عدّ تنازلي أسبوعي لتحديث التصنيف */
 let lbCountdownInterval=null;
-function getNextWeeklyResetBaseOnly(){
-  const now = new Date();
-  const day = now.getDay(); // 0: Sunday
-  const daysToNextSunday = (7 - day) % 7 || 7; // إذا كان اليوم أحد، نذهب للأحد القادم
-  const next = new Date(now);
-  next.setHours(0,0,0,0);
-  next.setDate(now.getDate() + daysToNextSunday);
-  return next;
-}
-function getNextWeeklyReset(){
-  const base = getNextWeeklyResetBaseOnly();
-  if (leaderboardSettings.delayUntil && leaderboardSettings.delayUntil > base) {
-    return leaderboardSettings.delayUntil;
-  }
-  return base;
-}
 function startLeaderboardCountdown(){
   const daysEl = document.getElementById('cd-days');
   const hrsEl  = document.getElementById('cd-hours');
   const minEl  = document.getElementById('cd-mins');
   const secEl  = document.getElementById('cd-secs');
   if(!daysEl||!hrsEl||!minEl||!secEl) return;
-  let target = getNextWeeklyReset();
+  
   if (lbCountdownInterval) clearInterval(lbCountdownInterval);
+  
   const tick = ()=>{
     const now = new Date();
+    let target = leaderboardSettings.nextReset;
+    
+    if(!target){
+      calculateNextReset();
+      target = leaderboardSettings.nextReset;
+    }
+    
     let diff = target - now;
-    if (diff <= 0) { target = getNextWeeklyReset(); diff = target - now; }
+    
+    if (diff <= 0) {
+      // حان وقت التحديث
+      if(isOwner()){
+        distributeWeeklyRewards();
+      }
+      calculateNextReset();
+      target = leaderboardSettings.nextReset;
+      diff = target - now;
+    }
+    
     const totalSeconds = Math.floor(diff/1000);
     const days = Math.floor(totalSeconds / (24*3600));
     const hours = Math.floor((totalSeconds % (24*3600)) / 3600);
     const mins = Math.floor((totalSeconds % 3600) / 60);
     const secs = totalSeconds % 60;
+    
     daysEl.textContent = String(days).padStart(2,'0');
     hrsEl.textContent  = String(hours).padStart(2,'0');
     minEl.textContent  = String(mins).padStart(2,'0');
     secEl.textContent  = String(secs).padStart(2,'0');
   };
+  
   tick();
   lbCountdownInterval = setInterval(tick, 1000);
 }
@@ -2540,7 +2843,8 @@ async function ownerRemoveFromLeaderboard(uid, name){
 
 /* ===========================================================
    الأسئلة QnA (النظام الجديد)
-=========================================================== */
+=========================
+========================= */
 function openCreateQnaModal(){ 
   if(!currentUser) return showNotification('سجّل الدخول','warning'); 
   document.getElementById('qna-create-modal').style.display='block'; 
@@ -2706,7 +3010,7 @@ async function deleteQna(id){
 
 /* ===========================================================
    رحلة السادس (قائمة + صفحة عنصر)
-=========================================================== */
+========================= */
 function startJourneyListener(){
   stopJourneyListener();
   const box=document.getElementById('journey-container');
@@ -2810,7 +3114,7 @@ async function deleteJourneyItem(id){
 
 /* ===========================================================
    الهدايا والشراء + إشعار المالك
-=========================================================== */
+========================= */
 function openGiftsModal(){
   document.getElementById('gifts-modal').style.display='block';
   loadGifts();
@@ -3038,7 +3342,7 @@ async function deleteGift(id) {
 
 /* ===========================================================
    تهيئة بعد الدخول
-=========================================================== */
+========================= */
 async function initChallengeAfterLogin(){
   await loadStudyState();
   const firstTab=document.querySelector('.challenge-tab-pill[data-tab="timer"]');
@@ -3077,7 +3381,63 @@ async function updateAllUserShortUids() {
     showNotification('فشل تحديث المعرفات','error');
   }
 }
-// updateAllUserShortUids();
+
+/* ===========================================================
+   وظائف إضافية للمالك
+========================= */
+// توزيع المكافآت يدوياً (للمالك)
+async function manualDistributeRewards(){
+  if(!isOwner()) return;
+  if(!confirm('هل تريد توزيع المكافآت الأسبوعية يدوياً؟')) return;
+  await distributeWeeklyRewards();
+}
+
+// عرض موعد التحديث القادم
+function showNextResetTime(){
+  if(!leaderboardSettings.nextReset) return 'غير محدد';
+  return leaderboardSettings.nextReset.toLocaleString('ar-IQ');
+}
+
+// تحديث سريع للعداد
+function quickResetLeaderboard(){
+  if(!isOwner()) return;
+  if(confirm('هل تريد تصفير التصنيف يدوياً؟ هذا سيمسح جميع النقاط من التصنيف.')){
+    ownerQuickResetLeaderboard();
+  }
+}
+
+async function ownerQuickResetLeaderboard(){
+  if(!isOwner()) return;
+  try {
+    const snapshot = await db.collection('study').get();
+    const batch = db.batch();
+    snapshot.docs.forEach(doc => {
+      batch.update(doc.ref, { totalPoints: 0 });
+    });
+    await batch.commit();
+    showNotification('تم تصفير التصنيف يدوياً','success');
+  } catch(e) {
+    console.error('Error in quick reset:', e);
+    showNotification('فشل التصفير','error');
+  }
+}
+
+// إضافة زر التوزيع اليدوي في واجهة المالك
+function addManualDistributionButton(){
+  if(isOwner()){
+    const lbTools = document.querySelector('.lb-tools');
+    if(lbTools){
+      const manualBtn = document.createElement('button');
+      manualBtn.className = 'btn btn-warning';
+      manualBtn.innerHTML = '<i class="fas fa-bolt"></i> توزيع يدوي';
+      manualBtn.onclick = manualDistributeRewards;
+      lbTools.appendChild(manualBtn);
+    }
+  }
+}
+
+// تهيئة الزر عند تحميل الصفحة
+setTimeout(addManualDistributionButton, 2000);
 </script>
 </body>
 </html>
