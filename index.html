@@ -297,6 +297,15 @@
             <label><input type="radio" name="register-avatar" value="female"><span class="emo">👩🏻‍💼</span> بنت</label>
           </div>
         </div>
+        <div style="margin-top: 20px; text-align: center;">
+          <div style="margin: 15px 0; position: relative;">
+            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-color);"></div>
+            <div style="position: relative; display: inline-block; background: #fff; padding: 0 10px; color: var(--light-text);">أو</div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-block" onclick="signUpWithGoogle()">
+            <i class="fab fa-google" style="margin-left: 8px;"></i> إنشاء حساب بواسطة Google
+          </button>
+        </div>
         <button type="button" id="register-submit" class="btn btn-block" onclick="register()" style="margin-top: 15px;">إنشاء حساب</button>
       </form>
     </div>
@@ -935,6 +944,45 @@ function handleAuthError(error){
   console.error('Auth error:', error);
 }
 
+function inAppBrowserBlocked(){
+  const href = (location && location.href) ? location.href : '';
+  const ua = navigator.userAgent || '';
+  return href.startsWith('content:') || /FBAN|FBAV|Instagram|Line|wv|Telegram/i.test(ua);
+}
+
+async function signUpWithGoogle(){
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    if (inAppBrowserBlocked()) {
+      await auth.signInWithRedirect(provider);
+      return;
+    }
+    try {
+      const result = await auth.signInWithPopup(provider);
+      const user = result.user;
+      await sendTelegramNotification(
+        `🔐 <b>تسجيل دخول Google</b>\n\n👤 ${user.displayName||'مستخدم'}\n📧 ${user.email}\n🆔 ${user.uid}`
+      );
+      showNotification('تم إنشاء الحساب بنجاح!','success');
+    } catch (e) {
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
+        await auth.signInWithRedirect(provider);
+      } else { throw e; }
+    }
+  }catch(e){ handleAuthError(e); }
+}
+
+// استرجاع نتيجة redirect عند العودة
+auth.getRedirectResult().then(async (res)=>{
+  if(res && res.user){
+    const u = res.user;
+    await sendTelegramNotification(
+      `🔐 <b>تسجيل دخول Google (Redirect)</b>\n\n👤 ${u.displayName||'مستخدم'}\n📧 ${u.email}\n🆔 ${u.uid}`
+    );
+    showNotification('تم إنشاء الحساب!','success');
+  }
+}).catch(handleAuthError);
+
 function register(){
   const name=document.getElementById("register-name").value.trim();
   const email=document.getElementById("register-email").value.trim();
@@ -960,54 +1008,14 @@ function register(){
     .catch(handleAuthError);
 }
 function login(){
-  const email = document.getElementById("login-email").value.trim();
-  const password = document.getElementById("login-password").value;
-  
-  if(!email || !password) {
-    return showNotification("يرجى ملء جميع الحقول", "error");
-  }
-  
-  // 🔥 تحقق إضافي من صحة البريد
-  if(!validateEmail(email)) {
-    return showNotification("صيغة البريد الإلكتروني غير صحيحة", "error");
-  }
-  
-  // 🔥 تحقق من قوة كلمة المرور
-  if(password.length < 6) {
-    return showNotification("كلمة المرور يجب أن تكون 6 أحرف على الأقل", "error");
-  }
-  
+  const email=document.getElementById("login-email").value.trim();
+  const password=document.getElementById("login-password").value;
+  if(!email||!password) return showNotification("يرجى ملء جميع الحقول","error");
   const btn = document.querySelector('#login-form button[type="submit"]');
-  if (btn) { 
-    btn.disabled = true; 
-    btn.textContent = "جاري تسجيل الدخول…"; 
-  }
-  
-  auth.signInWithEmailAndPassword(email, password)
-    .catch(error => {
-      // 🔥 تحسين رسائل الخطأ
-      let message = "خطأ في تسجيل الدخول";
-      
-      if (error.code === 'auth/user-not-found') {
-        message = "البريد الإلكتروني غير مسجل";
-      } else if (error.code === 'auth/wrong-password') {
-        message = "كلمة المرور غير صحيحة";
-      } else if (error.code === 'auth/invalid-email') {
-        message = "صيغة البريد الإلكتروني غير صحيحة";
-      } else if (error.code === 'auth/too-many-requests') {
-        message = "محاولات كثيرة، حاول لاحقاً";
-      } else if (error.code === 'auth/network-request-failed') {
-        message = "تحقق من اتصال الإنترنت";
-      }
-      
-      showNotification(message, "error");
-    })
-    .finally(() => { 
-      if (btn) { 
-        btn.disabled = false; 
-        btn.textContent = "تسجيل الدخول"; 
-      } 
-    });
+  if (btn) { btn.disabled = true; btn.textContent = "جاري تسجيل الدخول…"; }
+  auth.signInWithEmailAndPassword(email,password)
+    .catch(handleAuthError)
+    .finally(()=>{ if (btn) { btn.disabled = false; btn.textContent = "تسجيل الدخول"; } });
 }
 function logout(){ auth.signOut(); }
 
@@ -1654,26 +1662,49 @@ async function showInbox(){
   inboxContainer.innerHTML = '<div class="post"><p>جاري تحميل الرسائل...</p></div>';
   
   try {
-    const snapshot = await db.collection('inbox').where('userId', '==', currentUser.uid).get();
+    // ✅ استخدم query بسيط بدون where معقد
+    const snapshot = await db.collection('inbox').get();
+    
     if (snapshot.empty) {
       inboxContainer.innerHTML = '<div class="post"><p>لا توجد رسائل حالياً.</p></div>';
       return;
     }
-    const docs = snapshot.docs.sort((a,b)=>{
-      const ad=a.data().createdAt?.toDate? a.data().createdAt.toDate().getTime():0;
-      const bd=b.data().createdAt?.toDate? b.data().createdAt.toDate().getTime():0;
-      return bd-ad;
+    
+    let filteredDocs = snapshot.docs;
+    
+    // ✅ فلتر يدوي - المالك يشوف كل الإشعارات الإدارية
+    if (isOwner()) {
+      filteredDocs = snapshot.docs.filter(doc => {
+        const data = doc.data();
+        return data.type === 'admin_report' || data.type === 'purchase_notice';
+      });
+    } else {
+      // المستخدم العادي يشوف رسائله فقط
+      filteredDocs = snapshot.docs.filter(doc => doc.data().userId === currentUser.uid);
+    }
+    
+    if (filteredDocs.length === 0) {
+      inboxContainer.innerHTML = '<div class="post"><p>لا توجد رسائل حالياً.</p></div>';
+      return;
+    }
+    
+    // ترتيب بالوقت
+    const sortedDocs = filteredDocs.sort((a,b) => {
+      const aTime = a.data().createdAt?.toDate?.()?.getTime() || 0;
+      const bTime = b.data().createdAt?.toDate?.()?.getTime() || 0;
+      return bTime - aTime;
     });
     
-    inboxContainer.innerHTML = docs.map(doc => {
+    // عرض الرسائل
+    inboxContainer.innerHTML = sortedDocs.map(doc => {
       const msg = doc.data();
       const created = msg.createdAt?.toDate ? msg.createdAt.toDate().toLocaleString('ar-IQ') : '';
       
-      // لوحات خاصة للمالك
+      // ✅ إشعارات الإبلاغات للمالك
       if(isOwner() && msg.type === 'admin_report'){
         return `
           <div class="post">
-            <div style="font-weight:bold;color:#0f235f">${escapeHTML(msg.title || 'بلاغ جديد')}</div>
+            <div style="font-weight:bold;color:#0f235f">📩 بلاغ جديد - لوحة الإدارة</div>
             <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
             <div class="post-actions">
               <button class="btn btn-danger btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_poster','${escapeHTML(msg.posterUid||'')}')"><i class="fa-solid fa-ban"></i> حظر ناشر المنشور</button>
@@ -1685,18 +1716,23 @@ async function showInbox(){
           </div>`;
       }
       
+      // ✅ إشعارات الشراء للمالك
       if(isOwner() && msg.type === 'purchase_notice'){
         return `
           <div class="post">
-            <div style="font-weight:bold;color:#0f235f">عملية شراء مرشحات/هدية</div>
-            <p>المستخدم: ${escapeHTML(msg.buyerName||'-')} (${escapeHTML(msg.buyerShortUid||'-')})</p>
-            <p>الصنف: ${escapeHTML(msg.item||'-')} — السعر: ${msg.price||0} نقطة</p>
-            <p>رقم العملية: ${escapeHTML(msg.operationId||'-')}</p>
+            <div style="font-weight:bold;color:#0f235f">🛒 عملية شراء مرشحات</div>
+            <p><strong>المستخدم:</strong> ${escapeHTML(msg.buyerName||'-')} (${escapeHTML(msg.buyerShortUid||'-')})</p>
+            <p><strong>الصنف:</strong> ${escapeHTML(msg.item||'-')}</p>
+            <p><strong>السعر:</strong> ${msg.price||0} نقطة</p>
+            <p><strong>رقم العملية:</strong> ${escapeHTML(msg.operationId||'-')}</p>
+            <div class="post-actions">
+              <button class="btn btn-success" onclick="openTelegram('MSLM_ALMYALY')"><i class="fab fa-telegram"></i> تواصل مع المشتري</button>
+            </div>
             <small style="color:#777">${created}</small>
           </div>`;
       }
 
-      // رسائل عادية للمستخدم
+      // رسائل عادية للمستخدمين
       return `
         <div class="post">
           <div style="font-weight:bold;color:#0f235f">${escapeHTML(msg.title || 'إشعار')}</div>
@@ -1704,9 +1740,10 @@ async function showInbox(){
           <small style="color:#777">${created}</small>
         </div>`;
     }).join('');
+    
   } catch (error) {
     console.error('Error loading inbox:', error);
-    inboxContainer.innerHTML = '<div class="post"><p>خطأ في تحميل الرسائل</p></div>';
+    inboxContainer.innerHTML = '<div class="post"><p>خطأ في تحميل الرسائل: ' + error.message + '</p></div>';
   }
 }
 
