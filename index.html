@@ -1700,21 +1700,43 @@ async function showInbox(){
       const msg = doc.data();
       const created = msg.createdAt?.toDate ? msg.createdAt.toDate().toLocaleString('ar-IQ') : '';
       
-      // ✅ إشعارات الإبلاغات للمالك
-      if(isOwner() && msg.type === 'admin_report'){
-        return `
-          <div class="post">
-            <div style="font-weight:bold;color:#0f235f">📩 بلاغ جديد - لوحة الإدارة</div>
-            <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
-            <div class="post-actions">
-              <button class="btn btn-danger btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_poster','${escapeHTML(msg.posterUid||'')}')"><i class="fa-solid fa-ban"></i> حظر ناشر المنشور</button>
-              <button class="btn btn-warning btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_reporter','${escapeHTML(msg.reporterUid||'')}')"><i class="fa-solid fa-user-slash"></i> حظر المُبلّغ</button>
-              <button class="btn btn-secondary btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','delete_post','${escapeHTML(msg.postId||'')}')"><i class="fa-solid fa-trash"></i> حذف المنشور</button>
-              <button class="btn btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','reject','')"><i class="fa-solid fa-x"></i> رفض البلاغ</button>
-            </div>
-            <small style="color:#777">${created}</small>
-          </div>`;
-      }
+// ✅ إشعارات الإبلاغات للمالك
+if(isOwner() && msg.type === 'admin_report'){
+  // إذا كان الإبلاغ محلول، نعرضه بدون أزرار
+  if(msg.status === 'resolved'){
+    return `
+      <div class="post" style="opacity:0.7; background:#f8f9fa;">
+        <div style="font-weight:bold;color:#0f235f">📩 بلاغ - ${msg.actionMessage || 'تم المعالجة'}</div>
+        <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
+        <div style="color:#28a745; font-weight:bold; margin-top:8px;">
+          ✅ ${msg.actionMessage || 'تمت المعالجة'}
+        </div>
+        <small style="color:#777">${created}</small>
+      </div>`;
+  }
+  
+  // إذا كان الإبلاغ جديد، نعرضه بالأزرار
+  return `
+    <div class="post">
+      <div style="font-weight:bold;color:#0f235f">📩 بلاغ جديد - لوحة الإدارة</div>
+      <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
+      <div class="post-actions">
+        <button class="btn btn-danger btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_poster','${escapeHTML(msg.posterUid||'')}','${escapeHTML(msg.reporterUid||'')}')">
+          <i class="fa-solid fa-ban"></i> حظر ناشر المنشور
+        </button>
+        <button class="btn btn-warning btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_reporter','${escapeHTML(msg.reporterUid||'')}','${escapeHTML(msg.reporterUid||'')}')">
+          <i class="fa-solid fa-user-slash"></i> حظر المُبلّغ
+        </button>
+        <button class="btn btn-secondary btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','delete_post','${escapeHTML(msg.postId||'')}','${escapeHTML(msg.reporterUid||'')}')">
+          <i class="fa-solid fa-trash"></i> حذف المنشور
+        </button>
+        <button class="btn btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','reject','','${escapeHTML(msg.reporterUid||'')}')">
+          <i class="fa-solid fa-x"></i> رفض البلاغ
+        </button>
+      </div>
+      <small style="color:#777">${created}</small>
+    </div>`;
+}
       
       // ✅ إشعارات الشراء للمالك
       if(isOwner() && msg.type === 'purchase_notice'){
@@ -1747,26 +1769,85 @@ async function showInbox(){
   }
 }
 
-async function adminReportAction(inboxDocId, reportId, action, targetId){
+async function adminReportAction(inboxDocId, reportId, action, targetId, reporterUid){
   if(!isOwner()) return;
-  try{
-    if(action==='ban_poster' && targetId){
-      await db.collection('users').doc(targetId).set({ blockedFromPosting: true }, { merge: true });
-    }else if(action==='ban_reporter' && targetId){
-      await db.collection('users').doc(targetId).set({ blockedFromPosting: true }, { merge: true });
-    }else if(action==='delete_post' && targetId){
-      try{ await db.collection('posts').doc(targetId).delete(); }
-      catch{ await db.collection('posts').doc(targetId).set({ status:'deleted' }, { merge: true }); }
+  
+  try {
+    let actionMessage = '';
+    let userNotification = '';
+
+    // تنفيذ الإجراء المطلوب
+    if(action === 'ban_poster' && targetId){
+      await db.collection('users').doc(targetId).update({ 
+        blockedFromPosting: true 
+      });
+      actionMessage = 'تم حظر ناشر المنشور';
+      userNotification = 'تم حظرك من النشر';
+      
+    } else if(action === 'ban_reporter' && targetId){
+      await db.collection('users').doc(targetId).update({ 
+        blockedFromPosting: true 
+      });
+      actionMessage = 'تم حظر المُبلّغ';
+      userNotification = 'تم حظرك من النشر';
+      
+    } else if(action === 'delete_post' && targetId){
+      try {
+        await db.collection('posts').doc(targetId).delete();
+      } catch(deleteError) {
+        await db.collection('posts').doc(targetId).update({ 
+          status: 'deleted' 
+        });
+      }
+      actionMessage = 'تم حذف المنشور';
+      userNotification = 'تم حذف المنشور الذي أبلغت عنه';
+      
+    } else if(action === 'reject'){
+      actionMessage = 'تم رفض البلاغ';
+      userNotification = 'تم رفض إبلاغك';
     }
+
+    // ✅ تحديث حالة الإبلاغ
     if(reportId){
-      await db.collection('reports').doc(reportId).set({ status: action==='reject'?'مرفوض':'مغلق' }, { merge: true });
+      await db.collection('reports').doc(reportId).update({ 
+        status: action === 'reject' ? 'مرفوض' : 'مغلق',
+        resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        resolvedBy: currentUser.uid,
+        actionTaken: actionMessage
+      });
     }
-    await db.collection('inbox').doc(inboxDocId).set({ status:'resolved' }, { merge: true });
-    showNotification('تم تنفيذ إجراء الإدارة','success');
-    showInbox();
-  }catch(e){
-    console.error('adminReportAction', e);
-    showNotification('فشل إجراء الإدارة','error');
+
+    // ✅ إرسال إشعار للمستخدم (المُبلّغ)
+    if(reporterUid && userNotification){
+      await db.collection('inbox').add({
+        userId: reporterUid,
+        type: 'report_result',
+        title: 'نتيجة إبلاغك',
+        message: userNotification,
+        status: 'unread',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    // ✅ تحديث رسالة البريد الوارد للمالك (إخفاء الأزرار)
+    await db.collection('inbox').doc(inboxDocId).update({ 
+      status: 'resolved',
+      resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      resolvedBy: currentUser.uid,
+      actionMessage: actionMessage
+    });
+
+    // ✅ إشعار للمالك
+    showNotification('تم معالجة الإبلاغ بنجاح', 'success');
+
+    // ✅ إعادة تحميل البريد بعد ثانيتين
+    setTimeout(() => {
+      showInbox();
+    }, 2000);
+
+  } catch(e) {
+    console.error('فشل إجراء الإدارة:', e);
+    showNotification('فشل تنفيذ الإجراء: ' + e.message, 'error');
   }
 }
 
