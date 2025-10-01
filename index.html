@@ -170,7 +170,7 @@
     #broadcast-banner .x{position:absolute;top:10px;right:12px;background:#0000;border:none;font-size:22px;cursor:pointer;color:#2643b8}
 
     .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid var(--border-color);z-index:120}
-    .nav-item{display:flex;flex-direction:column;align-items:center;color:var(--light-text);font-size:12px;cursor:pointer}
+    .nav-item{display:flex;flex-direction:column;align-items:center;color:var(--light-text);font-size:12px;cursor:pointer;position:relative}
     .nav-item.active{color:var(--primary-color)}
 
     .notification{
@@ -272,6 +272,149 @@
     .cd-num{font-size:16px;font-weight:900;display:block}
     .cd-lbl{font-size:11px;color:#3a5bef;display:block}
     .lb-note{margin-top:10px;font-size:12px;color:#b33;background:#fff3cd;border:1px solid #ffeeba;border-radius:10px;padding:10px;font-weight:800}
+
+    /* فقاعات الإشعارات */
+    .nav-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    .nav-badge.small {
+      width: 8px;
+      height: 8px;
+      font-size: 0;
+    }
+    
+/* ===== أنماط جديدة لتصميم الأسئلة (مثل من سيربح المليون) ===== */
+.qna-game-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 20px;
+  margin: 15px 0;
+  color: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.qna-question {
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 25px;
+  line-height: 1.4;
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.qna-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.qna-option-btn {
+  background: rgba(255,255,255,0.9);
+  border: 3px solid transparent;
+  border-radius: 12px;
+  padding: 15px 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qna-option-btn:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.qna-option-btn.selected {
+  background: #4CAF50;
+  color: white;
+  border-color: #45a049;
+  transform: scale(1.05);
+}
+
+.qna-option-btn.correct {
+  background: #4CAF50;
+  color: white;
+  border-color: #45a049;
+  animation: pulse 0.5s;
+}
+
+.qna-option-btn.wrong {
+  background: #f44336;
+  color: white;
+  border-color: #da190b;
+}
+
+.qna-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.qna-points-display {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 15px;
+  background: rgba(255,255,255,0.2);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.qna-result {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 900;
+  margin: 20px 0;
+  padding: 15px;
+  border-radius: 12px;
+  animation: fadeIn 0.5s;
+}
+
+.qna-result.success {
+  background: rgba(76, 175, 80, 0.3);
+  color: #4CAF50;
+}
+
+.qna-result.error {
+  background: rgba(244, 67, 54, 0.3);
+  color: #f44336;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
   </style>
 
   <!-- Firebase -->
@@ -398,6 +541,9 @@
           <div class="menu-item" onclick="openUserStats()"><i class="fas fa-chart-pie"></i><span>إحصائيات المستخدمين</span></div>
           <div class="menu-item" onclick="openAppExplanation()"><i class="fas fa-info-circle"></i><span>شرح التطبيق</span></div>
           <div class="menu-item" onclick="openTelegram('MSLM_ALMYALY')"><i class="fas fa-thumbtack"></i><span>تثبيت المنشور بـ 1$</span></div>
+          <!-- إضافة أزرار السجلات الجديدة -->
+          <div class="menu-item owner-only" style="display:none" onclick="openPointsLog()"><i class="fas fa-clipboard-list"></i><span>سجل تتبع النقاط</span></div>
+          <div class="menu-item owner-only" style="display:none" onclick="openDetailedPointsLog()"><i class="fas fa-history"></i><span>السجل التفصيلي للنقاط</span></div>
           <div class="menu-item owner-only" style="display:none" onclick="openBroadcastModal()"><i class="fas fa-bullhorn"></i><span>إشعار عام</span></div>
           <div class="menu-item owner-only" style="display:none" onclick="openAddPointsModal()"><i class="fas fa-plus"></i><span>إضافة نقاط</span></div>
           <div class="menu-item owner-only" style="display:none" onclick="openLbScheduleModal()"><i class="fa-solid fa-clock"></i><span>موعد تحديث التصنيف</span></div>
@@ -536,9 +682,21 @@
 
 <!-- Bottom nav -->
 <div id="bottom-nav" class="bottom-nav">
-  <div class="nav-item" data-page="challenge" onclick="showChallengePage()"><i class="fas fa-fire"></i><span>تحدي دراسي</span></div>
-  <div class="nav-item active" data-page="main" onclick="showMainPage()"><i class="fas fa-home"></i><span>المنشورات</span></div>
-  <div class="nav-item" data-page="profile" onclick="showProfilePage()"><i class="fas fa-user"></i><span>حسابي</span></div>
+  <div class="nav-item" data-page="challenge" onclick="showChallengePage()">
+    <i class="fas fa-fire"></i>
+    <span>تحدي دراسي</span>
+    <div id="challenge-badge" class="nav-badge" style="display: none"></div>
+  </div>
+  <div class="nav-item active" data-page="main" onclick="showMainPage()">
+    <i class="fas fa-home"></i>
+    <span>المنشورات</span>
+    <div id="posts-badge" class="nav-badge" style="display: none"></div>
+  </div>
+  <div class="nav-item" data-page="profile" onclick="showProfilePage()">
+    <i class="fas fa-user"></i>
+    <span>حسابي</span>
+    <div class="nav-badge" style="display: none"></div>
+  </div>
 </div>
 
 <div id="notification" class="notification"></div>
@@ -576,6 +734,43 @@
     <div class="post"><p>جاري تحميل شرح التطبيق...</p></div>
   </div>
 </div></div>
+
+<!-- Modal سجل تتبع النقاط -->
+<div id="points-log-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>سجل تتبع النقاط - جميع المستخدمين</h2>
+      <button class="close-modal" onclick="closePointsLogModal()">&times;</button>
+    </div>
+    <div style="max-height: 500px; overflow-y: auto;">
+      <div id="points-log-container">
+        <div class="post"><p>جاري تحميل السجل...</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal السجل التفصيلي للنقاط -->
+<div id="detailed-points-log-modal" class="modal">
+  <div class="modal-content" style="max-width: 800px;">
+    <div class="modal-header">
+      <h2>السجل التفصيلي للنقاط - جميع المستخدمين</h2>
+      <button class="close-modal" onclick="closeDetailedPointsLogModal()">&times;</button>
+    </div>
+    <div class="post-actions" style="margin-bottom: 15px;">
+      <button class="btn btn-xs" onclick="filterPointsLog('all')">الكل</button>
+      <button class="btn btn-xs" onclick="filterPointsLog('daily_reward')">المكافأة اليومية</button>
+      <button class="btn btn-xs" onclick="filterPointsLog('timer_stop')">المؤقت</button>
+      <button class="btn btn-xs" onclick="filterPointsLog('weekly_reward')">المكافآت الأسبوعية</button>
+      <button class="btn btn-xs" onclick="filterPointsLog('admin_add')">إضافة يدوية</button>
+    </div>
+    <div style="max-height: 600px; overflow-y: auto;">
+      <div id="detailed-points-log-container">
+        <div class="post"><p>جاري تحميل السجل التفصيلي...</p></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- مودالات إضافية ليشتغل كل الأزرار -->
 <div id="create-post-modal" class="modal"><div class="modal-content">
@@ -697,33 +892,60 @@
   </div>
 </div></div>
 
-<div id="qna-create-modal" class="modal"><div class="modal-content">
-  <div class="modal-header"><h2>سؤال جديد</h2><button class="close-modal" onclick="closeModal()">&times;</button></div>
-  <div class="select-group"><label>المادة</label>
-    <select id="qna-material" class="select-control">
+<div id="qna-create-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>سؤال جديد</h2>
+      <button class="close-modal" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="select-group">
+      <label>المادة</label>
+      <select id="qna-material" class="select-control">
       <option value="اسلامية">اسلامية</option><option value="عربي">عربي</option><option value="انكليزي">انكليزي</option>
       <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="كيمياء">كيمياء</option>
       <option value="فيزياء">فيزياء</option><option value="اقتصاد">اقتصاد</option><option value="أدب ونصوص">أدب ونصوص</option>
       <option value="قواعد">قواعد</option>
     </select>
+    </div>
+    <div class="select-group">
+      <label>السؤال</label>
+      <textarea id="qna-text" class="select-control" rows="3"></textarea>
+    </div>
+    <div class="select-group">
+      <label>الخيار الأول</label>
+      <input id="qna-option1" class="select-control">
+    </div>
+    <div class="select-group">
+      <label>الخيار الثاني</label>
+      <input id="qna-option2" class="select-control">
+    </div>
+    <div class="select-group">
+      <label>الخيار الثالث</label>
+      <input id="qna-option3" class="select-control">
+    </div>
+    <div class="select-group">
+      <label>الخيار الرابع</label>
+      <input id="qna-option4" class="select-control">
+    </div>
+    <div class="select-group">
+      <label>الإجابة الصحيحة</label>
+      <select id="qna-correct" class="select-control">
+        <option value="1">الخيار الأول</option>
+        <option value="2">الخيار الثاني</option>
+        <option value="3">الخيار الثالث</option>
+        <option value="4">الخيار الرابع</option>
+      </select>
+    </div>
+    <div class="select-group">
+      <label>الجائزة (نقاط)</label>
+      <input id="qna-prize" type="number" class="select-control" value="50">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+      <button class="btn btn-success" onclick="createQna()">نشر السؤال</button>
+    </div>
   </div>
-  <div class="select-group"><label>السؤال</label><textarea id="qna-text" class="select-control" rows="3"></textarea></div>
-  <div class="select-group"><label>الخيار الأول</label><input id="qna-option1" class="select-control"></div>
-  <div class="select-group"><label>الخيار الثاني</label><input id="qna-option2" class="select-control"></div>
-  <div class="select-group"><label>الخيار الثالث</label><input id="qna-option3" class="select-control"></div>
-  <div class="select-group"><label>الإجابة الصحيحة</label>
-    <select id="qna-correct" class="select-control">
-      <option value="1">الخيار الأول</option>
-      <option value="2">الخيار الثاني</option>
-      <option value="3">الخيار الثالث</option>
-    </select>
-  </div>
-  <div class="select-group"><label>الجائزة (نقاط)</label><input id="qna-prize" type="number" class="select-control" value="50"></div>
-  <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-    <button class="btn btn-success" onclick="createQna()">نشر السؤال</button>
-  </div>
-</div></div>
+</div>
 
 <!-- Modal نسيت كلمة المرور - الإصدار المبسط -->
 <div id="forgot-password-modal" class="modal">
@@ -814,6 +1036,18 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeLbScheduleModal()">إلغاء</button>
       <button class="btn btn-success" onclick="ownerSetLbSchedule()"><i class="fa-solid fa-calendar-alt"></i> حفظ الموعد</button>
+    </div>
+  </div>
+</div>
+<!-- Modal: لعب سؤال QnA -->
+<div id="qna-play-modal" class="modal">
+  <div class="modal-content" style="max-width:680px">
+    <div class="modal-header">
+      <h2>حل السؤال</h2>
+      <button class="close-modal" onclick="closeQnaPlayModal()">&times;</button>
+    </div>
+    <div id="qna-play-content">
+      <div class="post"><p>جاري التحميل...</p></div>
     </div>
   </div>
 </div>
@@ -1159,6 +1393,11 @@ auth.onAuthStateChanged(async (user) => {
   await loadStudyState();
   await loadLeaderboardSettings();
   
+  // بدء المستمعين الجدد
+  startPointsListener();
+  updateNavBadges();
+  updateLastSeenTime();
+  
   // التحقق من المكافآت الأسبوعية بعد تحميل المستخدم مباشرة
   setTimeout(checkAndShowWeeklyReward, 3000);
   
@@ -1199,6 +1438,9 @@ function showPage(key){
   if(!pages[key]) return;
   pages[key].style.display = (key==="auth")?"flex":"block";
   updateBottomNav(key);
+  // تحديث الفقاعات عند تغيير الصفحة
+  updateNavBadges();
+  updateLastSeenTime();
   if (key === "auth") { const sp = document.getElementById('splash'); if (sp) sp.remove(); }
 }
 function updateBottomNav(activePageKey) {
@@ -1519,28 +1761,6 @@ async function reportPost(postId){
     
     console.log('✅ وجدنا المالك:', ownerData.name, 'بـ UID:', ownerUid);
 
-// إرسال إشعار إلى البريد الوارد للمستخدم الفائز
-await db.collection('inbox').add({
-  userId: user.uid,
-  type: 'weekly_reward',
-  title: `🎉 مبروك! فوز أسبوعي - المركز ${i + 1}`,
-  message: `
-مبارك لك! لقد فزت في التصنيف الأسبوعي 🏆
-
-• المركز: ${i + 1}
-• المكافأة: ${reward} نقطة 🎁
-• رصيدك الجديد: ${(user.walletPoints || user.currentPoints || 0) + reward} نقطة
-
-استمر في التفوق وحقق مراكز أعلى! 💪
-  `.trim(),
-  status: 'unread',
-  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-  rewardPoints: reward,
-  rank: i + 1
-});
-
-console.log(`✅ تم إرسال إشعار للمركز ${i + 1}: ${user.name}`);
-
     await db.collection('inbox').add({
       userId: ownerUid,
       type: 'admin_report',
@@ -1765,40 +1985,40 @@ async function showInbox(){
       const msg = doc.data();
       const created = msg.createdAt?.toDate ? msg.createdAt.toDate().toLocaleString('ar-IQ') : '';
       
-if(isOwner() && msg.type === 'admin_report'){
-  if(msg.status === 'resolved'){
-    return `
-      <div class="post" style="opacity:0.7; background:#f8f9fa;">
-        <div style="font-weight:bold;color:#0f235f">📩 بلاغ - ${msg.actionMessage || 'تم المعالجة'}</div>
-        <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
-        <div style="color:#28a745; font-weight:bold; margin-top:8px;">
-          ✅ ${msg.actionMessage || 'تمت المعالجة'}
-        </div>
-        <small style="color:#777">${created}</small>
-      </div>`;
-  }
-  
-  return `
-    <div class="post">
-      <div style="font-weight:bold;color:#0f235f">📩 بلاغ جديد - لوحة الإدارة</div>
-      <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
-      <div class="post-actions">
-        <button class="btn btn-danger btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_poster','${escapeHTML(msg.posterUid||'')}','${escapeHTML(msg.reporterUid||'')}')">
-          <i class="fa-solid fa-ban"></i> حظر ناشر المنشور
-        </button>
-        <button class="btn btn-warning btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_reporter','${escapeHTML(msg.reporterUid||'')}','${escapeHTML(msg.reporterUid||'')}')">
-          <i class="fa-solid fa-user-slash"></i> حظر المُبلّغ
-        </button>
-        <button class="btn btn-secondary btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','delete_post','${escapeHTML(msg.postId||'')}','${escapeHTML(msg.reporterUid||'')}')">
-          <i class="fa-solid fa-trash"></i> حذف المنشور
-        </button>
-        <button class="btn btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','reject','','${escapeHTML(msg.reporterUid||'')}')">
-          <i class="fa-solid fa-x"></i> رفض البلاغ
-        </button>
-      </div>
-      <small style="color:#777">${created}</small>
-    </div>`;
-}
+      if(isOwner() && msg.type === 'admin_report'){
+        if(msg.status === 'resolved'){
+          return `
+            <div class="post" style="opacity:0.7; background:#f8f9fa;">
+              <div style="font-weight:bold;color:#0f235f">📩 بلاغ - ${msg.actionMessage || 'تم المعالجة'}</div>
+              <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
+              <div style="color:#28a745; font-weight:bold; margin-top:8px;">
+                ✅ ${msg.actionMessage || 'تمت المعالجة'}
+              </div>
+              <small style="color:#777">${created}</small>
+            </div>`;
+        }
+        
+        return `
+          <div class="post">
+            <div style="font-weight:bold;color:#0f235f">📩 بلاغ جديد - لوحة الإدارة</div>
+            <p style="margin-top:8px">${escapeHTML(msg.message || '')}</p>
+            <div class="post-actions">
+              <button class="btn btn-danger btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_poster','${escapeHTML(msg.posterUid||'')}','${escapeHTML(msg.reporterUid||'')}')">
+                <i class="fa-solid fa-ban"></i> حظر ناشر المنشور
+              </button>
+              <button class="btn btn-warning btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','ban_reporter','${escapeHTML(msg.reporterUid||'')}','${escapeHTML(msg.reporterUid||'')}')">
+                <i class="fa-solid fa-user-slash"></i> حظر المُبلّغ
+              </button>
+              <button class="btn btn-secondary btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','delete_post','${escapeHTML(msg.postId||'')}','${escapeHTML(msg.reporterUid||'')}')">
+                <i class="fa-solid fa-trash"></i> حذف المنشور
+              </button>
+              <button class="btn btn-xs" onclick="adminReportAction('${doc.id}','${escapeHTML(msg.reportId||'')}','reject','','${escapeHTML(msg.reporterUid||'')}')">
+                <i class="fa-solid fa-x"></i> رفض البلاغ
+              </button>
+            </div>
+            <small style="color:#777">${created}</small>
+          </div>`;
+      }
       
       if(isOwner() && msg.type === 'purchase_notice'){
         return `
@@ -2009,6 +2229,9 @@ async function addPointsDirectly(userIdOrShort, points){
       name: userData.name || 'مستخدم',
       lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
+    
+    // تسجيل العملية في سجل النقاط
+    await logPointsTransaction(targetUid, points, 'admin_add', `إضافة يدوية بواسطة المالك`);
     
     showNotification(`أُضيف ${points} نقطة`, 'success');
     await sendTelegramNotification(
@@ -2296,6 +2519,11 @@ async function stopStudyTimer(){
         currentPoints: firebase.firestore.FieldValue.increment(points)
       });
       
+      // تسجيل النقاط في السجل
+      if (points > 0) {
+        await logPointsTransaction(currentUser.uid, points, 'timer_stop', `توقف المؤقت - ${Math.floor(elapsed/60)} دقيقة`);
+      }
+      
       studyState.currentPoints += points; 
       studyState.totalPoints += points;
       studyState.running=false; 
@@ -2324,6 +2552,11 @@ async function stopStudyTimer(){
         totalPoints: firebase.firestore.FieldValue.increment(points),
         currentPoints: firebase.firestore.FieldValue.increment(points)
       }, { merge:true });
+      
+      // تسجيل النقاط في السجل
+      if (points > 0) {
+        await logPointsTransaction(currentUser.uid, points, 'timer_stop', `توقف المؤقت (طوارئ) - ${Math.floor(elapsed/60)} دقيقة`);
+      }
       
       studyState.currentPoints += points; 
       studyState.totalPoints += points;
@@ -2407,6 +2640,9 @@ async function claimDailyReward(){
       name: currentUser.name || 'مستخدم'
     }, { merge: true });
     
+    // تسجيل المكافأة اليومية في السجل
+    await logPointsTransaction(currentUser.uid, 20, 'daily_reward', 'المكافأة اليومية');
+    
     studyState.currentPoints += 20;
     studyState.totalPoints += 20;
     studyState.lastDailyClaimAt = new Date();
@@ -2438,6 +2674,10 @@ async function buyBoost(hours){
       boostUntil: firebase.firestore.Timestamp.fromDate(until),
       name: currentUser.name||'مستخدم'
     }, { merge: true });
+    
+    // تسجيل شراء التسريع في السجل
+    await logPointsTransaction(currentUser.uid, -cost, 'boost_purchase', `شراء تسريع ${hours} ساعة`);
+    
     studyState.currentPoints -= cost;
     studyState.boostUntil = until;
     startBoostInterval();
@@ -2670,6 +2910,9 @@ async function distributeWeeklyRewards(){
           totalPoints: firebase.firestore.FieldValue.increment(reward),
           lastWeeklyReward: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
+
+        // تسجيل المكافأة الأسبوعية في السجل
+        await logPointsTransaction(user.uid, reward, 'weekly_reward', `مكافأة أسبوعية - المركز ${i + 1}`);
 
         // إرسال إشعار إلى البريد الوارد للمستخدم الفائز
         await db.collection('inbox').add({
@@ -2905,27 +3148,44 @@ function startQnaListener(){
     .onSnapshot(
       snap => {
         if(!snap.size){ 
-          list.innerHTML='<div class="post"><p>لا توجد أسئلة بعد.</p></div>'; 
+          list.innerHTML='<div class="post"><p>لا توجد أسئلة متاحة حالياً.</p></div>'; 
           return; 
         }
         
-        list.innerHTML = snap.docs.map(doc=>{
-          const q={id:doc.id,...doc.data()};
+        // تصفية الأسئلة الخاصة بالمستخدم الحالي
+        const availableQuestions = snap.docs.filter(doc => {
+          const q = doc.data();
+          return q.creatorUid !== currentUser?.uid; // إخفاء أسئلة المستخدم نفسه
+        });
+        
+        if(availableQuestions.length === 0) {
+          list.innerHTML='<div class="post"><p>لا توجد أسئلة متاحة حالياً.</p></div>';
+          return;
+        }
+        
+        list.innerHTML = availableQuestions.map(doc => {
+          const q = {id: doc.id, ...doc.data()};
           
           return `
             <div class="qna-card">
               <div class="qna-header">
                 <div class="qna-creator">${escapeHTML(q.material || 'عام')} - سؤال بقيمة: ${q.prize||0} نقطة</div>
-                <div class="qna-prize"><i class="fa-solid fa-coins"></i> +${q.prize||0}</div>
+                <div class="qna-prize">
+                  <i class="fa-solid fa-coins"></i> +${(q.prize||0) * 2}
+                  <small style="display:block; color:#666; font-size:12px">(المبلغ المطلوب: ${q.prize||0})</small>
+                </div>
               </div>
               <div style="margin-top:8px">
                 <div><b>المادة:</b> ${escapeHTML(q.material||'')}</div>
-                <div><b>السعر:</b> ${q.prize||0} نقطة</div>
+                <div><b>منشئ السؤال:</b> ${escapeHTML(q.creatorName||'مستخدم')}</div>
               </div>
               <div class="qna-actions">
                 <button class="btn btn-success" onclick="startQnaChallenge('${q.id}', ${q.prize||0})">
                   <i class="fa-solid fa-play"></i> بدء التحدي
                 </button>
+                <small style="display:block; color:#dc3545; margin-top:5px; font-size:12px">
+                  💡 سيتم خصم ${q.prize||0} نقطة فوراً عند البدء
+                </small>
               </div>
             </div>`;
         }).join('');
@@ -2944,66 +3204,172 @@ function stopQnaListener(){
   }
 }
 
-async function startQnaChallenge(qnaId, price){
-  if(!currentUser) return;
+async function startQnaChallenge(qnaId, price) {
+  if (!currentUser) return;
   
-  if(studyState.currentPoints < price){
-    return showNotification('نقاط غير كافية لبدء هذا التحدي','error');
+  // جلب بيانات السؤال أولاً للتحقق
+  const qnaDoc = await db.collection('qna').doc(qnaId).get();
+  if (!qnaDoc.exists) return;
+  
+  const qna = qnaDoc.data();
+  
+  // منع المستخدم من الإجابة على أسئلته
+  if (qna.creatorUid === currentUser.uid) {
+    return showNotification('لا يمكنك الإجابة على سؤالك الخاص', 'error');
   }
   
-  if(!confirm(`سوف تدفع ${price} نقطة لبدء هذا التحدي. إذا انسحبت سيتم خصم النقاط. هل تريد المتابعة؟`)){
-    return;
+  // التحقق من النقاط
+  if (studyState.currentPoints < price) {
+    return showNotification('نقاط غير كافية لبدء هذا التحدي', 'error');
   }
   
-  try{
+  // عرض تأكيد بدء التحدي
+  const confirmStart = confirm(
+    `🧠 تأكيد بدء التحدي\n\n` +
+    `📚 المادة: ${qna.material}\n` +
+    `💰 سعر التحدي: ${price} نقطة\n` +
+    `🎯 الجائزة: ${price * 2} نقطة\n\n` +
+    `سيتم خصم ${price} نقطة فوراً للبدء. هل تريد المتابعة؟`
+  );
+  
+  if (!confirmStart) return;
+  
+  // خصم السعر فوراً
+  try {
     await db.collection('study').doc(currentUser.uid).update({
       currentPoints: firebase.firestore.FieldValue.increment(-price)
     });
     
+    // تسجيل عملية الخصم في السجل
+    await logPointsTransaction(currentUser.uid, -price, 'qna_entry', `دخول تحدي سؤال: ${qna.material}`);
+    
     studyState.currentPoints -= price;
     renderTimerUI();
     
-    const qnaDoc = await db.collection('qna').doc(qnaId).get();
-    if(!qnaDoc.exists) return;
-    
-    const qna = qnaDoc.data();
-    const answer = prompt(
-      `السؤال: ${qna.question}\n\nالخيارات:\n1. ${qna.option1}\n2. ${qna.option2}\n3. ${qna.option3}\n\nأدخل رقم الإجابة الصحيحة:`
-    );
-    
-    if(answer === null){
-      await db.collection('study').doc(qna.creatorUid).update({
-        currentPoints: firebase.firestore.FieldValue.increment(price)
-      });
-      showNotification('تم خصم النقاط بسبب الانسحاب','error');
-      await db.collection('qna').doc(qnaId).delete();
-      return;
-    }
-    
-    if(answer.trim() === qna.correctAnswer){
-      await db.collection('study').doc(currentUser.uid).update({
-        currentPoints: firebase.firestore.FieldValue.increment(price * 2),
-        totalPoints: firebase.firestore.FieldValue.increment(price * 2)
-      });
-      
-      studyState.currentPoints += price * 2;
-      studyState.totalPoints += price * 2;
-      
-      showNotification(`مبروك! إجابة صحيحة +${price * 2} نقطة`,'success');
-      renderTimerUI();
-      
-      await db.collection('qna').doc(qnaId).delete();
-    }else{
-      await db.collection('study').doc(qna.creatorUid).update({
-        currentPoints: firebase.firestore.FieldValue.increment(price)
-      });
-      showNotification('إجابة خاطئة! النقاط ذهبت لمنشئ السؤال','error');
-      await db.collection('qna').doc(qnaId).delete();
-    }
-  }catch(e){
-    console.error("Error in QnA challenge:", e);
-    showNotification('فشل عملية التحدي','error');
+  } catch (e) {
+    console.error("Error deducting points:", e);
+    showNotification('فشل خصم النقاط', 'error');
+    return;
   }
+  
+  // إنشاء واجهة اللعب
+  const modalHTML = `
+    <div class="modal" style="display: block; background: rgba(0,0,0,0.8)" id="qna-game-modal">
+      <div class="modal-content" style="max-width: 600px; background: transparent; border: none">
+        <div class="qna-game-container">
+          <div class="qna-points-display">
+            🎯 الجائزة: ${price * 2} نقطة | رصيدك: ${studyState.currentPoints} نقطة
+            ${price > 0 ? ` | 💰 المبلغ المخصوم: ${price} نقطة` : ''}
+          </div>
+          <div class="qna-question">${qna.question}</div>
+          <div class="qna-options-grid">
+            <button class="qna-option-btn" data-option="1">${qna.option1}</button>
+            <button class="qna-option-btn" data-option="2">${qna.option2}</button>
+            <button class="qna-option-btn" data-option="3">${qna.option3}</button>
+            ${qna.option4 ? `<button class="qna-option-btn" data-option="4">${qna.option4}</button>` : ''}
+          </div>
+          <div class="qna-actions">
+            <button class="btn btn-success" id="submit-answer-btn" disabled>تأكيد الإجابة</button>
+            <button class="btn btn-danger" onclick="closeQnaGame()">خروج (لا استرداد للنقاط)</button>
+          </div>
+          <div id="qna-result"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // إضافة الواجهة إلى الصفحة
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // إضافة أحداث للأزرار
+  let selectedOption = null;
+  
+  document.querySelectorAll('.qna-option-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      // إلغاء تحديد جميع الأزرار
+      document.querySelectorAll('.qna-option-btn').forEach(b => {
+        b.classList.remove('selected');
+      });
+      
+      // تحديد الزر الحالي
+      this.classList.add('selected');
+      selectedOption = this.dataset.option;
+      
+      // تفعيل زر التأكيد
+      document.getElementById('submit-answer-btn').disabled = false;
+    });
+  });
+  
+  // إضافة حدث لزر التأكيد
+  document.getElementById('submit-answer-btn').addEventListener('click', async function() {
+    if (!selectedOption) return;
+    
+    this.disabled = true;
+    document.querySelectorAll('.qna-option-btn').forEach(btn => {
+      btn.disabled = true;
+    });
+    
+    const isCorrect = selectedOption === qna.correctAnswer;
+    const resultDiv = document.getElementById('qna-result');
+    
+    // عرض النتيجة
+    if (isCorrect) {
+      resultDiv.innerHTML = `
+        <div class="qna-result success">
+          🎉 مبروك! إجابة صحيحة +${price * 2} نقطة
+        </div>
+      `;
+      
+      // منح الجائزة
+      try {
+        await db.collection('study').doc(currentUser.uid).update({
+          currentPoints: firebase.firestore.FieldValue.increment(price * 2),
+          totalPoints: firebase.firestore.FieldValue.increment(price * 2)
+        });
+        
+        studyState.currentPoints += price * 2;
+        studyState.totalPoints += price * 2;
+        renderTimerUI();
+        
+        // تسجيل الفوز في السجل
+        await logPointsTransaction(currentUser.uid, price * 2, 'qna_win', `فوز في تحدي سؤال: ${qna.material}`);
+        
+      } catch(e) {
+        console.error("Error awarding points:", e);
+      }
+      
+    } else {
+      resultDiv.innerHTML = `
+        <div class="qna-result error">
+          ❌ إجابة خاطئة! النقاط ذهبت لمنشئ السؤال
+        </div>
+      `;
+      
+      // منح النقاط للمنشئ السؤال
+      try {
+        await db.collection('study').doc(qna.creatorUid).update({
+          currentPoints: firebase.firestore.FieldValue.increment(price)
+        });
+        
+        // تسجيل الخسارة في السجل
+        await logPointsTransaction(currentUser.uid, 0, 'qna_loss', `خسارة في تحدي سؤال: ${qna.material}`);
+        
+      } catch(e) {
+        console.error("Error giving points to creator:", e);
+      }
+    }
+    
+    // حذف السؤال بعد الإجابة (سواء صحيحة أو خاطئة)
+    setTimeout(async () => {
+      try {
+        await db.collection('qna').doc(qnaId).delete();
+        console.log('✅ تم حذف السؤال بعد الإجابة');
+      } catch (deleteError) {
+        console.error('Error deleting question:', deleteError);
+      }
+      closeQnaGame();
+    }, 3000);
+  });
 }
 
 async function createQna(){
@@ -3265,7 +3631,11 @@ async function purchaseGift(){
     await db.collection('study').doc(currentUser.uid).set({
       currentPoints: firebase.firestore.FieldValue.increment(-gift.price),
       name: currentUser.name||'مستخدم'
-    }, {merge: true});
+    }, {merge: true });
+    
+    // تسجيل شراء الهدية في السجل
+    await logPointsTransaction(currentUser.uid, -gift.price, 'gift_purchase', `شراء هدية: ${gift.name}`);
+    
     studyState.currentPoints -= gift.price;
     renderTimerUI();
     await db.collection('purchases').add({
@@ -3370,40 +3740,323 @@ async function deleteGift(id) {
 }
 
 /* =========================
-   تهيئة بعد الدخول
+   نظام سجل تتبع النقاط الجديد
 ========================= */
-window.addEventListener('load', ()=>{
-  if (currentUser) {
-    startLeaderboardListener();
-    startQnaListener();
-    startJourneyListener();
-  }
-});
-window.addEventListener('beforeunload', () => {
-  if (studyState.running) {
-    stopStudyTimer();
-  }
-});
 
-// تحديث جميع المعرفات القصيرة
-async function updateAllUserShortUids() {
+// فتح سجل تتبع النقاط
+function openPointsLog() {
   if (!isOwner()) return;
+  document.getElementById('points-log-modal').style.display = 'block';
+  loadPointsLog();
+}
+
+// إغلاق السجل
+function closePointsLogModal() {
+  document.getElementById('points-log-modal').style.display = 'none';
+}
+
+// تحميل سجل النقاط
+async function loadPointsLog() {
+  const container = document.getElementById('points-log-container');
   try {
-    const usersSnapshot = await db.collection('users').get();
-    const batch = db.batch();
-    usersSnapshot.forEach(doc => {
-      const userData = doc.data();
-      if (!userData.shortUid) {
-        const shortUid = generateShortUid(doc.id);
-        batch.update(doc.ref, { shortUid });
-      }
-    });
-    await batch.commit();
-    showNotification('تم تحديث جميع المعرفات','success');
+    const snapshot = await db.collection('points_log')
+      .orderBy('timestamp', 'desc')
+      .limit(100)
+      .get();
+    
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="post"><p>لا توجد سجلات حتى الآن</p></div>';
+      return;
+    }
+
+    container.innerHTML = snapshot.docs.map(doc => {
+      const log = doc.data();
+      const time = log.timestamp?.toDate ? log.timestamp.toDate().toLocaleString('ar-IQ') : '';
+      
+      return `
+        <div class="post" style="margin-bottom: 10px; border-left: 4px solid ${getLogColor(log.type)}">
+          <div style="display: flex; justify-content: between; align-items: center;">
+            <strong>${escapeHTML(log.userName || 'مستخدم')}</strong>
+            <span style="color: ${log.points > 0 ? '#28a745' : '#dc3545'}; font-weight: bold;">
+              ${log.points > 0 ? '+' : ''}${log.points}
+            </span>
+          </div>
+          <div style="color: #666; font-size: 14px; margin: 5px 0;">
+            ${escapeHTML(log.description || '')}
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888;">
+            <span>${escapeHTML(log.type || '')}</span>
+            <span>${time}</span>
+          </div>
+          <div style="font-size: 11px; color: #999;">
+            UID: ${escapeHTML(log.userShortUid || log.userId?.substring(0, 8) || '')} | 
+            البريد: ${escapeHTML(log.userEmail || '')}
+          </div>
+        </div>
+      `;
+    }).join('');
   } catch (error) {
-    console.error('Error updating short UIDs:', error);
-    showNotification('فشل تحديث المعرفات','error');
+    console.error('Error loading points log:', error);
+    container.innerHTML = '<div class="post"><p>خطأ في تحميل السجل</p></div>';
   }
+}
+
+// ألوان لأنواع السجلات
+function getLogColor(type) {
+  const colors = {
+    'daily_reward': '#28a745',
+    'timer_stop': '#17a2b8', 
+    'boost_purchase': '#ffc107',
+    'qna_win': '#20c997',
+    'qna_loss': '#6f42c1',
+    'qna_entry': '#fd7e14', // أضف هذا
+    'admin_add': '#fd7e14',
+    'gift_purchase': '#e83e8c',
+    'weekly_reward': '#6610f2'
+  };
+  return colors[type] || '#6c757d';
+}
+
+// دالة لتسجيل أي عملية نقاط
+async function logPointsTransaction(userId, points, type, description) {
+  if (!isOwner()) return; // فقط المالك يستطيع التسجيل
+  
+  try {
+    // جلب بيانات المستخدم
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.data();
+    
+    await db.collection('points_log').add({
+      userId: userId,
+      userEmail: userData?.email || '',
+      userName: userData?.name || 'مستخدم',
+      userShortUid: userData?.shortUid || generateShortUid(userId),
+      points: points,
+      type: type,
+      description: description,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      loggedBy: currentUser.uid
+    });
+  } catch (error) {
+    console.error('Error logging points transaction:', error);
+  }
+}
+
+/* =========================
+   السجل التفصيلي للنقاط
+========================= */
+
+// فتح السجل التفصيلي
+function openDetailedPointsLog() {
+  if (!isOwner()) return;
+  document.getElementById('detailed-points-log-modal').style.display = 'block';
+  loadDetailedPointsLog('all');
+}
+
+// إغلاق السجل
+function closeDetailedPointsLogModal() {
+  document.getElementById('detailed-points-log-modal').style.display = 'none';
+}
+
+// تحميل السجل التفصيلي
+async function loadDetailedPointsLog(filter = 'all') {
+  const container = document.getElementById('detailed-points-log-container');
+  try {
+    let query = db.collection('points_log').orderBy('timestamp', 'desc').limit(200);
+    
+    if (filter !== 'all') {
+      query = query.where('type', '==', filter);
+    }
+    
+    const snapshot = await query.get();
+    
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="post"><p>لا توجد سجلات حتى الآن</p></div>';
+      return;
+    }
+
+    container.innerHTML = snapshot.docs.map(doc => {
+      const log = doc.data();
+      const time = log.timestamp?.toDate ? log.timestamp.toDate().toLocaleString('ar-IQ') : '';
+      
+      return `
+        <div class="post" style="margin-bottom: 10px; border-left: 4px solid ${getLogColor(log.type)}">
+          <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px;">
+            <div>
+              <strong>${escapeHTML(log.userName || 'مستخدم')}</strong>
+              <div style="color: #666; font-size: 13px; margin: 3px 0;">
+                ${escapeHTML(log.description || '')}
+              </div>
+              <div style="font-size: 12px; color: #888;">
+                ${escapeHTML(getTypeLabel(log.type))} | 
+                ${time}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="color: ${log.points > 0 ? '#28a745' : '#dc3545'}; font-weight: bold; font-size: 18px;">
+                ${log.points > 0 ? '+' : ''}${log.points}
+              </div>
+              <div style="font-size: 11px; color: #999; margin-top: 5px;">
+                ${escapeHTML(log.userShortUid || '')}
+              </div>
+              <div style="font-size: 11px; color: #999;">
+                ${escapeHTML(log.userEmail || '')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (error) {
+    console.error('Error loading detailed points log:', error);
+    container.innerHTML = '<div class="post"><p>خطأ في تحميل السجل</p></div>';
+  }
+}
+
+// تصفية السجل
+function filterPointsLog(type) {
+  loadDetailedPointsLog(type);
+}
+
+// تسمية الأنواع
+function getTypeLabel(type) {
+  const labels = {
+    'daily_reward': 'المكافأة اليومية',
+    'timer_stop': 'توقف المؤقت',
+    'boost_purchase': 'شراء تسريع',
+    'qna_win': 'فوز في التحدي',
+    'qna_loss': 'خسارة في التحدي',
+    'qna_entry': 'دخول تحدي سؤال', // أضف هذا
+    'admin_add': 'إضافة يدوية',
+    'gift_purchase': 'شراء هدية',
+    'weekly_reward': 'مكافأة أسبوعية'
+  };
+  return labels[type] || type;
+}
+
+/* =========================
+   نظام الفقاعات والإشعارات المحسّن
+========================= */
+
+// تحديث الفقاعات
+async function updateNavBadges() {
+  if (!currentUser) return;
+  
+  try {
+    let totalNotifications = 0;
+    
+    // فقاعة البريد الوارد
+    const inboxSnapshot = await db.collection('inbox')
+      .where('userId', '==', currentUser.uid)
+      .where('status', '==', 'unread')
+      .get();
+    
+    const inboxCount = inboxSnapshot.size;
+    const inboxBadge = document.getElementById('inbox-badge');
+    if (inboxBadge) {
+      if (inboxCount > 0) {
+        inboxBadge.style.display = 'flex';
+        inboxBadge.textContent = inboxCount > 9 ? '9+' : inboxCount.toString();
+        totalNotifications += inboxCount;
+      } else {
+        inboxBadge.style.display = 'none';
+      }
+    }
+    
+    // فقاعة الأسئلة الجديدة
+    const lastSeenTime = getLastSeenTime();
+    const qnaSnapshot = await db.collection('qna')
+      .where('createdAt', '>', lastSeenTime)
+      .get();
+    
+    const qnaCount = qnaSnapshot.size;
+    const qnaBadge = document.getElementById('qna-badge');
+    if (qnaBadge) {
+      if (qnaCount > 0) {
+        qnaBadge.style.display = 'flex';
+        qnaBadge.textContent = qnaCount > 9 ? '9+' : qnaCount.toString();
+        totalNotifications += qnaCount;
+      } else {
+        qnaBadge.style.display = 'none';
+      }
+    }
+    
+    // فقاعة المشتريات الجديدة (للمالك)
+    if (isOwner()) {
+      const purchasesSnapshot = await db.collection('purchases')
+        .where('createdAt', '>', lastSeenTime)
+        .get();
+      
+      const purchasesCount = purchasesSnapshot.size;
+      const purchasesBadge = document.getElementById('purchases-badge');
+      if (purchasesBadge && purchasesCount > 0) {
+        purchasesBadge.style.display = 'flex';
+        purchasesBadge.textContent = purchasesCount > 9 ? '9+' : purchasesCount.toString();
+        totalNotifications += purchasesCount;
+      }
+    }
+    
+    // فقاعة قسم حسابي (المجموع الكلي)
+    const profileBadge = document.getElementById('profile-badge');
+    if (profileBadge) {
+      if (totalNotifications > 0) {
+        profileBadge.style.display = 'flex';
+        profileBadge.textContent = totalNotifications > 9 ? '9+' : totalNotifications.toString();
+      } else {
+        profileBadge.style.display = 'none';
+      }
+    }
+    
+  } catch (error) {
+    console.error('Error updating badges:', error);
+  }
+}
+
+// الحصول على وقت آخر زيارة
+function getLastSeenTime() {
+  const lastSeen = localStorage.getItem('lastSeenTime');
+  if (lastSeen) {
+    return new Date(parseInt(lastSeen));
+  }
+  return new Date(Date.now() - 24 * 60 * 60 * 1000);
+}
+
+// حفظ وقت الزيارة الحالي
+function updateLastSeenTime() {
+  localStorage.setItem('lastSeenTime', Date.now().toString());
+  // تحديث الفقاعات مباشرة بعد تحديث الوقت
+  setTimeout(updateNavBadges, 500);
+}
+
+// تحديث دوري للفقاعات
+setInterval(updateNavBadges, 30000);
+
+/* =========================
+   تحديث النقاط الفوري
+========================= */
+
+// إضافة مستمع في الوقت الفعلي للنقاط
+function startPointsListener() {
+  if (!currentUser) return;
+  
+  // إلغاء المستمع القديم إذا كان موجوداً
+  if (window.pointsUnsubscribe) {
+    window.pointsUnsubscribe();
+  }
+  
+  // مستمع جديد في الوقت الفعلي
+  window.pointsUnsubscribe = db.collection('study')
+    .doc(currentUser.uid)
+    .onSnapshot((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        studyState.currentPoints = Number(data.currentPoints) || 0;
+        studyState.totalPoints = Number(data.totalPoints) || 0;
+        renderTimerUI();
+      }
+    }, (error) => {
+      console.error('Points listener error:', error);
+    });
 }
 
 /* =========================
@@ -3456,6 +4109,45 @@ setTimeout(() => {
     testBtn.style.display = 'none';
   }
 }, 5000);
+
+// تحديث جميع المعرفات القصيرة
+async function updateAllUserShortUids() {
+  if (!isOwner()) return;
+  try {
+    const usersSnapshot = await db.collection('users').get();
+    const batch = db.batch();
+    usersSnapshot.forEach(doc => {
+      const userData = doc.data();
+      if (!userData.shortUid) {
+        const shortUid = generateShortUid(doc.id);
+        batch.update(doc.ref, { shortUid });
+      }
+    });
+    await batch.commit();
+    showNotification('تم تحديث جميع المعرفات','success');
+  } catch (error) {
+    console.error('Error updating short UIDs:', error);
+    showNotification('فشل تحديث المعرفات','error');
+  }
+}
+
+function closeQnaGame() {
+  const modal = document.getElementById('qna-game-modal');
+  if (modal) {
+    modal.remove();
+  } else {
+    // إذا لم يتم العثور بالـ ID، نبحث عن آخر modal
+    const modals = document.querySelectorAll('.modal');
+    if (modals.length > 0) {
+      modals[modals.length - 1].remove();
+    }
+  }
+  
+  // إعادة تحميل قائمة الأسئلة لتحديث الواجهة
+  if (window._qnaInit) {
+    startQnaListener();
+  }
+}
 
 console.log('✅ تطبيق سوق الطلاب محمل وجاهز للعمل!');
 </script>
