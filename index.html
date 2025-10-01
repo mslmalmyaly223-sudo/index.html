@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
@@ -50,11 +51,30 @@
     .grow{flex:1}
 
     /* اختيار الصورة */
-    .choose-avatar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .choose-avatar label{display:flex;align-items:center;gap:8px;background:#f2f4ff;border:1px solid #dfe4ff;padding:10px 12px;border-radius:12px;cursor:pointer}
-    .choose-avatar input{display:none}
-    .choose-avatar input:checked + span{outline:3px solid #3a5bef;border-radius:10px}
-    .choose-avatar .emo{font-size:28px;line-height:1}
+.choose-avatar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.choose-avatar label:has(input:checked) {
+    border: 3px solid #3a5bef !important;
+    background: rgba(58, 91, 239, 0.1);
+    box-shadow: 0 0 10px rgba(58, 91, 239, 0.2);
+} 
+.choose-avatar label:has(input:checked) {
+    border: 4px solid #3a5bef !important;  /* زيادة السماكة من 3px إلى 4px */
+    background: rgba(58, 91, 239, 0.15) !important;
+    box-shadow: 0 0 15px rgba(58, 91, 239, 0.3);
+    transform: scale(1.05);  /* تكبير بسيط للمربع */
+    transition: all 0.3s ease;
+}
+
+.choose-avatar label:has(input:checked) .emo {
+    background: rgba(58, 91, 239, 0.1);  /* إرجاع خلفية الإيموجي */
+    border-radius: 8px;
+    padding: 4px;
+}
+    border: 3px solid #3a5bef !important;  /* حدود على المستطيل كامل */
+    background: rgba(58, 91, 239, 0.1);
+    box-shadow: 0 0 10px rgba(58, 91, 239, 0.2);
+}
+.choose-avatar .emo{font-size:28px;line-height:1}
 
     /* Buttons */
     .btn{display:inline-block;padding:10px 14px;background:var(--primary-color);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;width:auto}
@@ -201,8 +221,6 @@
     .rank-5{border-color:#a17aff;box-shadow:0 0 0 3px rgba(161,122,255,.35),0 10px 24px rgba(161,122,255,.25)}
     .rank-5 .rank-badge{background:linear-gradient(135deg,#d1c4e9,#b39ddb);color:#382a4e;border:2px solid #9575cd}
 
-    /* شارة عدم الأهلية */
-    .ineligible-badge{font-size:11px;font-weight:900;color:#a00;background:#ffe9e9;border:1px solid #ffc5c5;border-radius:999px;padding:4px 8px;margin-inline-start:8px}
 
     /* زر المطالبة اليومية داخل المؤقت (الإصدار الوحيد المفعَّل) */
     .daily-claim{display:inline-flex;align-items:center;justify-content:center;width:120px;height:56px;border-radius:12px;font-weight:900;border:2px dashed #ff8c00;background:#fff7e6;cursor:pointer}
@@ -283,6 +301,11 @@
       <form id="login-form" class="auth-form active" onsubmit="event.preventDefault(); login();">
         <div class="form-group"><label for="login-email">البريد الإلكتروني</label><input type="email" id="login-email" class="form-control" required></div>
         <div class="form-group"><label for="login-password">كلمة المرور</label><input type="password" id="login-password" class="form-control" required></div>
+        <div class="form-group" style="text-align:center; margin-top:10px;">
+          <a href="#" onclick="openForgotPasswordModal()" style="color:var(--primary-color); text-decoration:none; font-size:14px;">
+            نسيت كلمة المرور؟
+          </a>
+        </div>
         <button type="submit" class="btn btn-block">تسجيل الدخول</button>
       </form>
 
@@ -297,16 +320,7 @@
             <label><input type="radio" name="register-avatar" value="female"><span class="emo">👩🏻‍💼</span> بنت</label>
           </div>
         </div>
-        <div style="margin-top: 20px; text-align: center;">
-          <div style="margin: 15px 0; position: relative;">
-            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-color);"></div>
-            <div style="position: relative; display: inline-block; background: #fff; padding: 0 10px; color: var(--light-text);">أو</div>
-          </div>
-          <button type="button" class="btn btn-secondary btn-block" onclick="signUpWithGoogle()">
-            <i class="fab fa-google" style="margin-left: 8px;"></i> إنشاء حساب بواسطة Google
-          </button>
-        </div>
-        <button type="button" id="register-submit" class="btn btn-block" onclick="register()" style="margin-top: 15px;">إنشاء حساب</button>
+        <button type="button" id="register-submit" class="btn btn-block" onclick="register()">إنشاء حساب</button>
       </form>
     </div>
   </div>
@@ -392,6 +406,7 @@
       </div>
     </div>
   </div>
+
   <!-- User posts -->
 <div id="user-posts-page" class="container page" style="display:none">
   <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">منشوراتي</span></div>
@@ -455,7 +470,7 @@
           <button id="timer-start-btn" class="btn" onclick="startStudyTimer()"><i class="fa-solid fa-play"></i> بدء</button>
           <button id="timer-stop-btn" class="btn btn-warning" onclick="stopStudyTimer()" disabled><i class="fa-solid fa-stop"></i> إيقاف</button>
         </div>
-        <div id="timer-hint" class="hint">1 نقطة لكل 3 دقائق. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
+        <div id="timer-hint" class="hint">1 نقطة لكل دقيقتين. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
       </div>
 
       <!-- مكافأة يومية واحدة فقط (الإصدار الفعّال) -->
@@ -710,6 +725,31 @@
   </div>
 </div></div>
 
+<!-- Modal نسيت كلمة المرور - الإصدار المبسط -->
+<div id="forgot-password-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>استعادة كلمة المرور</h2>
+      <button class="close-modal" onclick="closeForgotPasswordModal()">&times;</button>
+    </div>
+    <div class="select-group">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="forgot-email" class="select-control" placeholder="أدخل بريدك الإلكتروني المسجل">
+    </div>
+    <div style="background:#fff3cd; padding:10px; border-radius:8px; text-align:center;">
+💡 <strong>تنبيه:</strong> 
+الرسالة ممكن توصل <strong>"الرسائل غير المرغوب فيها"</strong>
+</div>
+    <div class="hint" style="text-align: center; color: var(--light-text); font-size: 12px; margin: 10px 0;">
+      سيتم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeForgotPasswordModal()">إلغاء</button>
+      <button id="forgot-submit-btn" class="btn btn-success" onclick="handleForgotPassword()">إرسال رابط الاستعادة</button>
+    </div>
+  </div>
+</div>
+
 <!-- صفحات مستقلّة -->
 <div id="journey-item-page" class="container page" style="display:none">
   <div class="header"><button class="btn btn-secondary" onclick="showChallengePage()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">رحلة السادس</span></div>
@@ -777,19 +817,6 @@
     </div>
   </div>
 </div>
-
-<!-- إشعار المكافأة الأسبوعية -->
-<div id="weekly-reward-overlay" class="modal">
-  <div class="modal-content" style="max-width: 400px;">
-    <div class="modal-header">
-      <h2>🎉 مبروك! فوز أسبوعي</h2>
-      <button class="close-modal" onclick="dismissWeeklyReward()">&times;</button>
-    </div>
-    <div class="post" id="weekly-reward-content">
-      <!-- سيتم ملؤه ديناميكياً -->
-    </div>
-  </div>
-</div>
 <script>
 /* =========================
    Firebase & Globals
@@ -808,7 +835,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-/* ===== Telegram (تم تحسين الإرسال) ===== */
+/* ===== Telegram ===== */
 const TELEGRAM_BOT_TOKEN = "8167852054:AAHt587_tOX_XASuNlskt3odkfJHNesiDxc";
 const TELEGRAM_OWNER_ID   = "7782429739";
 const APP_OWNER_EMAIL     = "mslmalmyaly223@gmail.com";
@@ -826,14 +853,13 @@ let currentDetailsPostId = null;
 let currentCommentsPostId = null;
 const userMetaCache = {};
 
-// إعدادات التصنيف (يتم تحميلها من Firestore)
+// إعدادات التصنيف
 let leaderboardSettings = { 
   nextReset: null,
-  scheduleDay: 0, // الأحد
+  scheduleDay: 0,
   scheduleTime: "00:00"
 };
 
-// كاش UID المالك
 let _ownerUidCache = null;
 
 /* =========================
@@ -871,7 +897,7 @@ function renderAvatar(kind){
   el.innerHTML = `<div style="font-size:40px;line-height:72px">${emoji}</div>`;
 }
 
-// توليد معرف مختصر (7 أحرف/أرقام)
+// توليد معرف مختصر
 function generateShortUid(uid) {
   if (!uid) return '';
   let hash = 0;
@@ -891,12 +917,12 @@ async function getOwnerUid(){
   return null;
 }
 
-/* Telegram notify (تحسين: تقسيم الرسائل الطويلة) */
+/* Telegram notify */
 async function sendTelegramNotification(message, chatId = TELEGRAM_OWNER_ID) {
   try {
     if (!TELEGRAM_BOT_TOKEN) return false;
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const MAX = 3900; // أقل من حد 4096 مع هامش
+    const MAX = 3900;
     const chunks = [];
     for (let i = 0; i < message.length; i += MAX) {
       chunks.push(message.slice(i, i + MAX));
@@ -913,7 +939,7 @@ async function sendTelegramNotification(message, chatId = TELEGRAM_OWNER_ID) {
   } catch { return false; }
 }
 
-/* إرسال إشعار عام لجميع مستخدمي البوت */
+/* إرسال إشعار عام */
 async function sendBroadcastToAllUsers(message) {
   try {
     const usersSnapshot = await db.collection('users').get();
@@ -946,7 +972,89 @@ async function sendBroadcastToAllUsers(message) {
 })();
 
 /* =========================
-   Auth + Google
+   نظام استعادة كلمة المرور - الإصدار المحسن
+========================= */
+let passwordResetConfirmation = null;
+
+function openForgotPasswordModal(){
+  document.getElementById('forgot-password-modal').style.display = 'block';
+  // إعادة تعيين الحقول
+  document.getElementById('reset-code-section').style.display = 'none';
+  document.getElementById('new-password-section').style.display = 'none';
+  document.getElementById('forgot-submit-btn').textContent = 'إرسال رابط الاستعادة';
+  document.getElementById('forgot-submit-btn').className = 'btn btn-success';
+  document.getElementById('forgot-email').value = '';
+  document.getElementById('reset-code').value = '';
+  document.getElementById('new-password').value = '';
+  passwordResetConfirmation = null;
+}
+
+async function handleForgotPassword(){
+  const email = document.getElementById('forgot-email').value.trim();
+  const btn = document.getElementById('forgot-submit-btn');
+  
+  if(!email) {
+    return showNotification('يرجى إدخال البريد الإلكتروني', 'error');
+  }
+  
+  if(!validateEmail(email)) {
+    return showNotification('صيغة البريد الإلكتروني غير صحيحة', 'error');
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال...';
+  
+  try {
+    // استخدام Firebase لإرسال رابط إعادة تعيين كلمة المرور
+    await auth.sendPasswordResetEmail(email);
+    
+    showNotification('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني', 'success');
+    console.log('✅ تم إرسال رابط إعادة تعيين كلمة المرور إلى:', email);
+    
+    // إغلاق النافذة بعد 3 ثواني
+    setTimeout(() => {
+      closeForgotPasswordModal();
+    }, 3000);
+    
+  } catch(error) {
+    console.error('Password reset error:', error);
+    
+    let errorMessage = 'حدث خطأ أثناء إرسال رابط الاستعادة';
+    switch(error.code) {
+      case 'auth/user-not-found':
+        errorMessage = 'البريد الإلكتروني غير مسجل في النظام';
+        break;
+      case 'auth/invalid-email':
+        errorMessage = 'صيغة البريد الإلكتروني غير صحيحة';
+        break;
+      case 'auth/too-many-requests':
+        errorMessage = 'محاولات كثيرة. حاول لاحقاً';
+        break;
+      case 'auth/operation-not-allowed':
+        errorMessage = 'عملية إعادة تعيين كلمة المرور غير مفعلة';
+        break;
+      case 'auth/network-request-failed':
+        errorMessage = 'خطأ في الاتصال بالشبكة. تحقق من اتصالك بالإنترنت';
+        break;
+      default:
+        errorMessage = error.message || errorMessage;
+    }
+    
+    showNotification(errorMessage, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'إرسال رابط الاستعادة';
+  }
+}
+
+// إغلاق النافذة
+function closeForgotPasswordModal(){
+  document.getElementById('forgot-password-modal').style.display = 'none';
+  passwordResetConfirmation = null;
+}
+
+/* =========================
+   Auth
 ========================= */
 function handleAuthError(error){
   const code = (error && error.code) || '';
@@ -964,51 +1072,10 @@ function handleAuthError(error){
     friendly = 'هذا البريد مسجّل مسبقًا.';
   } else if (code === 'auth/operation-not-allowed') {
     friendly = 'فعّل طريقة المصادقة من Firebase > Authentication.';
-  } else if (code === 'auth/operation-not-supported-in-this-environment' || code === 'auth/popup-blocked') {
-    friendly = 'متصفحك يمنع النوافذ المنبثقة. جرّب زر "تسجيل بواسطة Google" مرة أخرى أو افتح الموقع بمتصفح خارجي.';
   }
   showNotification(friendly,'error');
   console.error('Auth error:', error);
 }
-
-function inAppBrowserBlocked(){
-  const href = (location && location.href) ? location.href : '';
-  const ua = navigator.userAgent || '';
-  return href.startsWith('content:') || /FBAN|FBAV|Instagram|Line|wv|Telegram/i.test(ua);
-}
-
-async function signUpWithGoogle(){
-  try{
-    const provider = new firebase.auth.GoogleAuthProvider();
-    if (inAppBrowserBlocked()) {
-      await auth.signInWithRedirect(provider);
-      return;
-    }
-    try {
-      const result = await auth.signInWithPopup(provider);
-      const user = result.user;
-      await sendTelegramNotification(
-        `🔐 <b>تسجيل دخول Google</b>\n\n👤 ${user.displayName||'مستخدم'}\n📧 ${user.email}\n🆔 ${user.uid}`
-      );
-      showNotification('تم إنشاء الحساب بنجاح!','success');
-    } catch (e) {
-      if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
-        await auth.signInWithRedirect(provider);
-      } else { throw e; }
-    }
-  }catch(e){ handleAuthError(e); }
-}
-
-// استرجاع نتيجة redirect عند العودة
-auth.getRedirectResult().then(async (res)=>{
-  if(res && res.user){
-    const u = res.user;
-    await sendTelegramNotification(
-      `🔐 <b>تسجيل دخول Google (Redirect)</b>\n\n👤 ${u.displayName||'مستخدم'}\n📧 ${u.email}\n🆔 ${u.uid}`
-    );
-    showNotification('تم إنشاء الحساب!','success');
-  }
-}).catch(handleAuthError);
 
 function register(){
   const name=document.getElementById("register-name").value.trim();
@@ -1091,7 +1158,10 @@ auth.onAuthStateChanged(async (user) => {
   await Promise.all([loadPostsFromFirestore(), loadCompanies(), fetchLatestBroadcast()]);
   await loadStudyState();
   await loadLeaderboardSettings();
-  checkWeeklyRewards();
+  
+  // التحقق من المكافآت الأسبوعية بعد تحميل المستخدم مباشرة
+  setTimeout(checkAndShowWeeklyReward, 3000);
+  
   setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
   pendingChosenAvatar = null;
 });
@@ -1160,7 +1230,6 @@ function updateUIForLoggedInUser(){
   pv.innerHTML = currentUser.isVerified? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>` : '';
   document.querySelectorAll(".owner-only").forEach(el=> el.style.display = isOwner()? "flex":"none");
 
-  // إظهار زر إضافة محتوى رحلة السادس للمالك فقط
   const addJourneyBtn = document.getElementById('add-journey-btn');
   if (addJourneyBtn) addJourneyBtn.style.display = isOwner()? 'block' : 'none';
 
@@ -1409,7 +1478,6 @@ async function deletePost(postId){
     try {
       await db.collection("posts").doc(postId).delete();
     } catch (delErr) {
-      // إذا فشل الحذف (صلاحيات)، نخفيه بتغيير الحالة
       await db.collection("posts").doc(postId).update({ status:'deleted' });
     }
     showNotification("تم الحذف","success");
@@ -1426,7 +1494,7 @@ async function renderDetails(postId){
   detailsContainer.innerHTML = ''; detailsContainer.appendChild(card);
 }
 
-/* إبلاغ + تعليقات (تحسينات الابلاغ) */
+/* إبلاغ + تعليقات */
 async function reportPost(postId){
   if(!currentUser) return showNotification('يلزم تسجيل الدخول','warning');
   const reason = prompt('سبب الإبلاغ:');
@@ -1435,7 +1503,6 @@ async function reportPost(postId){
   try{
     const post = posts.find(p => p.id === postId);
     
-    // 1. أولاً نبحث عن المالك باستخدام الـ shortUid
     const ownerQuery = await db.collection('users')
       .where('shortUid', '==', '82JDU7')
       .limit(1)
@@ -1447,24 +1514,35 @@ async function reportPost(postId){
     }
     
     const ownerDoc = ownerQuery.docs[0];
-    const ownerUid = ownerDoc.id; // هذا هو الـ UID الحقيقي
+    const ownerUid = ownerDoc.id;
     const ownerData = ownerDoc.data();
     
     console.log('✅ وجدنا المالك:', ownerData.name, 'بـ UID:', ownerUid);
 
-    // 2. رسالة للمستخدم العادي
-    await db.collection('inbox').add({
-      userId: currentUser.uid,
-      type: 'report',
-      title: 'تم استلام بلاغك',
-      message: `تم استلام بلاغك حول المنشور وسيتم مراجعته من قبل الإدارة.`,
-      status: 'unread',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+// إرسال إشعار إلى البريد الوارد للمستخدم الفائز
+await db.collection('inbox').add({
+  userId: user.uid,
+  type: 'weekly_reward',
+  title: `🎉 مبروك! فوز أسبوعي - المركز ${i + 1}`,
+  message: `
+مبارك لك! لقد فزت في التصنيف الأسبوعي 🏆
 
-    // 3. 🔥 رسالة للمالك - باستخدام الـ UID الحقيقي
+• المركز: ${i + 1}
+• المكافأة: ${reward} نقطة 🎁
+• رصيدك الجديد: ${(user.walletPoints || user.currentPoints || 0) + reward} نقطة
+
+استمر في التفوق وحقق مراكز أعلى! 💪
+  `.trim(),
+  status: 'unread',
+  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  rewardPoints: reward,
+  rank: i + 1
+});
+
+console.log(`✅ تم إرسال إشعار للمركز ${i + 1}: ${user.name}`);
+
     await db.collection('inbox').add({
-      userId: ownerUid, // الـ UID الحقيقي للمالك
+      userId: ownerUid,
       type: 'admin_report',
       postId: postId,
       reporterUid: currentUser.uid,
@@ -1478,7 +1556,6 @@ async function reportPost(postId){
 
     console.log('✅ تم إرسال البلاغ للمالك بنجاح');
 
-    // 4. إشعار تيليجرام
     try {
       const msg = `📩 <b>بلاغ جديد</b>\n\n📝 السبب: ${reason}\n👤 المبلّغ: ${currentUser.name||'مستخدم'}\n🆔 ${currentUser.shortUid || currentUser.uid.substring(0, 8)}`;
       await sendTelegramNotification(msg);
@@ -1486,7 +1563,6 @@ async function reportPost(postId){
       console.log('⚠️ فشل إرسال تيليجرام');
     }
     
-    // 5. تحديث الواجهة
     const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
     if(!reportedPosts.includes(postId)){ 
       reportedPosts.push(postId); 
@@ -1519,7 +1595,6 @@ async function addCommentFromPage() {
     textInput.value = ''; await renderComments(currentCommentsPostId);
   } catch (e) { showNotification('فشل إرسال التعليق', 'error'); } finally { btn.disabled = false; }
 }
-
 /* Owner actions */
 async function ownerTogglePin(postId, isPinned){
   if(!isOwner()) return;
@@ -1649,7 +1724,7 @@ async function editProfileName(){
 }
 
 /* =========================
-   Inbox (مُحسَّن مع أدوات المالك)
+   Inbox
 ========================= */
 async function showInbox(){
   if(!currentUser) return showNotification('سجّل الدخول','warning');
@@ -1657,7 +1732,6 @@ async function showInbox(){
   inboxContainer.innerHTML = '<div class="post"><p>جاري تحميل الرسائل...</p></div>';
   
   try {
-    // ✅ استخدم query بسيط بدون where معقد
     const snapshot = await db.collection('inbox').get();
     
     if (snapshot.empty) {
@@ -1667,14 +1741,12 @@ async function showInbox(){
     
     let filteredDocs = snapshot.docs;
     
-    // ✅ فلتر يدوي - المالك يشوف كل الإشعارات الإدارية
     if (isOwner()) {
       filteredDocs = snapshot.docs.filter(doc => {
         const data = doc.data();
         return data.type === 'admin_report' || data.type === 'purchase_notice';
       });
     } else {
-      // المستخدم العادي يشوف رسائله فقط
       filteredDocs = snapshot.docs.filter(doc => doc.data().userId === currentUser.uid);
     }
     
@@ -1683,21 +1755,17 @@ async function showInbox(){
       return;
     }
     
-    // ترتيب بالوقت
     const sortedDocs = filteredDocs.sort((a,b) => {
       const aTime = a.data().createdAt?.toDate?.()?.getTime() || 0;
       const bTime = b.data().createdAt?.toDate?.()?.getTime() || 0;
       return bTime - aTime;
     });
     
-    // عرض الرسائل
     inboxContainer.innerHTML = sortedDocs.map(doc => {
       const msg = doc.data();
       const created = msg.createdAt?.toDate ? msg.createdAt.toDate().toLocaleString('ar-IQ') : '';
       
-// ✅ إشعارات الإبلاغات للمالك
 if(isOwner() && msg.type === 'admin_report'){
-  // إذا كان الإبلاغ محلول، نعرضه بدون أزرار
   if(msg.status === 'resolved'){
     return `
       <div class="post" style="opacity:0.7; background:#f8f9fa;">
@@ -1710,7 +1778,6 @@ if(isOwner() && msg.type === 'admin_report'){
       </div>`;
   }
   
-  // إذا كان الإبلاغ جديد، نعرضه بالأزرار
   return `
     <div class="post">
       <div style="font-weight:bold;color:#0f235f">📩 بلاغ جديد - لوحة الإدارة</div>
@@ -1733,7 +1800,6 @@ if(isOwner() && msg.type === 'admin_report'){
     </div>`;
 }
       
-      // ✅ إشعارات الشراء للمالك
       if(isOwner() && msg.type === 'purchase_notice'){
         return `
           <div class="post">
@@ -1749,7 +1815,6 @@ if(isOwner() && msg.type === 'admin_report'){
           </div>`;
       }
 
-      // رسائل عادية للمستخدمين
       return `
         <div class="post">
           <div style="font-weight:bold;color:#0f235f">${escapeHTML(msg.title || 'إشعار')}</div>
@@ -1770,7 +1835,6 @@ async function adminReportAction(inboxDocId, reportId, action, targetId, reporte
     let actionMessage = '';
     let userNotification = '';
 
-    // تنفيذ الإجراء المطلوب
     if(action === 'ban_poster' && targetId){
       await db.collection('users').doc(targetId).update({ 
         blockedFromPosting: true 
@@ -1801,7 +1865,6 @@ async function adminReportAction(inboxDocId, reportId, action, targetId, reporte
       userNotification = 'تم رفض إبلاغك';
     }
 
-    // ✅ تحديث حالة الإبلاغ
     if(reportId){
       await db.collection('reports').doc(reportId).update({ 
         status: action === 'reject' ? 'مرفوض' : 'مغلق',
@@ -1811,7 +1874,6 @@ async function adminReportAction(inboxDocId, reportId, action, targetId, reporte
       });
     }
 
-    // ✅ إرسال إشعار للمستخدم (المُبلّغ)
     if(reporterUid && userNotification){
       await db.collection('inbox').add({
         userId: reporterUid,
@@ -1823,7 +1885,6 @@ async function adminReportAction(inboxDocId, reportId, action, targetId, reporte
       });
     }
 
-    // ✅ تحديث رسالة البريد الوارد للمالك (إخفاء الأزرار)
     await db.collection('inbox').doc(inboxDocId).update({ 
       status: 'resolved',
       resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1831,10 +1892,8 @@ async function adminReportAction(inboxDocId, reportId, action, targetId, reporte
       actionMessage: actionMessage
     });
 
-    // ✅ إشعار للمالك
     showNotification('تم معالجة الإبلاغ بنجاح', 'success');
 
-    // ✅ إعادة تحميل البريد بعد ثانيتين
     setTimeout(() => {
       showInbox();
     }, 2000);
@@ -1915,7 +1974,7 @@ function dismissBroadcast(){
 }
 
 /* =========================
-   Owner: Add points dialog (يدعم المعرف المختصر)
+   Owner: Add points dialog
 ========================= */
 function openAddPointsModal(){
   if (!isOwner()) return showNotification('للمالك فقط','error');
@@ -1927,7 +1986,6 @@ async function addPointsDirectly(userIdOrShort, points){
     let targetUid = null;
     let userData = null;
 
-    // إذا أُدخل معرف مختصر (<= 8 حروف/أرقام) ابحث عنه
     const token = (userIdOrShort || '').trim();
     if (token.length <= 8) {
       const q = await db.collection('users').where('shortUid', '==', token.toUpperCase()).limit(1).get();
@@ -1938,7 +1996,6 @@ async function addPointsDirectly(userIdOrShort, points){
       }
     }
 
-    // وإلا اعتبره UID كامل
     if (!targetUid) {
       const userDoc = await db.collection('users').doc(token).get();
       if (!userDoc.exists) throw new Error('المعرف غير موجود');
@@ -1961,7 +2018,7 @@ async function addPointsDirectly(userIdOrShort, points){
 }
 
 /* =========================
-   App explanation (صفحة مستقلّة)
+   App explanation
 ========================= */
 async function openAppExplanation(){
   showPage('appExplainPage');
@@ -2018,7 +2075,7 @@ async function deleteExplanation(id){
 }
 
 /* =========================
-   Journey (صفحة مستقلة)
+   Journey
 ========================= */
 function switchChallengeTab(btn){
   const tabName = btn.dataset.tab;
@@ -2226,10 +2283,11 @@ async function stopStudyTimer(){
       
       if(s.boostUntil?.toDate && s.boostUntil.toDate()>start){
         const boosted = Math.max(0, (Math.min(stopAt, s.boostUntil.toDate()) - start)/1000);
-        elapsed += boosted; // (+1x وقت boost)
+        elapsed += boosted;
       }
       
-      const points = Math.floor(elapsed/180);
+      // تغيير من 180 ثانية (3 دقائق) إلى 120 ثانية (دقيقتين) لكل نقطة
+      const points = Math.floor(elapsed/120); // تغيير هنا
       
       tx.update(ref,{
         running:false, 
@@ -2247,7 +2305,6 @@ async function stopStudyTimer(){
     renderTimerUI();
     showNotification('توقّف العداد وتم تحويل الوقت لنقاط','success');
   }catch(e){
-    // مسار بديل محلي لضمان الإيقاف للمستخدمين
     try{
       const now = Date.now();
       const startLocal = studyState.startAtMs || now;
@@ -2258,13 +2315,16 @@ async function stopStudyTimer(){
         const boosted = Math.max(0, (boostedUntil - startLocal)/1000);
         elapsed += boosted;
       }
-      const points = Math.floor(elapsed/180);
+      // تغيير من 180 ثانية (3 دقائق) إلى 120 ثانية (دقيقتين) لكل نقطة
+      const points = Math.floor(elapsed/120); // تغيير هنا
+      
       await ref.set({
         running:false,
         startAt:null,
         totalPoints: firebase.firestore.FieldValue.increment(points),
         currentPoints: firebase.firestore.FieldValue.increment(points)
       }, { merge:true });
+      
       studyState.currentPoints += points; 
       studyState.totalPoints += points;
       studyState.running=false; 
@@ -2278,7 +2338,6 @@ async function stopStudyTimer(){
     }
   }
 }
-
 /* تسريع المؤقّت */
 function startBoostInterval(){ stopBoostInterval(); updateBoostStatus(); boostInterval=setInterval(updateBoostStatus,1000); }
 function stopBoostInterval(){ if(boostInterval){clearInterval(boostInterval); boostInterval=null;} }
@@ -2297,7 +2356,7 @@ function updateBoostStatus(){
   el.textContent = `التسريع مفعل! الوقت المتبقي: ${msToHMS(left)}`;
 }
 
-/* مكافأة 20 نقطة داخل المؤقّت (نسخة واحدة) */
+/* مكافأة 20 نقطة */
 function updateDailyRewardUI(){
   const btn=document.getElementById('daily-claim-btn'); 
   const rem=document.getElementById('daily-remaining');
@@ -2322,16 +2381,9 @@ function updateDailyRewardUI(){
   }
 }
 
-// ربط زر المكافأة اليومية احتياطاً
-document.addEventListener('DOMContentLoaded', ()=>{
-  const btn = document.getElementById('daily-claim-btn');
-  if (btn) btn.addEventListener('click', claimDailyReward);
-});
-
-let isClaiming = false; // 🔥 نضيف متغير تحكم
+let isClaiming = false;
 
 async function claimDailyReward(){
-  // 🔥 نضيف تحكم لمنع التكرار
   if(isClaiming) return;
   if(!currentUser) return;
   
@@ -2343,7 +2395,7 @@ async function claimDailyReward(){
     return;
   }
   
-  isClaiming = true; // 🔥 نمنع أي عملية ثانية
+  isClaiming = true;
   
   try {
     const ref = db.collection('study').doc(currentUser.uid);
@@ -2367,11 +2419,11 @@ async function claimDailyReward(){
     console.error("Error claiming daily reward:", e);
     showNotification('تعذّر منح المكافأة', 'error');
   } finally {
-    isClaiming = false; // 🔥 نرجع نفتح الإمكانية
+    isClaiming = false;
   }
 }
 
-/* شراء التسريع (تراكمي) */
+/* شراء التسريع */
 async function buyBoost(hours){
   if(!currentUser) return;
   const cost = (hours===1?25:hours===2?50:hours===3?75:hours===5?100:hours*25);
@@ -2411,47 +2463,107 @@ async function loadLeaderboardSettings(){
       leaderboardSettings.scheduleDay = data.scheduleDay || 0;
       leaderboardSettings.scheduleTime = data.scheduleTime || "00:00";
       
-      // إذا لم يكن هناك موعد قادم، ضع موعد افتراضي
-      if(!leaderboardSettings.nextReset){
+      const now = new Date();
+      
+      // تحقق قوي من صحة الوقت المخزن
+      if(!leaderboardSettings.nextReset || 
+         leaderboardSettings.nextReset <= now ||
+         isNaN(leaderboardSettings.nextReset.getTime())) {
+        
+        console.log('🔄 إعادة حساب الموعد (منتهي أو غير صالح أو تالف)');
         await calculateNextReset();
+      } else {
+        console.log('✅ استخدام الموعد المخزن:', leaderboardSettings.nextReset.toLocaleString('ar-IQ'));
+        console.log('📅 الإعدادات:', {
+          day: leaderboardSettings.scheduleDay,
+          time: leaderboardSettings.scheduleTime
+        });
       }
     } else {
-      // الإعدادات غير موجودة، أنشئها
+      // الإعدادات الأولى
+      console.log('🆕 إنشاء إعدادات جديدة للتصنيف');
+      leaderboardSettings.scheduleDay = 0;
+      leaderboardSettings.scheduleTime = "00:00";
       await calculateNextReset();
     }
+    
   }catch(e){
     console.error('Error loading leaderboard settings:', e);
+    leaderboardSettings.scheduleDay = 0;
+    leaderboardSettings.scheduleTime = "00:00";
     await calculateNextReset();
   }
 }
 
 /* حساب الموعد القادم لإعادة الضبط */
 async function calculateNextReset(){
-  const now = new Date();
-  const targetDay = leaderboardSettings.scheduleDay || 0; // الأحد
-  const [targetHours, targetMinutes] = (leaderboardSettings.scheduleTime || "00:00").split(':').map(Number);
-  
-  let nextReset = new Date(now);
-  nextReset.setDate(now.getDate() + ((7 + targetDay - now.getDay()) % 7));
-  nextReset.setHours(targetHours, targetMinutes, 0, 0);
-  
-  // إذا كان الموعد قد فات هذا الأسبوع، انتقل للأسبوع القادم
-  if(nextReset <= now){
-    nextReset.setDate(nextReset.getDate() + 7);
-  }
-  
-  leaderboardSettings.nextReset = nextReset;
-  
-  // حفظ في قاعدة البيانات
-  try{
+  try {
+    const now = new Date();
+    const targetDay = leaderboardSettings.scheduleDay || 0;
+    const [targetHours, targetMinutes] = (leaderboardSettings.scheduleTime || "00:00").split(':').map(Number);
+    
+    console.log('🕒 حساب الموعد الجديد:', { 
+      targetDay, 
+      targetHours, 
+      targetMinutes,
+      now: now.toLocaleString('ar-IQ')
+    });
+    
+    let nextReset = new Date(now);
+    let daysDifference = targetDay - now.getDay();
+    
+    if (daysDifference < 0) {
+      daysDifference += 7;
+    }
+    else if (daysDifference === 0) {
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      const targetTime = targetHours * 60 + targetMinutes;
+      
+      if (currentTime >= targetTime) {
+        daysDifference = 7;
+      }
+    }
+    
+    nextReset.setDate(now.getDate() + daysDifference);
+    nextReset.setHours(targetHours, targetMinutes, 0, 0);
+    
+    // التأكد من أن الوقت في المستقبل
+    if (nextReset <= now) {
+      console.log('⚠️ الموعد في الماضي، إضافة أسبوع آخر');
+      nextReset.setDate(nextReset.getDate() + 7);
+    }
+    
+    // التحقق النهائي من صحة التاريخ
+    if (isNaN(nextReset.getTime())) {
+      console.error('❌ تاريخ غير صالح، استخدام تاريخ افتراضي');
+      nextReset = new Date();
+      nextReset.setDate(nextReset.getDate() + 7);
+      nextReset.setHours(0, 0, 0, 0);
+    }
+    
+    console.log(`✅ الموعد القادم: ${nextReset.toLocaleString('ar-IQ')}`);
+    
+    leaderboardSettings.nextReset = nextReset;
+    
+    // حفظ الإعدادات في Firebase
     await db.collection('settings').doc('leaderboard').set({
       nextReset: firebase.firestore.Timestamp.fromDate(nextReset),
-      scheduleDay: leaderboardSettings.scheduleDay,
-      scheduleTime: leaderboardSettings.scheduleTime,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      scheduleDay: targetDay,
+      scheduleTime: leaderboardSettings.scheduleTime || "00:00",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastCalculated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
-  }catch(e){
-    console.error('Error saving leaderboard settings:', e);
+    
+    startLeaderboardCountdown();
+    return nextReset;
+    
+  } catch(e) {
+    console.error('Error calculating next reset:', e);
+    // وقت افتراضي إذا فشل الحساب
+    const defaultReset = new Date();
+    defaultReset.setDate(defaultReset.getDate() + 7);
+    defaultReset.setHours(0, 0, 0, 0);
+    return defaultReset;
   }
 }
 
@@ -2459,7 +2571,6 @@ async function calculateNextReset(){
 function openLbScheduleModal(){
   if(!isOwner()) return showNotification('للمالك فقط','error');
   
-  // تعبئة القيم الحالية
   document.getElementById('lb-schedule-day').value = leaderboardSettings.scheduleDay;
   document.getElementById('lb-schedule-time').value = leaderboardSettings.scheduleTime;
   
@@ -2489,13 +2600,11 @@ async function ownerSetLbSchedule(){
     leaderboardSettings.scheduleDay = day;
     leaderboardSettings.scheduleTime = time;
     
-    // إعادة حساب الموعد القادم
     await calculateNextReset();
     
     showNotification('تم حفظ موعد تحديث التصنيف','success');
     closeLbScheduleModal();
     
-    // إعادة تشغيل العد التنازلي
     startLeaderboardCountdown();
     
   } catch(e) {
@@ -2504,12 +2613,11 @@ async function ownerSetLbSchedule(){
   }
 }
 
-/* توزيع المكافآت الأسبوعية */
+/* ===== توزيع المكافآت الأسبوعية - الإصدار الجديد (بالبريد الوارد) ===== */
 async function distributeWeeklyRewards(){
   if(!isOwner()) return;
   
   try {
-    // جلب أفضل 50 مستخدم
     const leaderboardSnapshot = await db.collection('study')
       .orderBy('totalPoints', 'desc')
       .limit(50)
@@ -2517,81 +2625,102 @@ async function distributeWeeklyRewards(){
     
     if(leaderboardSnapshot.empty) {
       console.log('لا يوجد مستخدمين في التصنيف');
+      await sendTelegramNotification('📊 لا يوجد مستخدمين في التصنيف لهذا الأسبوع');
       return;
     }
     
     const topUsers = leaderboardSnapshot.docs.map(doc => ({
       uid: doc.id,
-      ...doc.data()
+      name: doc.data().name || 'مستخدم',
+      shortUid: doc.data().shortUid || 'غير معروف',
+      totalPoints: Number(doc.data().totalPoints) || 0,
+      currentPoints: Number(doc.data().currentPoints) || 0,
+      walletPoints: Number(doc.data().walletPoints) || 0
     }));
-    
+
     const rewards = {
-      0: 2000, // المركز الأول
-      1: 1500, // المركز الثاني  
-      2: 1000, // المركز الثالث
-      3: 500,  // المركز الرابع
-      4: 300   // المركز الخامس
+      0: 2000,
+      1: 1500,  
+      2: 1000,
+      3: 500,
+      4: 300
     };
     
     const winners = [];
     
-    // توزيع المكافآت على أول 5 مراكز
     for(let i = 0; i < Math.min(5, topUsers.length); i++){
       const user = topUsers[i];
       const reward = rewards[i];
       
-      // التحقق من أن النقاط 200 أو أكثر
       if(user.totalPoints >= 200){
         winners.push({
           rank: i + 1,
-          name: user.name,
-          uid: user.uid,
-          shortUid: user.shortUid,
-          oldPoints: user.totalPoints,
-          reward: reward,
-          newPoints: user.totalPoints + reward
+          name: user.name || 'مستخدم',
+          uid: user.uid || '',
+          shortUid: user.shortUid || generateShortUid(user.uid),
+          oldPoints: user.walletPoints || user.currentPoints || 0,
+          reward: reward || 0,
+          newPoints: (user.walletPoints || user.currentPoints || 0) + (reward || 0)
         });
         
-        // إضافة النقاط للمستخدم
-        await db.collection('study').doc(user.uid).update({
+        // تحديث النقاط في walletPoints أولاً
+        await db.collection('study').doc(user.uid).set({
+          walletPoints: firebase.firestore.FieldValue.increment(reward),
           currentPoints: firebase.firestore.FieldValue.increment(reward),
           totalPoints: firebase.firestore.FieldValue.increment(reward),
           lastWeeklyReward: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // إرسال إشعار للمستخدم الفائز
+        }, { merge: true });
+
+        // إرسال إشعار إلى البريد الوارد للمستخدم الفائز
         await db.collection('inbox').add({
           userId: user.uid,
           type: 'weekly_reward',
-          title: '🎉 مبروك! فوز أسبوعي',
-          message: `لقد حصلت على المركز ${i + 1} في التصنيف الأسبوعي وفزت بـ ${reward} نقطة!`,
+          title: `🎉 مبروك! فوز أسبوعي - المركز ${i + 1}`,
+          message: `
+مبارك لك! لقد فزت في التصنيف الأسبوعي 🏆
+
+• المركز: ${i + 1}
+• المكافأة: ${reward} نقطة 🎁
+• رصيدك الجديد: ${(user.walletPoints || user.currentPoints || 0) + reward} نقطة
+
+استمر في التفوق وحقق مراكز أعلى! 💪
+          `.trim(),
           status: 'unread',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          rewardPoints: reward,
+          rank: i + 1
         });
+
+        console.log(`✅ تم منح ${reward} نقطة وإرسال إشعار للمستخدم ${user.name}`);
       }
     }
     
-    // تصفير نقاط التصنيف (وليس نقاط الحساب)
-    const batch = db.batch();
-    leaderboardSnapshot.docs.forEach(doc => {
-      batch.update(doc.ref, {
-        totalPoints: 0 // تصفير نقاط التصنيف فقط
-        // currentPoints تبقى كما هي (نقاط الحساب)
-      });
-    });
-    await batch.commit();
-    
-    // حفظ سجل التوزيع
     const distributionRecord = {
-      winners: winners,
+      winners: winners.map(winner => ({
+        rank: winner.rank || 0,
+        name: winner.name || 'مستخدم',
+        uid: winner.uid || '',
+        shortUid: winner.shortUid || 'غير معروف',
+        oldPoints: winner.oldPoints || 0,
+        reward: winner.reward || 0,
+        newPoints: winner.newPoints || 0
+      })),
       distributedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      totalWinners: winners.length,
-      totalPointsDistributed: winners.reduce((sum, winner) => sum + winner.reward, 0)
+      totalWinners: winners.length || 0,
+      totalPointsDistributed: winners.reduce((sum, winner) => sum + (winner.reward || 0), 0) || 0
     };
     
     await db.collection('weekly_distributions').add(distributionRecord);
     
-    // إشعار للمالك
+    // تصفير totalPoints فقط (الحفاظ على currentPoints و walletPoints)
+    const batch = db.batch();
+    leaderboardSnapshot.docs.forEach(doc => {
+      batch.update(doc.ref, {
+        totalPoints: 0
+      });
+    });
+    await batch.commit();
+    
     let ownerMessage = `✅ تم توزيع المكافآت الأسبوعية بنجاح\n\n`;
     ownerMessage += `📊 إجمالي الفائزين: ${winners.length}\n`;
     ownerMessage += `💰 إجمالي النقاط الموزعة: ${distributionRecord.totalPointsDistributed}\n\n`;
@@ -2602,113 +2731,31 @@ async function distributeWeeklyRewards(){
         ownerMessage += `${winner.rank}. ${winner.name} (${winner.shortUid}) - ${winner.reward} نقطة\n`;
       });
     } else {
-      ownerMessage += `⚠️ لا يوجد فائزون مؤهلون هذه الأسبوع`;
+      ownerMessage += `⚠️ لا يوجد فائزون مؤهلون هذه الأسبوع (النقاط أقل من 200)`;
     }
     
     await sendTelegramNotification(ownerMessage);
     
-    // إعادة حساب الموعد القادم
     await calculateNextReset();
     
     console.log('تم توزيع المكافآت الأسبوعية بنجاح');
+    showNotification('تم توزيع المكافآت الأسبوعية بنجاح','success');
     
   } catch(e) {
     console.error('Error distributing weekly rewards:', e);
-    await sendTelegramNotification(`❌ فشل توزيع المكافآت الأسبوعية: ${e.message}`);
-  }
-}
-
-/* التحقق من المكافآت الأسبوعية عند الدخول */
-async function checkWeeklyRewards(){
-  if(!currentUser) return;
-  
-  try {
-    const now = new Date();
     
-    // إذا حان وقت إعادة الضبط
-    if(leaderboardSettings.nextReset && now >= leaderboardSettings.nextReset){
-      if(isOwner()){
-        // المالك يقوم بالتوزيع
-        await distributeWeeklyRewards();
-        showNotification('تم توزيع المكافآت الأسبوعية','success');
-      } else {
-        // المستخدم العادي يتحقق إذا كان فائزاً
-        await checkUserWeeklyReward();
-      }
+    let errorMsg = `❌ فشل توزيع المكافآت الأسبوعية: ${e.message}`;
+    if(e.message.includes('undefined')) {
+      errorMsg += '\n\n🔍 السبب: وجود قيم غير معرّفة في بيانات المستخدمين';
     }
-  } catch(e) {
-    console.error('Error checking weekly rewards:', e);
-  }
-}
-
-/* التحقق من مكافأة المستخدم الأسبوعية */
-async function checkUserWeeklyReward(){
-  if(!currentUser) return;
-  
-  try {
-    // التحقق من آخر إشعار مكافأة أسبوعية
-    const lastRewardQuery = await db.collection('inbox')
-      .where('userId', '==', currentUser.uid)
-      .where('type', '==', 'weekly_reward')
-      .orderBy('createdAt', 'desc')
-      .limit(1)
-      .get();
     
-    if(!lastRewardQuery.empty){
-      const lastReward = lastRewardQuery.docs[0].data();
-      const lastRewardTime = lastReward.createdAt?.toDate ? lastReward.createdAt.toDate() : null;
-      
-      // إذا كان الإشعار حديث (أقل من 24 ساعة) ولم يتم عرضه
-      if(lastRewardTime && (Date.now() - lastRewardTime.getTime()) < (24 * 60 * 60 * 1000)){
-        showWeeklyRewardNotification(lastReward);
-      }
-    }
-  } catch(e) {
-    console.error('Error checking user weekly reward:', e);
+    await sendTelegramNotification(errorMsg);
+    showNotification('فشل توزيع المكافآت الأسبوعية','error');
   }
 }
-
-/* عرض إشعار المكافأة الأسبوعية */
-function showWeeklyRewardNotification(rewardData){
-  const overlay = document.getElementById('weekly-reward-overlay');
-  const content = document.getElementById('weekly-reward-content');
-  
-  if(!overlay || !content) return;
-  
-  // استخراج معلومات المركز من الرسالة
-  const message = rewardData.message || '';
-  const rankMatch = message.match(/المركز (\d+)/);
-  const pointsMatch = message.match(/فزت بـ (\d+) نقطة/);
-  
-  const rank = rankMatch ? rankMatch[1] : '?';
-  const points = pointsMatch ? pointsMatch[1] : '?';
-  
-  content.innerHTML = `
-    <div style="text-align: center; padding: 20px;">
-      <div style="font-size: 48px; margin-bottom: 10px;">🎉</div>
-      <h3 style="color: #28a745; margin-bottom: 15px;">مبروك! فوز أسبوعي</h3>
-      <p style="font-size: 18px; margin-bottom: 10px;">لقد حصلت على المركز <strong>${rank}</strong></p>
-      <p style="font-size: 16px; margin-bottom: 20px;">ولقد حصلت على <strong>${points} نقطة</strong></p>
-      <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <p style="margin: 5px 0;">نقاطك السابقة: <strong>${studyState.totalPoints - parseInt(points)}</strong></p>
-        <p style="margin: 5px 0;">نقاطك الحالية: <strong>${studyState.totalPoints}</strong></p>
-      </div>
-      <button class="btn btn-success" onclick="dismissWeeklyReward()" style="width: 100%;">
-        <i class="fas fa-check"></i> تم
-      </button>
-    </div>
-  `;
-  
-  overlay.style.display = 'block';
-}
-
-function dismissWeeklyReward(){
-  document.getElementById('weekly-reward-overlay').style.display = 'none';
-}
-
 /* ===========================================================
-   التصنيف (Top 50) + إطارات الخمسة + مكافآت + عد تنازلي أسبوعي
-=========================================================== */
+   التصنيف (Top 50)
+========================= */
 function startLeaderboardListener(){
   stopLeaderboardListener();
   const lb=document.getElementById('challenge-leaderboard');
@@ -2724,7 +2771,7 @@ function startLeaderboardListener(){
           renderLeaderboard(items);
         },
         async error => { 
-          console.error("Leaderboard error (reverting to one-time fetch):", error);
+          console.error("Leaderboard error:", error);
           try{
             const one = await db.collection('study').orderBy('totalPoints','desc').limit(50).get();
             const items = one.docs.map(d=>({uid:d.id,...d.data()}));
@@ -2757,8 +2804,7 @@ function renderLeaderboard(items){
   lb.innerHTML = items.map((it,idx)=>{
     const points = it.totalPoints||0;
     const cls = idx===0?'rank-1':(idx===1?'rank-2':(idx===2?'rank-3':(idx===3?'rank-4':(idx===4?'rank-5':'rank'))));
-    const ineligible = (idx < 5) && (points < 200);
-    const note = ineligible ? `<span class="ineligible-badge">غير مؤهل &lt; 200</span>` : '';
+    
     const delBtn = isOwner()? `
       <button class="btn btn-xs btn-danger" style="margin-right:auto" onclick="ownerRemoveFromLeaderboard('${it.uid}','${escapeHTML(it.name||'مستخدم')}')">
         <i class="fa-solid fa-trash"></i>
@@ -2768,7 +2814,7 @@ function renderLeaderboard(items){
       <div class="rank-card ${cls}">
         <div class="rank-left">
           <div class="rank-badge">${idx+1}</div>
-          <div class="rank-name">${escapeHTML(it.name||'مستخدم')}${note}</div>
+          <div class="rank-name">${escapeHTML(it.name||'مستخدم')}</div>
         </div>
         ${delBtn}
         <div class="rank-points">${points.toLocaleString('ar-IQ')} نقطة</div>
@@ -2780,7 +2826,7 @@ function renderLeaderboard(items){
 function openLbRewardsModal(){ document.getElementById('lb-rewards-modal').style.display='block'; }
 function closeLbRewardsModal(){ document.getElementById('lb-rewards-modal').style.display='none'; }
 
-/* عدّ تنازلي أسبوعي لتحديث التصنيف */
+/* عدّ تنازلي أسبوعي */
 let lbCountdownInterval=null;
 function startLeaderboardCountdown(){
   const daysEl = document.getElementById('cd-days');
@@ -2803,7 +2849,6 @@ function startLeaderboardCountdown(){
     let diff = target - now;
     
     if (diff <= 0) {
-      // حان وقت التحديث
       if(isOwner()){
         distributeWeeklyRewards();
       }
@@ -2828,7 +2873,7 @@ function startLeaderboardCountdown(){
   lbCountdownInterval = setInterval(tick, 1000);
 }
 
-/* مالك: حذف/تصفير نقاط المستخدم من التصنيف */
+/* مالك: حذف من التصنيف */
 async function ownerRemoveFromLeaderboard(uid, name){
   if(!isOwner()) return;
   if(!confirm(`هل تريد تصفير نقاط ${name} من التصنيف؟`)) return;
@@ -2842,8 +2887,7 @@ async function ownerRemoveFromLeaderboard(uid, name){
 }
 
 /* ===========================================================
-   الأسئلة QnA (النظام الجديد)
-=========================
+   الأسئلة QnA
 ========================= */
 function openCreateQnaModal(){ 
   if(!currentUser) return showNotification('سجّل الدخول','warning'); 
@@ -2996,20 +3040,8 @@ async function createQna(){
     showNotification('فشل النشر','error'); 
   }
 }
-
-async function deleteQna(id){
-  if(!isOwner()) return;
-  if(!confirm('حذف السؤال؟')) return;
-  try{ 
-    await db.collection('qna').doc(id).delete(); 
-    showNotification('حُذف','success'); 
-  }catch(e){ 
-    showNotification('فشل الحذف','error'); 
-  }
-}
-
 /* ===========================================================
-   رحلة السادس (قائمة + صفحة عنصر)
+   رحلة السادس
 ========================= */
 function startJourneyListener(){
   stopJourneyListener();
@@ -3113,7 +3145,7 @@ async function deleteJourneyItem(id){
 }
 
 /* ===========================================================
-   الهدايا والشراء + إشعار المالك
+   الهدايا والشراء
 ========================= */
 function openGiftsModal(){
   document.getElementById('gifts-modal').style.display='block';
@@ -3246,7 +3278,6 @@ async function purchaseGift(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // إشعار للمستخدم
     await db.collection('inbox').add({
       userId: currentUser.uid,
       type: 'purchase',
@@ -3256,7 +3287,6 @@ async function purchaseGift(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // إشعار للمالك في البريد
     const ownerUid = await getOwnerUid();
     if(ownerUid){
       await db.collection('inbox').add({
@@ -3273,7 +3303,6 @@ async function purchaseGift(){
       });
     }
 
-    // تيليجرام للمالك
     await sendTelegramNotification(
       `🛒 <b>شراء جديد</b>\n\n👤 ${escapeHTML(currentUser.name)}\n🆔 ${escapeHTML(currentUser.shortUid || generateShortUid(currentUser.uid))}\n🎁 ${escapeHTML(gift.name)}\n💰 ${gift.price} نقطة\n#${opId}`
     );
@@ -3340,14 +3369,9 @@ async function deleteGift(id) {
   }
 }
 
-/* ===========================================================
+/* =========================
    تهيئة بعد الدخول
 ========================= */
-async function initChallengeAfterLogin(){
-  await loadStudyState();
-  const firstTab=document.querySelector('.challenge-tab-pill[data-tab="timer"]');
-  if(firstTab) switchChallengeTab(firstTab);
-}
 window.addEventListener('load', ()=>{
   if (currentUser) {
     startLeaderboardListener();
@@ -3361,7 +3385,7 @@ window.addEventListener('beforeunload', () => {
   }
 });
 
-// تحديث جميع المعرفات القصيرة (اختياري للمالك)
+// تحديث جميع المعرفات القصيرة
 async function updateAllUserShortUids() {
   if (!isOwner()) return;
   try {
@@ -3382,28 +3406,13 @@ async function updateAllUserShortUids() {
   }
 }
 
-/* ===========================================================
+/* =========================
    وظائف إضافية للمالك
 ========================= */
-// توزيع المكافآت يدوياً (للمالك)
 async function manualDistributeRewards(){
   if(!isOwner()) return;
   if(!confirm('هل تريد توزيع المكافآت الأسبوعية يدوياً؟')) return;
   await distributeWeeklyRewards();
-}
-
-// عرض موعد التحديث القادم
-function showNextResetTime(){
-  if(!leaderboardSettings.nextReset) return 'غير محدد';
-  return leaderboardSettings.nextReset.toLocaleString('ar-IQ');
-}
-
-// تحديث سريع للعداد
-function quickResetLeaderboard(){
-  if(!isOwner()) return;
-  if(confirm('هل تريد تصفير التصنيف يدوياً؟ هذا سيمسح جميع النقاط من التصنيف.')){
-    ownerQuickResetLeaderboard();
-  }
 }
 
 async function ownerQuickResetLeaderboard(){
@@ -3422,7 +3431,6 @@ async function ownerQuickResetLeaderboard(){
   }
 }
 
-// إضافة زر التوزيع اليدوي في واجهة المالك
 function addManualDistributionButton(){
   if(isOwner()){
     const lbTools = document.querySelector('.lb-tools');
@@ -3436,8 +3444,20 @@ function addManualDistributionButton(){
   }
 }
 
-// تهيئة الزر عند تحميل الصفحة
 setTimeout(addManualDistributionButton, 2000);
+
+/* =========================
+   تهيئة التطبيق
+========================= */
+// إخفاء زر الاختبار بعد التحميل
+setTimeout(() => {
+  const testBtn = document.querySelector('button[onclick="testWeeklyReward()"]');
+  if (testBtn) {
+    testBtn.style.display = 'none';
+  }
+}, 5000);
+
+console.log('✅ تطبيق سوق الطلاب محمل وجاهز للعمل!');
 </script>
 </body>
 </html>
