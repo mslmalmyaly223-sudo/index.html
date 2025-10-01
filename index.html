@@ -513,6 +513,12 @@
     <div class="posts-container" id="companies-container" style="display:none"></div>
   </div>
 
+<div class="pull-indicator">
+  <div id="pull-bubble" class="bubble" style="display: none">
+    <i class="fas fa-sync-alt fa-spin"></i> جاري التحديث...
+  </div>
+</div>
+
   <!-- Profile -->
   <div id="profile-page" class="container page" style="display:none">
     <div class="profile-shell">
@@ -3152,19 +3158,28 @@ function startQnaListener(){
           return; 
         }
         
-        // تصفية الأسئلة الخاصة بالمستخدم الحالي
-        const availableQuestions = snap.docs.filter(doc => {
-          const q = doc.data();
-          return q.creatorUid !== currentUser?.uid; // إخفاء أسئلة المستخدم نفسه
-        });
-        
-        if(availableQuestions.length === 0) {
-          list.innerHTML='<div class="post"><p>لا توجد أسئلة متاحة حالياً.</p></div>';
-          return;
-        }
-        
-        list.innerHTML = availableQuestions.map(doc => {
+        list.innerHTML = snap.docs.map(doc => {
           const q = {id: doc.id, ...doc.data()};
+          const isOwnerQuestion = isOwner();
+          const isMyQuestion = currentUser && q.creatorUid === currentUser.uid;
+          
+          // زر الحذف يظهر فقط للمالك أو لمنشئ السؤال
+          const deleteButton = (isOwnerQuestion || isMyQuestion) ? `
+            <button class="btn btn-danger btn-xs" onclick="deleteQnaQuestion('${q.id}')" style="margin-left: 5px;">
+              <i class="fa-solid fa-trash"></i> حذف
+            </button>
+          ` : '';
+          
+          // إخفاء زر البدء إذا كان السؤال للمستخدم نفسه
+          const startButton = !isMyQuestion ? `
+            <button class="btn btn-success" onclick="startQnaChallenge('${q.id}', ${q.prize||0})">
+              <i class="fa-solid fa-play"></i> بدء التحدي
+            </button>
+          ` : `
+            <button class="btn btn-secondary" disabled>
+              <i class="fa-solid fa-eye-slash"></i> سؤالك مخفي عن الآخرين
+            </button>
+          `;
           
           return `
             <div class="qna-card">
@@ -3178,11 +3193,11 @@ function startQnaListener(){
               <div style="margin-top:8px">
                 <div><b>المادة:</b> ${escapeHTML(q.material||'')}</div>
                 <div><b>منشئ السؤال:</b> ${escapeHTML(q.creatorName||'مستخدم')}</div>
+                ${isMyQuestion ? '<div style="color: #dc3545; font-size: 12px;"><i class="fa-solid fa-eye-slash"></i> هذا سؤالك - مخفي عن الآخرين</div>' : ''}
               </div>
               <div class="qna-actions">
-                <button class="btn btn-success" onclick="startQnaChallenge('${q.id}', ${q.prize||0})">
-                  <i class="fa-solid fa-play"></i> بدء التحدي
-                </button>
+                ${startButton}
+                ${deleteButton}
                 <small style="display:block; color:#dc3545; margin-top:5px; font-size:12px">
                   💡 سيتم خصم ${q.prize||0} نقطة فوراً عند البدء
                 </small>
@@ -3359,17 +3374,75 @@ async function startQnaChallenge(qnaId, price) {
       }
     }
     
-    // حذف السؤال بعد الإجابة (سواء صحيحة أو خاطئة)
-    setTimeout(async () => {
-      try {
-        await db.collection('qna').doc(qnaId).delete();
-        console.log('✅ تم حذف السؤال بعد الإجابة');
-      } catch (deleteError) {
-        console.error('Error deleting question:', deleteError);
-      }
-      closeQnaGame();
-    }, 3000);
+// 🔥 الحذف التلقائي الفوري بعد الإجابة - مؤكد
+setTimeout(async () => {
+  try {
+    console.log('🗑️ جاري حذف السؤال تلقائياً بعد الإجابة...');
+    
+    // التأكد من حذف السؤال من Firebase
+    await db.collection('qna').doc(qnaId).delete();
+    console.log('✅ تم حذف السؤال نهائياً من قاعدة البيانات');
+    
+    // إرسال إشعار للمالك إذا كان السؤال ليس له
+    if (qna.creatorUid !== currentUser.uid) {
+      await sendTelegramNotification(
+        `🗑️ تم حذف سؤال تلقائياً\n` +
+        `📚 ${qna.material}\n` +
+        `👤 أجاب عليه: ${currentUser.name}\n` +
+        `🎯 النتيجة: ${isCorrect ? 'فاز ✅' : 'خسر ❌'}`
+      );
+    }
+    
+    // إعادة تحميل قائمة الأسئلة فوراً
+    if (window._qnaInit) {
+      console.log('🔄 إعادة تحميل قائمة الأسئلة...');
+      startQnaListener();
+    }
+    
+  } catch (deleteError) {
+    console.error('❌ فشل الحذف التلقائي:', deleteError);
+    
+    // محاولة بديلة إذا فشل الحذف
+    try {
+      await db.collection('qna').doc(qnaId).update({
+        status: 'answered',
+        answeredBy: currentUser.uid,
+        answeredAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      console.log('✅ تم تعليم السؤال كمُجاب عليه بدلاً من الحذف');
+    } catch (markError) {
+      console.error('❌ فشل تعليم السؤال أيضاً:', markError);
+    }
+  }
+  
+  closeQnaGame();
+}, 3000);
   });
+}
+
+// دالة حذف السؤال - أضف هذا بعد دالة startQnaChallenge مباشرة
+async function deleteQnaQuestion(qnaId) {
+  if (!currentUser) return;
+  
+  try {
+    const qnaDoc = await db.collection('qna').doc(qnaId).get();
+    if (!qnaDoc.exists) return;
+    
+    const qna = qnaDoc.data();
+    
+    // التحقق من الصلاحية: المالك أو منشئ السؤال فقط يمكنه الحذف
+    if (!isOwner() && qna.creatorUid !== currentUser.uid) {
+      return showNotification('غير مسموح لك بحذف هذا السؤال', 'error');
+    }
+    
+    if (confirm('هل أنت متأكد من حذف هذا السؤال؟')) {
+      await db.collection('qna').doc(qnaId).delete();
+      showNotification('تم حذف السؤال بنجاح', 'success');
+    }
+  } catch (error) {
+    console.error('Error deleting question:', error);
+    showNotification('فشل حذف السؤال', 'error');
+  }
 }
 
 async function createQna(){
