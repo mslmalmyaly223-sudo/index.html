@@ -444,10 +444,16 @@
           <div class="menu-item" onclick="openUserStats()"><i class="fas fa-chart-pie"></i><span>إحصائيات المستخدمين</span></div>
           <div class="menu-item" onclick="openAppExplanation()"><i class="fas fa-info-circle"></i><span>شرح التطبيق</span></div>
           <div class="menu-item" onclick="openTelegram('MSLM_ALMYALY')"><i class="fas fa-thumbtack"></i><span>تثبيت المنشور بـ 1$</span></div>
-          <!-- إضافة أزرار السجلات الجديدة -->
+<!-- إضافة أزرار السجلات الجديدة -->
 <div class="menu-item owner-only" style="display:none" onclick="openPointsReport()">
     <i class="fas fa-file-invoice"></i>
     <span>كشف النقاط</span>
+</div>
+
+<!-- 🔥 الإضافة الجديدة: زر إدارة المستخدمين -->
+<div class="menu-item owner-only" style="display:none" onclick="openUserManagement()">
+    <i class="fas fa-users-cog"></i>
+    <span>إدارة المستخدمين</span>
 </div>
           <div class="menu-item owner-only" style="display:none" onclick="openBroadcastModal()"><i class="fas fa-bullhorn"></i><span>إشعار عام</span></div>
           <div class="menu-item owner-only" style="display:none" onclick="openAddPointsModal()"><i class="fas fa-plus"></i><span>إضافة نقاط</span></div>
@@ -574,7 +580,52 @@
         <div class="post"><p>جاري تحميل محتوى رحلة السادس...</p></div>
       </div>
     </div>
-  </div>
+</div>
+</div>
+
+<!-- 🔥 الإضافة الجديدة: Modal إدارة المستخدمين -->
+<div id="user-management-modal" class="modal">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h2>🛠️ إدارة المستخدمين</h2>
+            <button class="close-modal" onclick="closeUserManagementModal()">&times;</button>
+        </div>
+        
+        <!-- شريط البحث -->
+        <div class="select-group">
+            <label>بحث عن المستخدمين</label>
+            <div class="row">
+                <input type="text" id="user-search-input" class="form-control grow" 
+                       placeholder="ابحث بالاسم، البريد، المعرف المختصر...">
+                <button class="btn" onclick="searchUsers()">
+                    <i class="fas fa-search"></i> بحث
+                </button>
+            </div>
+        </div>
+
+        <!-- إحصائيات سريعة -->
+        <div class="stats-grid" style="margin: 15px 0;">
+            <div class="stat-card">
+                <div class="stat-number" id="total-users-count">0</div>
+                <div class="stat-label">إجمالي المستخدمين</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="banned-users-count">0</div>
+                <div class="stat-label">المحظورين</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="verified-users-count">0</div>
+                <div class="stat-label">الموثّقين</div>
+            </div>
+        </div>
+
+        <!-- قائمة المستخدمين -->
+        <div style="max-height: 500px; overflow-y: auto;">
+            <div id="users-list-container">
+                <div class="post"><p>استخدم شريط البحث لتحميل المستخدمين...</p></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Bottom nav -->
@@ -1277,9 +1328,20 @@ function login(){
   if(!email||!password) return showNotification("يرجى ملء جميع الحقول","error");
   const btn = document.querySelector('#login-form button[type="submit"]');
   if (btn) { btn.disabled = true; btn.textContent = "جاري تسجيل الدخول…"; }
-  auth.signInWithEmailAndPassword(email,password)
-    .catch(handleAuthError)
-    .finally(()=>{ if (btn) { btn.disabled = false; btn.textContent = "تسجيل الدخول"; } });
+  
+  // 🔥 الإضافة: التحقق من البريد المحظور قبل المصادقة
+  checkIfEmailBanned(email).then(isBanned => {
+      if (isBanned) {
+          showNotification("🚫 هذا الحساب محظور ولا يمكن تسجيل الدخول", "error");
+          if (btn) { btn.disabled = false; btn.textContent = "تسجيل الدخول"; }
+          return;
+      }
+      
+      // متابعة تسجيل الدخول العادي
+      auth.signInWithEmailAndPassword(email,password)
+        .catch(handleAuthError)
+        .finally(()=>{ if (btn) { btn.disabled = false; btn.textContent = "تسجيل الدخول"; } });
+  });
 }
 function logout(){ auth.signOut(); }
 
@@ -2337,19 +2399,33 @@ function msToHMS(ms){
 // 🚀 بدء المؤقت - مع التحقق من السيرفر
 async function startStudyTimer() {
     if (!currentUser) return showNotification("يرجى تسجيل الدخول أولاً", "error");
+    
+    // 🔥 الإضافة: التحقق من الحظر قبل بدء المؤقت
+    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+    if (userDoc.exists && userDoc.data().isPermanentlyBanned) {
+        return showNotification("حسابك محظور ولا يمكنك استخدام المؤقت", "error");
+    }
+    
     if (studyState.running) return;
 
     try {
         const startTime = new Date();
         const studyRef = db.collection('study').doc(currentUser.uid);
         
+        // التحقق من الحظر
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        if (userDoc.exists && userDoc.data().isPermanentlyBanned) {
+            return showNotification("حسابك محظور ولا يمكنك استخدام المؤقت", "error");
+        }
+
         // حفظ وقت البداية على السيرفر
         await studyRef.set({
             running: true,
             startAt: firebase.firestore.Timestamp.fromDate(startTime),
             lastVerifiedAt: firebase.firestore.Timestamp.fromDate(startTime),
             name: currentUser.name || 'مستخدم',
-            lastPingAt: firebase.firestore.FieldValue.serverTimestamp()
+            lastPingAt: firebase.firestore.FieldValue.serverTimestamp(),
+            clientStartTime: firebase.firestore.Timestamp.fromDate(startTime)
         }, { merge: true });
 
         studyState.running = true;
@@ -2358,7 +2434,7 @@ async function startStudyTimer() {
         startStudyInterval();
         startHeartbeatInterval();
         renderTimerUI();
-        showNotification("بدأ المؤقت", "success");
+        showNotification("بدأ المؤقت - تربح نقطة كل دقيقتين ⏰", "success");
 
     } catch (error) {
         console.error("Error starting timer:", error);
@@ -2366,7 +2442,6 @@ async function startStudyTimer() {
     }
 }
 
-// ⏹️ إيقاف المؤقت - الإصدار المبسط والمضمون
 async function stopStudyTimer() {
     if (!currentUser || !studyState.running) return;
 
@@ -2374,12 +2449,15 @@ async function stopStudyTimer() {
         const endTime = new Date();
         const elapsedMs = endTime.getTime() - studyState.startAtMs;
         
-        // حساب النقاط بشكل مبسط
-        const isBoost = studyState.boostUntil && studyState.boostUntil > endTime;
-        const pointsEarned = Math.floor(elapsedMs / (2 * 60 * 1000)); // نقطة لكل دقيقتين
+        // ✅ حساب النقاط: نقطة لكل دقيقتين (120,000 ملي ثانية)
+        const basePoints = Math.floor(elapsedMs / (2 * 60 * 1000));
         
+        // نظام التسريع: تضاعف النقاط خلال فترة التسريع
+        const isBoost = studyState.boostUntil && studyState.boostUntil > endTime;
+        const pointsEarned = isBoost ? basePoints * 2 : basePoints;
+
         if (pointsEarned > 0) {
-            // تحديث النقاط مباشرة
+            // تحديث النقاط مع التسجيل
             await db.collection('study').doc(currentUser.uid).set({
                 currentPoints: firebase.firestore.FieldValue.increment(pointsEarned),
                 totalPoints: firebase.firestore.FieldValue.increment(pointsEarned),
@@ -2387,8 +2465,14 @@ async function stopStudyTimer() {
                 startAt: null,
                 lastStoppedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 name: currentUser.name || 'مستخدم',
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                lastSessionPoints: pointsEarned,
+                lastSessionDuration: elapsedMs
             }, { merge: true });
+
+            // تسجيل العملية
+            await logPointsTransaction(currentUser.uid, pointsEarned, 'timer_earned', 
+                `نقاط مؤقت: ${Math.floor(elapsedMs/60000)} دقيقة ${isBoost ? '(مضاعفة)' : ''}`);
 
             // تحديث الحالة المحلية
             studyState.currentPoints += pointsEarned;
@@ -2402,7 +2486,12 @@ async function stopStudyTimer() {
         stopHeartbeatInterval();
         
         renderTimerUI();
-        showNotification(`تم إيقاف المؤقت - ربحت ${pointsEarned} نقطة 🎉`, "success");
+        
+        if (pointsEarned > 0) {
+            showNotification(`تم إيقاف المؤقت - ربحت ${pointsEarned} نقطة 🎉${isBoost ? ' (مضاعفة)' : ''}`, "success");
+        } else {
+            showNotification("تم إيقاف المؤقت - الوقت غير كافي للنقاط", "info");
+        }
 
     } catch (error) {
         console.error("Error stopping timer:", error);
@@ -2573,18 +2662,26 @@ function renderTimerUI(){
   const startBtn = document.getElementById('timer-start-btn');
   const stopBtn = document.getElementById('timer-stop-btn');
   const pointsDisp = document.getElementById('current-points-display');
+  const totalPointsDisp = document.getElementById('total-points-display');
+  const boostInfo = document.getElementById('boost-info');
   const isBoost = studyState.boostUntil && studyState.boostUntil > new Date();
   let seconds = 0;
   
   if(studyState.running && studyState.startAtMs){
     const elapsed = Date.now() - studyState.startAtMs;
-    seconds = Math.floor((isBoost ? elapsed * 2 : elapsed) / 1000);
+    seconds = Math.floor(elapsed / 1000);
   }
   
-  if(disp) disp.innerHTML = msToHMS(seconds * 1000) + (isBoost ? ' <span style="color:#ff8c00;font-size:16px">(2x)</span>' : '');
+  if(disp) disp.innerHTML = msToHMS(seconds * 1000) + (isBoost ? ' <span style="color:#ff8c00;font-size:16px">(⚡ مضاعفة)</span>' : '');
   if(pointsDisp) pointsDisp.textContent = (studyState.currentPoints || 0).toLocaleString('ar-IQ');
+  if(totalPointsDisp) totalPointsDisp.textContent = (studyState.totalPoints || 0).toLocaleString('ar-IQ');
   if(startBtn) startBtn.disabled = !!studyState.running;
   if(stopBtn) stopBtn.disabled = !studyState.running;
+  
+  // عرض/إخفاء معلومات التسريع
+  if(boostInfo) {
+    boostInfo.style.display = isBoost ? 'block' : 'none';
+  }
 }
 
 // 🔄 دوال التحكم
@@ -4248,6 +4345,387 @@ async function addJourneyContent() {
         showNotification('فشل الإضافة', 'error');
     }
 }
+
+// نظام التسريع المحسّن
+function updateBoostStatus(){
+  const st = studyState; 
+  const el = document.getElementById('boost-status');
+  const boostInfo = document.getElementById('boost-info');
+  
+  if(!st.boostUntil){ 
+    if(el) el.textContent = ''; 
+    if(boostInfo) boostInfo.style.display = 'none';
+    stopBoostInterval(); 
+    renderTimerUI();
+    return; 
+  }
+  
+  const left = st.boostUntil.getTime() - Date.now();
+  if(left <= 0){ 
+    st.boostUntil = null; 
+    if(el) el.textContent = ''; 
+    if(boostInfo) boostInfo.style.display = 'none';
+    stopBoostInterval(); 
+    renderTimerUI(); 
+    showNotification("انتهت فترة التسريع ⏰", "info");
+    return; 
+  }
+  
+  const hours = Math.floor(left / (1000 * 60 * 60));
+  const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if(el) el.textContent = `⚡ التسريع مفعل - المتبقي: ${hours} ساعة ${minutes} دقيقة`;
+  if(boostInfo) boostInfo.style.display = 'block';
+  
+  renderTimerUI();
+}
+
+/* =========================
+   🔥 نظام إدارة المستخدمين الجديد
+========================= */
+
+// فتح نافذة إدارة المستخدمين
+async function openUserManagement() {
+    if (!isOwner()) return showNotification('للمالك فقط', 'error');
+    document.getElementById('user-management-modal').style.display = 'block';
+    await loadUsersStats();
+}
+
+// إغلاق النافذة
+function closeUserManagementModal() {
+    document.getElementById('user-management-modal').style.display = 'none';
+}
+
+// تحميل إحصائيات المستخدمين
+async function loadUsersStats() {
+    try {
+        const usersSnapshot = await db.collection('users').get();
+        const totalUsers = usersSnapshot.size;
+        
+        let bannedCount = 0;
+        let verifiedCount = 0;
+        
+        usersSnapshot.forEach(doc => {
+            const userData = doc.data();
+            if (userData.isPermanentlyBanned) bannedCount++;
+            if (userData.isVerified) verifiedCount++;
+        });
+        
+        document.getElementById('total-users-count').textContent = totalUsers;
+        document.getElementById('banned-users-count').textContent = bannedCount;
+        document.getElementById('verified-users-count').textContent = verifiedCount;
+        
+    } catch (error) {
+        console.error('Error loading users stats:', error);
+    }
+}
+
+// البحث عن المستخدمين
+async function searchUsers() {
+    const searchTerm = document.getElementById('user-search-input').value.trim();
+    const container = document.getElementById('users-list-container');
+    
+    container.innerHTML = '<div class="post"><p>جاري البحث...</p></div>';
+    
+    try {
+        let usersQuery;
+        
+        if (!searchTerm) {
+            // عرض جميع المستخدمين (آخر 50 مستخدم)
+            usersQuery = await db.collection('users')
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .get();
+        } else {
+            // البحث بالبريد
+            usersQuery = await db.collection('users')
+                .where('email', '>=', searchTerm)
+                .where('email', '<=', searchTerm + '\uf8ff')
+                .get();
+            
+            if (usersQuery.empty) {
+                // البحث بالاسم
+                usersQuery = await db.collection('users')
+                    .where('name', '>=', searchTerm)
+                    .where('name', '<=', searchTerm + '\uf8ff')
+                    .get();
+            }
+            
+            if (usersQuery.empty) {
+                // البحث بالمعرف المختصر
+                usersQuery = await db.collection('users')
+                    .where('shortUid', '==', searchTerm.toUpperCase())
+                    .get();
+            }
+        }
+        
+        if (usersQuery.empty) {
+            container.innerHTML = '<div class="post"><p>لا توجد نتائج للبحث</p></div>';
+            return;
+        }
+        
+        await renderUsersList(usersQuery.docs);
+        
+    } catch (error) {
+        console.error('Error searching users:', error);
+        container.innerHTML = '<div class="post"><p>خطأ في البحث</p></div>';
+    }
+}
+
+// عرض قائمة المستخدمين
+async function renderUsersList(userDocs) {
+    const container = document.getElementById('users-list-container');
+    
+    const usersWithStats = await Promise.all(
+        userDocs.map(async (doc) => {
+            const userData = doc.data();
+            const userId = doc.id;
+            
+            // جلب إحصائيات المستخدم
+            const studyDoc = await db.collection('study').doc(userId).get();
+            const studyData = studyDoc.exists ? studyDoc.data() : {};
+            
+            // جلب عدد المنشورات
+            const postsQuery = await db.collection('posts')
+                .where('userId', '==', userId)
+                .get();
+            
+            return {
+                id: userId,
+                ...userData,
+                totalPoints: studyData.totalPoints || 0,
+                currentPoints: studyData.currentPoints || 0,
+                walletPoints: studyData.walletPoints || 0,
+                postsCount: postsQuery.size,
+                lastSeen: userData.lastSeen || null
+            };
+        })
+    );
+    
+    container.innerHTML = usersWithStats.map(user => `
+        <div class="post" style="border-left: 4px solid ${user.isPermanentlyBanned ? '#dc3545' : user.isVerified ? '#28a745' : '#6c757d'}; margin-bottom: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <strong>${escapeHTML(user.name || 'بدون اسم')}</strong>
+                        ${user.isVerified ? '<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>' : ''}
+                        ${user.isPermanentlyBanned ? '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">محظور</span>' : ''}
+                    </div>
+                    
+                    <div style="font-size: 14px; color: #666; margin-bottom: 5px;">
+                        📧 ${escapeHTML(user.email || 'لا يوجد بريد')}
+                    </div>
+                    
+                    <div style="font-size: 14px; color: #666; margin-bottom: 5px;">
+                        🆔 ${escapeHTML(user.shortUid || 'لا يوجد معرف')}
+                    </div>
+                    
+                    <div style="font-size: 14px; color: #666; margin-bottom: 5px;">
+                        📊 النقاط: ${user.currentPoints} | المحفظة: ${user.walletPoints} | المنشورات: ${user.postsCount}
+                    </div>
+                    
+                    ${user.lastSeen ? `
+                    <div style="font-size: 12px; color: #888;">
+                        آخر نشاط: ${user.lastSeen.toDate ? user.lastSeen.toDate().toLocaleString('ar-IQ') : 'غير معروف'}
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    ${!user.isPermanentlyBanned ? `
+                        <button class="btn btn-danger btn-xs" onclick="banUser('${user.id}', '${escapeHTML(user.name || 'مستخدم')}')">
+                            <i class="fas fa-ban"></i> حظر
+                        </button>
+                        <button class="btn btn-warning btn-xs" onclick="resetUserPoints('${user.id}', '${escapeHTML(user.name || 'مستخدم')}')">
+                            <i class="fas fa-undo"></i> تصفير النقاط
+                        </button>
+                    ` : `
+                        <button class="btn btn-success btn-xs" onclick="unbanUser('${user.id}', '${escapeHTML(user.name || 'مستخدم')}')">
+                            <i class="fas fa-check"></i> فك الحظر
+                        </button>
+                    `}
+                    
+                    <button class="btn btn-secondary btn-xs" onclick="viewUserDetails('${user.id}')">
+                        <i class="fas fa-info-circle"></i> تفاصيل
+                    </button>
+                    
+                    ${!user.isVerified ? `
+                        <button class="btn btn-xs" onclick="verifyUser('${user.id}')">
+                            <i class="fas fa-crown"></i> توثيق
+                        </button>
+                    ` : `
+                        <button class="btn btn-warning btn-xs" onclick="unverifyUser('${user.id}')">
+                            <i class="fas fa-times"></i> إلغاء التوثيق
+                        </button>
+                    `}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 🔒 حظر مستخدم
+async function banUser(userId, userName) {
+    if (!isOwner()) return;
+    
+    const reason = prompt(`سبب حظر ${userName}:`);
+    if (!reason) return;
+    
+    try {
+        // 1. تحديث حالة المستخدم
+        await db.collection('users').doc(userId).update({
+            isPermanentlyBanned: true,
+            banReason: reason,
+            bannedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            bannedBy: currentUser.uid
+        });
+        
+        // 2. تصفير النقاط
+        await db.collection('study').doc(userId).set({
+            currentPoints: 0,
+            totalPoints: 0,
+            walletPoints: 0,
+            running: false,
+            startAt: null
+        }, { merge: true });
+        
+        // 3. إضافة إلى قائمة البريد المحظور
+        const userDoc = await db.collection('users').doc(userId).get();
+        const userEmail = userDoc.data().email;
+        
+        await db.collection('banned_emails').doc(userEmail.toLowerCase()).set({
+            email: userEmail.toLowerCase(),
+            originalUserId: userId,
+            banReason: reason,
+            bannedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            bannedBy: currentUser.uid,
+            preventRegistration: true
+        });
+        
+        // 4. إرسال إشعار
+        await sendTelegramNotification(
+            `🚫 <b>حظر مستخدم</b>\n\n👤 ${escapeHTML(userName)}\n📧 ${escapeHTML(userEmail)}\n📝 ${escapeHTML(reason)}`
+        );
+        
+        showNotification(`تم حظر ${userName} وتصفير نقاطه`, 'success');
+        await searchUsers(); // إعادة تحميل القائمة
+        
+    } catch (error) {
+        console.error('Error banning user:', error);
+        showNotification('فشل حظر المستخدم', 'error');
+    }
+}
+
+// 🔓 فك حظر مستخدم
+async function unbanUser(userId, userName) {
+    if (!isOwner()) return;
+    
+    try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        const userEmail = userDoc.data().email;
+        
+        // 1. إلغاء الحظر
+        await db.collection('users').doc(userId).update({
+            isPermanentlyBanned: false,
+            banReason: null,
+            unbannedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            unbannedBy: currentUser.uid
+        });
+        
+        // 2. إزالة من قائمة البريد المحظور
+        await db.collection('banned_emails').doc(userEmail.toLowerCase()).delete();
+        
+        showNotification(`تم فك حظر ${userName}`, 'success');
+        await searchUsers(); // إعادة تحميل القائمة
+        
+    } catch (error) {
+        console.error('Error unbanning user:', error);
+        showNotification('فشل فك الحظر', 'error');
+    }
+}
+
+// 💰 تصفير نقاط مستخدم
+async function resetUserPoints(userId, userName) {
+    if (!isOwner()) return;
+    
+    if (!confirm(`هل تريد تصفير نقاط ${userName}؟`)) return;
+    
+    try {
+        await db.collection('study').doc(userId).set({
+            currentPoints: 0,
+            totalPoints: 0,
+            walletPoints: 0,
+            pointsResetAt: firebase.firestore.FieldValue.serverTimestamp(),
+            pointsResetBy: currentUser.uid
+        }, { merge: true });
+        
+        showNotification(`تم تصفير نقاط ${userName}`, 'success');
+        await searchUsers(); // إعادة تحميل القائمة
+        
+    } catch (error) {
+        console.error('Error resetting points:', error);
+        showNotification('فشل تصفير النقاط', 'error');
+    }
+}
+
+// 👑 توثيق مستخدم
+async function verifyUser(userId) {
+    if (!isOwner()) return;
+    
+    try {
+        await db.collection('users').doc(userId).update({
+            isVerified: true,
+            verifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            verifiedBy: currentUser.uid
+        });
+        
+        showNotification('تم توثيق المستخدم', 'success');
+        await searchUsers();
+        
+    } catch (error) {
+        console.error('Error verifying user:', error);
+        showNotification('فشل التوثيق', 'error');
+    }
+}
+
+// ❌ إلغاء توثيق مستخدم
+async function unverifyUser(userId) {
+    if (!isOwner()) return;
+    
+    try {
+        await db.collection('users').doc(userId).update({
+            isVerified: false,
+            unverifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            unverifiedBy: currentUser.uid
+        });
+        
+        showNotification('تم إلغاء توثيق المستخدم', 'success');
+        await searchUsers();
+        
+    } catch (error) {
+        console.error('Error unverifying user:', error);
+        showNotification('فشل إلغاء التوثيق', 'error');
+    }
+}
+
+// ℹ️ عرض تفاصيل المستخدم
+async function viewUserDetails(userId) {
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.data();
+    
+    const details = `
+الاسم: ${userData.name || 'غير محدد'}
+البريد: ${userData.email || 'غير محدد'}
+المعرف: ${userData.shortUid || 'غير محدد'}
+الحالة: ${userData.isPermanentlyBanned ? 'محظور' : 'نشط'}
+التوثيق: ${userData.isVerified ? 'موثّق' : 'غير موثّق'}
+تاريخ التسجيل: ${userData.createdAt?.toDate?.().toLocaleString('ar-IQ') || 'غير معروف'}
+    `.trim();
+    
+    alert(details);
+}
+
+console.log('✅ تطبيق سوق الطلاب محمل وجاهز للعمل!');
 
 </script>
 </body>
