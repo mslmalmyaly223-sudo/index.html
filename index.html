@@ -289,29 +289,187 @@
     .lb-note{margin-top:10px;font-size:12px;color:#b33;background:#fff3cd;border:1px solid #ffeeba;border-radius:10px;padding:10px;font-weight:800}
 
     /* فقاعات الإشعارات */
-    .nav-badge {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #dc3545;
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 10px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #fff;
-    }
+/* غير الكود الحالي بهذا الكود: */
+.nav-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  display: none; /* تغيير من flex إلى none */
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  animation: pulse 2s infinite;
+}
 
-    .nav-badge.small {
-      width: 8px;
-      height: 8px;
-      font-size: 0;
-    }
+.menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-item .nav-badge {
+  position: static;
+  margin-right: auto;
+  margin-left: 8px;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
    
+   /* ===== تنسيقات زر باقي الأزرار والقائمة ===== */
+.more-actions-container {
+  position: relative;
+  margin: 15px 0;
+}
+
+.more-actions-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #4a6bff, #6a11cb);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(74, 107, 255, 0.3);
+}
+
+.more-actions-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 107, 255, 0.4);
+}
+
+.more-actions-btn i {
+  transition: transform 0.3s ease;
+}
+
+.more-actions-btn.active i {
+  transform: rotate(180deg);
+}
+
+.more-actions-grid {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 15px;
+  animation: fadeIn 0.3s ease;
+}
+
+.more-actions-grid.show {
+  display: grid;
+}
+
+.action-card {
+  background: #fff;
+  border: 2px solid #e9f0ff;
+  border-radius: 14px;
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 100px;
+}
+
+.action-card:hover {
+  transform: translateY(-3px);
+  border-color: #4a6bff;
+  box-shadow: 0 8px 20px rgba(74, 107, 255, 0.15);
+}
+
+.action-card i {
+  font-size: 24px;
+  color: #4a6bff;
+  margin-bottom: 5px;
+}
+
+.action-card .action-title {
+  font-weight: 800;
+  font-size: 14px;
+  color: #2c3e50;
+  line-height: 1.3;
+}
+
+.action-card.management { background: #fff7e6; border-color: #ffd8a8; }
+.action-card.management i { color: #e67700; }
+
+.action-card.points { background: #e9f7ef; border-color: #a3e4c1; }
+.action-card.points i { color: #27ae60; }
+
+.action-card.schedule { background: #e9f0ff; border-color: #a4b8ff; }
+.action-card.schedule i { color: #3498db; }
+
+.action-card.broadcast { background: #ffeaea; border-color: #ffb8b8; }
+.action-card.broadcast i { color: #e74c3c; }
+
+.action-card.report { background: #f0e9ff; border-color: #c9b8ff; }
+.action-card.report i { color: #9b59b6; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* تصميم متجاوب */
+@media (max-width: 480px) {
+  .more-actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-card {
+    min-height: 90px;
+    padding: 14px 10px;
+  }
+}
+
+/* تنسيقات زر حذف الحساب */
+.menu-item[onclick="openDeleteAccountModal()"] {
+    border-top: 1px solid var(--border-color) !important;
+    padding-top: 15px !important;
+    margin-top: 15px !important;
+}
+
+.menu-item[onclick="openDeleteAccountModal()"]:hover {
+    background: #fee !important;
+    transform: translateY(-2px);
+}
+
+#delete-account-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #dc3545 !important;
+}
+
+#confirm-delete-checkbox {
+    accent-color: #e74c3c;
+}
+
+#confirm-delete-checkbox:checked {
+    background: #e74c3c;
+}
+
   </style>
 
   <!-- Firebase -->
@@ -438,32 +596,33 @@
         </div>
       </div>
       <div class="profile-actions-card">
-        <div class="profile-menu">
-          <div class="menu-item" onclick="showUserPosts()"><i class="fas fa-book"></i><span>منشوراتي</span></div>
-          <div class="menu-item" onclick="showInbox()"><i class="fas fa-inbox"></i><span>البريد الوارد</span></div>
-          <div class="menu-item" onclick="openUserStats()"><i class="fas fa-chart-pie"></i><span>إحصائيات المستخدمين</span></div>
+<div class="profile-menu">
+<div class="menu-item" onclick="showUserPosts()">
+  <i class="fas fa-book"></i>
+  <span>منشوراتي</span>
+</div>
+  <div class="menu-item" onclick="showInbox();">
+    <i class="fas fa-inbox"></i>
+    <span>البريد الوارد</span>
+    <div id="inbox-badge" class="nav-badge" style="display: none">0</div>
+  </div>
+  <div class="menu-item" onclick="openUserStats()">
+    <i class="fas fa-chart-pie"></i>
+    <span>إحصائيات المستخدمين</span>
+  </div>
           <div class="menu-item" onclick="openAppExplanation()"><i class="fas fa-info-circle"></i><span>شرح التطبيق</span></div>
           <div class="menu-item" onclick="openTelegram('MSLM_ALMYALY')"><i class="fas fa-thumbtack"></i><span>تثبيت المنشور بـ 1$</span></div>
-<!-- إضافة أزرار السجلات الجديدة -->
-<div class="menu-item owner-only" style="display:none" onclick="openPointsReport()">
-    <i class="fas fa-file-invoice"></i>
-    <span>كشف النقاط</span>
+<!-- زر باقي الأزرار -->
+<div class="menu-item owner-only" style="display:none" onclick="openMoreActionsPage()">
+    <i class="fas fa-th-list"></i>
+    <span>باقي الأزرار</span>
 </div>
-
-<!-- 🔥 الإضافة الجديدة: زر إدارة المستخدمين -->
-<div class="menu-item owner-only" style="display:none" onclick="openUserManagement()">
-    <i class="fas fa-users-cog"></i>
-    <span>إدارة المستخدمين</span>
-</div>
-          <div class="menu-item owner-only" style="display:none" onclick="openBroadcastModal()"><i class="fas fa-bullhorn"></i><span>إشعار عام</span></div>
-          <div class="menu-item owner-only" style="display:none" onclick="openAddPointsModal()"><i class="fas fa-plus"></i><span>إضافة نقاط</span></div>
-          <div class="menu-item owner-only" style="display:none" onclick="openLbScheduleModal()"><i class="fa-solid fa-clock"></i><span>موعد تحديث التصنيف</span></div>
           <div class="menu-item" onclick="logout()" style="color: var(--danger-color);"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></div>
         </div>
       </div>
     </div>
   </div>
-
+  
   <!-- User posts -->
 <div id="user-posts-page" class="container page" style="display:none">
   <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">منشوراتي</span></div>
@@ -633,16 +792,17 @@
   <div class="nav-item" data-page="challenge" onclick="showChallengePage()">
     <i class="fas fa-fire"></i>
     <span>تحدي دراسي</span>
-    <div id="challenge-badge" class="nav-badge" style="display: none"></div>
+    <!-- لا توجد فقاعة هنا كما طلبت -->
   </div>
-  <div class="nav-item active" data-page="main" onclick="showMainPage()">
-    <i class="fas fa-home"></i>
-    <span>المنشورات</span>
-    <div id="posts-badge" class="nav-badge" style="display: none"></div>
-  </div>
+<div class="nav-item active" data-page="main" onclick="showMainPage();">
+  <i class="fas fa-home"></i>
+  <span>المنشورات</span>
+  <div id="posts-badge" class="nav-badge" style="display: none">0</div>
+</div>
   <div class="nav-item" data-page="profile" onclick="showProfilePage()">
     <i class="fas fa-user"></i>
     <span>حسابي</span>
+    <!-- نقطة البريد الوارد -->
     <div class="nav-badge" style="display: none"></div>
   </div>
 </div>
@@ -900,6 +1060,50 @@
   <div class="posts-container" id="user-stats-container"></div>
 </div>
 
+<!-- صفحة باقي الأزرار -->
+<div id="more-actions-page" class="container page" style="display:none">
+  <div class="header">
+<button class="btn btn-secondary" onclick="showPage('profile')">
+    <span style="font-weight:900">باقي الأزرار</span>
+  </div>
+  
+  <div class="profile-shell">
+    <div class="profile-actions-card">
+      <div class="profile-menu">
+        <!-- إدارة المستخدمين -->
+        <div class="menu-item" onclick="openUserManagement()">
+          <i class="fas fa-users-cog"></i>
+          <span>إدارة المستخدمين</span>
+        </div>
+        
+        <!-- كشف النقاط -->
+        <div class="menu-item" onclick="openPointsReport()">
+          <i class="fas fa-file-invoice"></i>
+          <span>كشف النقاط</span>
+        </div>
+        
+        <!-- إضافة نقاط -->
+        <div class="menu-item" onclick="openAddPointsModal()">
+          <i class="fas fa-plus"></i>
+          <span>إضافة نقاط</span>
+        </div>
+        
+        <!-- موعد تحديث التصنيف -->
+        <div class="menu-item" onclick="openLbScheduleModal()">
+          <i class="fa-solid fa-clock"></i>
+          <span>موعد تحديث التصنيف</span>
+        </div>
+        
+        <!-- إشعار عام -->
+        <div class="menu-item" onclick="openBroadcastModal()">
+          <i class="fas fa-bullhorn"></i>
+          <span>إشعار عام</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: مكافآت التصنيف -->
 <div id="lb-rewards-modal" class="modal">
   <div class="modal-content">
@@ -1049,8 +1253,26 @@ let _ownerUidCache = null;
 // أضف هنا المتغيرات الجديدة
 let leaderboardUnsub = null;
 let journeyUnsub = null;
-window._leaderboardInit = false;
+// خطأ: متغيرات غير معرفة
+window._leaderboardInit = false; // يجب تعريفها في الأعلى
 window._journeyInit = false;
+/* ===== نظام الإشعارات والعلامات ===== */
+let unreadNotifications = {
+    inbox: 0,
+    newPosts: 0,
+    weeklyRewards: 0,
+    reports: 0,
+    purchases: 0
+};
+
+let notificationsListener = null;
+let postsListener = null;
+let lastSeenPostsTime = null;
+
+/* ===== نظام الفقاعات في أزرار التنقل ===== */
+let unreadPostsCount = 0;
+let hasUnreadInbox = false;
+
 /* =========================
    Utilities & UI helpers
 ========================= */
@@ -1126,6 +1348,332 @@ async function sendTelegramNotification(message, chatId = TELEGRAM_OWNER_ID) {
     }
     return true;
   } catch { return false; }
+}
+
+/* ===== دوال تتبع وقت المشاهدة ===== */
+function getLastSeenTime() {
+    const lastSeen = localStorage.getItem('lastSeenTime');
+    return lastSeen ? new Date(parseInt(lastSeen)) : new Date(0);
+}
+
+function updateLastSeenTime() {
+    localStorage.setItem('lastSeenTime', Date.now().toString());
+}
+
+function getLastSeenPostsTime() {
+    const lastSeen = localStorage.getItem('lastSeenPostsTime');
+    return lastSeen ? new Date(parseInt(lastSeen)) : new Date(0);
+}
+
+function updateLastSeenPostsTime() {
+    localStorage.setItem('lastSeenPostsTime', Date.now().toString());
+}
+
+/* ===== دوال تتبع وقت مشاهدة المنشورات ===== */
+function getLastSeenPostsTime() {
+    const lastSeen = localStorage.getItem('lastSeenPostsTime');
+    const time = lastSeen ? new Date(parseInt(lastSeen)) : new Date(0);
+    console.log('⏰ وقت آخر مشاهدة للمنشورات:', time);
+    return time;
+}
+
+function updateLastSeenPostsTime() {
+    const now = Date.now();
+    localStorage.setItem('lastSeenPostsTime', now.toString());
+    unreadPostsCount = 0;
+    updateNavBadges();
+    console.log('✅ تم تحديث وقت المشاهدة:', new Date(now));
+}
+
+// تحديث وقت المشاهدة عند دخول قسم المنشورات
+function showMainPage() {
+    showPage("main");
+    updateLastSeenPostsTime();
+}
+
+/* ===== نظام مستمع الإشعارات ===== */
+function startNotificationsListener() {
+    if (!currentUser) return;
+    
+    // إيقاف المستمع القديم إذا كان موجوداً
+    if (notificationsListener) {
+        notificationsListener();
+    }
+    
+    // مستمع البريد الوارد
+    notificationsListener = db.collection('inbox')
+        .where('userId', '==', currentUser.uid)
+        .where('status', '==', 'unread')
+        .onSnapshot(async (snapshot) => {
+            let totalUnread = 0;
+            
+            snapshot.forEach(doc => {
+                totalUnread++;
+            });
+            
+            unreadNotifications.inbox = totalUnread;
+            updateAllBadges();
+        }, (error) => {
+            console.error('Notifications listener error:', error);
+        });
+    
+    // مستمع المنشورات الجديدة (للمستخدم العادي)
+    if (!isOwner()) {
+        startPostsListener();
+    }
+    
+    // للمالك: مستمع المشتريات والبلاغات
+    if (isOwner()) {
+        startOwnerListeners();
+    }
+}
+
+/* ===== مستمع المنشورات الجديدة لجميع المستخدمين ===== */
+function startPostsListener() {
+    console.log('🚀 تشغيل مستمع المنشورات المباشر...');
+    
+    // أوقف أي مستمع قديم
+    if (postsListener) {
+        postsListener();
+        postsListener = null;
+    }
+    
+    const lastSeenTime = getLastSeenPostsTime();
+    console.log('🔍 أبحث عن منشورات بعد:', lastSeenTime.toLocaleString('ar-IQ'));
+    
+    // مستمع مباشر لكل المنشورات الجديدة
+    postsListener = db.collection('posts')
+        .where('createdAt', '>=', lastSeenTime)
+        .where('status', 'in', ['active', 'sold'])
+        .onSnapshot((snapshot) => {
+            const newPosts = snapshot.docs.filter(doc => {
+                const postTime = doc.data().createdAt?.toDate?.();
+                return postTime && postTime > lastSeenTime;
+            });
+            
+            const newCount = newPosts.length;
+            
+            if (newCount > 0) {
+                console.log('🎯 اكتشفت', newCount, 'منشور جديد:', 
+                    newPosts.map(p => ({
+                        مادة: p.data().material,
+                        مستخدم: p.data().userName,
+                        وقت: p.data().createdAt?.toDate?.().toLocaleTimeString('ar-IQ')
+                    }))
+                );
+                
+                unreadPostsCount = newCount;
+                updateNavBadges();
+                
+                // إشعار فوري للمستخدم
+                if (newCount > 0 && !isOwner()) {
+                    console.log('📢 إشعار: هناك منشورات جديدة!');
+                }
+            }
+        }, (error) => {
+            console.error('❌ خطأ في المستمع:', error);
+        });
+}
+
+// مستمع المنشورات الجديدة
+function startPostsListener() {
+    if (postsListener) {
+        postsListener();
+    }
+    
+    const lastSeenTime = getLastSeenPostsTime();
+    
+    postsListener = db.collection('posts')
+        .where('createdAt', '>', lastSeenTime)
+        .onSnapshot((snapshot) => {
+            unreadNotifications.newPosts = snapshot.size;
+            updateAllBadges();
+        }, (error) => {
+            console.error('Posts listener error:', error);
+        });
+}
+
+// مستمعات خاصة بالمالك
+function startOwnerListeners() {
+    // مستمع المشتريات الجديدة
+    db.collection('purchases')
+        .where('createdAt', '>', getLastSeenTime())
+        .onSnapshot((snapshot) => {
+            unreadNotifications.purchases = snapshot.size;
+            updateAllBadges();
+        });
+
+    // مستمع البلاغات الجديدة
+    db.collection('inbox')
+        .where('type', '==', 'admin_report')
+        .where('status', '==', 'unread')
+        .where('createdAt', '>', getLastSeenTime())
+        .onSnapshot((snapshot) => {
+            unreadNotifications.reports = snapshot.size;
+            updateAllBadges();
+        });
+}
+
+// إيقاف جميع المستمعين
+function stopAllListeners() {
+    if (notificationsListener) {
+        notificationsListener();
+        notificationsListener = null;
+    }
+    if (postsListener) {
+        postsListener();
+        postsListener = null;
+    }
+}
+
+/* ===== دوال تحديث العلامات ===== */
+function updateAllBadges() {
+    updateNavBadges();
+    updateInboxBadge();
+    updateProfileBadge();
+    updatePostsBadge();
+}
+
+// تحديث علامات التنقل السفلية
+function updateNavBadges() {
+    // علامة قسم المنشورات
+    const postsBadge = document.getElementById('posts-badge');
+    if (postsBadge) {
+        if (unreadNotifications.newPosts > 0) {
+            postsBadge.style.display = 'flex';
+            postsBadge.textContent = unreadNotifications.newPosts > 9 ? '9+' : unreadNotifications.newPosts.toString();
+        } else {
+            postsBadge.style.display = 'none';
+        }
+    }
+    
+    // علامة قسم التحدي
+    const challengeBadge = document.getElementById('challenge-badge');
+    if (challengeBadge) {
+        const total = unreadNotifications.weeklyRewards;
+        if (total > 0) {
+            challengeBadge.style.display = 'flex';
+            challengeBadge.textContent = total > 9 ? '9+' : total.toString();
+        } else {
+            challengeBadge.style.display = 'none';
+        }
+    }
+    
+    // علامة قسم الحساب (المجموع الكلي)
+    const profileNavBadge = document.querySelector('.nav-item[data-page="profile"] .nav-badge');
+    if (profileNavBadge) {
+        const totalProfile = unreadNotifications.inbox + unreadNotifications.weeklyRewards;
+        if (totalProfile > 0) {
+            profileNavBadge.style.display = 'flex';
+            profileNavBadge.textContent = totalProfile > 9 ? '9+' : totalProfile.toString();
+        } else {
+            profileNavBadge.style.display = 'none';
+        }
+    }
+}
+
+// تحديث علامة البريد الوادر في صفحة الحساب
+function updateInboxBadge() {
+    const inboxBadge = document.getElementById('inbox-badge');
+    if (inboxBadge) {
+        if (unreadNotifications.inbox > 0) {
+            inboxBadge.style.display = 'flex';
+            inboxBadge.textContent = unreadNotifications.inbox > 9 ? '9+' : unreadNotifications.inbox.toString();
+        } else {
+            inboxBadge.style.display = 'none';
+        }
+    }
+}
+
+// تحديث علامة قسم الحساب
+function updateProfileBadge() {
+    const profileBadge = document.getElementById('profile-badge');
+    if (profileBadge) {
+        const total = unreadNotifications.inbox + unreadNotifications.weeklyRewards;
+        if (total > 0) {
+            profileBadge.style.display = 'flex';
+            profileBadge.textContent = total > 9 ? '9+' : total.toString();
+        } else {
+            profileBadge.style.display = 'none';
+        }
+    }
+}
+
+// تحديث علامة المنشورات في صفحة الحساب
+function updatePostsBadge() {
+    const postsMenuBadge = document.getElementById('posts-menu-badge');
+    if (postsMenuBadge) {
+        if (unreadNotifications.newPosts > 0) {
+            postsMenuBadge.style.display = 'flex';
+            postsMenuBadge.textContent = unreadNotifications.newPosts > 9 ? '9+' : unreadNotifications.newPosts.toString();
+        } else {
+            postsMenuBadge.style.display = 'none';
+        }
+    }
+}
+
+/* ===== دوال وضع علامة كمقروء ===== */
+// وضع علامة على جميع الإشعارات كمقروءة
+async function markAllNotificationsAsRead() {
+    if (!currentUser) return;
+    
+    try {
+        // تحديث البريد الوارد
+        const inboxSnapshot = await db.collection('inbox')
+            .where('userId', '==', currentUser.uid)
+            .where('status', '==', 'unread')
+            .get();
+        
+        const batch = db.batch();
+        inboxSnapshot.forEach(doc => {
+            batch.update(doc.ref, { status: 'read' });
+        });
+        
+        await batch.commit();
+        
+        // تحديث وقت المشاهدة
+        updateLastSeenTime();
+        updateLastSeenPostsTime();
+        
+        // إعادة تعيين العداد
+        unreadNotifications.inbox = 0;
+        unreadNotifications.newPosts = 0;
+        
+        // تحديث الواجهة
+        updateAllBadges();
+        
+        showNotification('تم تحديد جميع الإشعارات كمقروءة', 'success');
+        
+    } catch (error) {
+        console.error('Error marking notifications as read:', error);
+    }
+}
+
+// وضع علامة على المنشورات كمشاهدة
+function markPostsAsSeen() {
+    updateLastSeenPostsTime();
+    unreadNotifications.newPosts = 0;
+    updateAllBadges();
+}
+
+// وضع علامة على إشعار معين كمقروء
+async function markNotificationAsRead(notificationId) {
+    try {
+        await db.collection('inbox').doc(notificationId).update({
+            status: 'read',
+            readAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // تحديث العداد
+        if (unreadNotifications.inbox > 0) {
+            unreadNotifications.inbox--;
+        }
+        
+        updateAllBadges();
+        
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+    }
 }
 /* ===== تسجيل عمليات النقاط ===== */
 async function logPointsTransaction(userId, points, type, description) {
@@ -1348,7 +1896,7 @@ function logout(){ auth.signOut(); }
 auth.onAuthStateChanged(async (user) => {
   if(!user){
     updateUIForLoggedOutUser();
-    setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 900);
+    stopAllListeners();
     return;
   }
   try{
@@ -1391,15 +1939,22 @@ auth.onAuthStateChanged(async (user) => {
   await loadStudyState();
   await loadLeaderboardSettings();
   
-  // بدء المستمعين الجدد
-  startPointsListener();
-  updateNavBadges();
-  updateLastSeenTime();
+  // 🔥 الإصلاح: بدء مستمعي الفقاعات بعد تحميل البيانات (مع تأخير بسيط)
+  setTimeout(() => {
+    startInboxBadgeListener();
+    startPostsListener();
+    updateNavBadges();
+    console.log('🚀 تم تفعيل نظام الفقاعات والإشعارات');
+  }, 1000);
   
-  // التحقق من المكافآت الأسبوعية بعد تحميل المستخدم مباشرة
-  setTimeout(checkAndShowWeeklyReward, 3000);
+  // تحديث دوري كل 30 ثانية
+  setInterval(updateNavBadges, 30000);
+
+  setTimeout(()=>{ 
+    document.getElementById('splash')?.classList.add('fade-out'); 
+    setTimeout(()=> document.getElementById('splash')?.remove(), 700); 
+  }, 200);
   
-  setTimeout(()=>{ document.getElementById('splash')?.classList.add('fade-out'); setTimeout(()=>document.getElementById('splash')?.remove(),700); }, 200);
   pendingChosenAvatar = null;
 });
 
@@ -1418,6 +1973,7 @@ const pages = {
   journeyItem: document.getElementById("journey-item-page"),
   appExplainPage: document.getElementById("app-explanation-page"),
   userStats: document.getElementById("user-stats-page"),
+  moreActions: document.getElementById("more-actions-page"), // <- تأكد من هذا السطر
 };
 const postsContainer = document.getElementById("posts-container");
 const companiesContainer = document.getElementById("companies-container");
@@ -1431,22 +1987,26 @@ const filterBox = document.getElementById("filter-container");
 const pillPosts = document.getElementById("pill-posts");
 const pillCompanies = document.getElementById("pill-companies");
 
+// غير الدالة الحالية بهذه:
 function showPage(key){
   Object.values(pages).forEach(p=>p && (p.style.display="none"));
   if(!pages[key]) return;
   pages[key].style.display = (key==="auth")?"flex":"block";
   updateBottomNav(key);
-  // تحديث الفقاعات عند تغيير الصفحة
-  updateNavBadges();
-  updateLastSeenTime();
-  if (key === "auth") { const sp = document.getElementById('splash'); if (sp) sp.remove(); }
+  
+  // تحديث العلامات عند تغيير الصفحة - أضف هذا السطر
+  updateAllBadges();
 }
 function updateBottomNav(activePageKey) {
   document.querySelectorAll("#bottom-nav .nav-item").forEach(item => {
     item.classList.toggle("active", item.dataset.page === activePageKey);
   });
 }
-function showMainPage(){ showPage("main"); }
+function showMainPage(){ 
+    showPage("main"); 
+    // تحديث وقت المشاهدة عند الدخول للمنشورات
+    updateLastSeenPostsTime();
+}
 function showProfilePage(){ showPage("profile"); }
 function showChallengePage(){ showPage("challenge"); }
 function backToProfile(){ showPage("profile"); }
@@ -1460,7 +2020,9 @@ function switchAuthTab(tab){
 }
 
 function updateUIForLoggedInUser(){
+  // 🔥 التغيير: توجيه مباشر لقسم التحدي
   showPage("challenge");
+  
   document.getElementById("profile-name").textContent = currentUser.name || "";
   document.getElementById("profile-email").textContent = currentUser.email || "";
   const shortUid = currentUser.shortUid || generateShortUid(currentUser.uid);
@@ -1475,7 +2037,11 @@ function updateUIForLoggedInUser(){
 
   updateCreateButton();
   updatePostCountInProfile();
+  
+  // 🔥 إضافة: تحديث الفقاعات عند تحميل الواجهة
+  updateNavBadges();
 }
+
 function updateUIForLoggedOutUser(){
   showPage("auth"); 
   postsContainer.innerHTML=""; 
@@ -1696,9 +2262,16 @@ async function savePostEdits() {
   } catch (e) { showNotification('فشل حفظ التعديلات: ' + e.message, 'error'); } 
   finally { btn.disabled = false; }
 }
+// غير الدالة الحالية بهذه:
 async function showUserPosts(){
   if(!currentUser) return showNotification("يرجى تسجيل الدخول","warning"); 
-  showPage("userPosts"); userPostsContainer.innerHTML="";
+  showPage("userPosts");
+  
+  // تحديث المنشورات كمشاهدة
+  markPostsAsSeen();
+  
+  userPostsContainer.innerHTML="";
+  // ... باقي الكود الحالي
   const mine = posts.filter(p=>p.userId===currentUser.uid).sort((a,b)=> (b.createdAt?.getTime?.()||0)-(a.createdAt?.getTime?.()||0));
   if(mine.length===0){ userPostsContainer.innerHTML='<div class="post"><p>لا توجد منشورات لك</p></div>'; return; }
   for(const post of mine){
@@ -1947,6 +2520,10 @@ async function editProfileName(){
 async function showInbox(){
   if(!currentUser) return showNotification('سجّل الدخول','warning');
   showPage('inbox');
+  
+  // تحديث الإشعارات كمقروءة عند الدخول للبريد
+  await markAllNotificationsAsRead();
+  
   inboxContainer.innerHTML = '<div class="post"><p>جاري تحميل الرسائل...</p></div>';
   
   try {
@@ -2298,13 +2875,14 @@ async function deleteExplanation(id){
 /* =========================
    Journey
 ========================= */
+// في دالة switchChallengeTab - تحتاج لتحميل البيانات عند التبديل
 function switchChallengeTab(btn){
   const tabName = btn.dataset.tab;
   document.querySelectorAll('.challenge-tab-pill, .challenge-tab-content').forEach(el => el.classList.remove('active'));
   btn.classList.add('active'); 
   document.getElementById(`challenge-tab-${tabName}`).classList.add('active');
   
-  // إضافة هذه الأسطر المفقودة
+  // إضافة هذه الأسطر المفقودة - التصحيح هنا
   if (tabName === 'leaderboard' && !window._leaderboardInit) { 
     window._leaderboardInit = true; 
     startLeaderboardListener(); 
@@ -2377,6 +2955,181 @@ async function openUserStats(){
   }
 }
 
+/* =========================
+   صفحة باقي الأزرار
+========================= */
+
+function openMoreActionsPage() {
+    if (!currentUser) return showNotification('يرجى تسجيل الدخول أولاً', 'warning');
+    if (!isOwner()) return showNotification('للمالك فقط', 'error');
+    
+    console.log('فتح صفحة باقي الأزرار...');
+    showPage('moreActions');
+}
+
+/* ===========================================================
+   🏦 نظام نقاط المحفظة المحسّن والموثوق
+=========================================================== */
+
+// 🔄 تحديث نظام حفظ النقاط
+async function updateWalletPoints(userId, pointsChange, reason) {
+    try {
+        const userRef = db.collection('study').doc(userId);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) {
+            // إنشاء سجل جديد إذا لم يكن موجوداً
+            await userRef.set({
+                walletPoints: Math.max(0, pointsChange),
+                currentPoints: Math.max(0, pointsChange),
+                totalPoints: Math.max(0, pointsChange),
+                name: currentUser.name || 'مستخدم',
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return;
+        }
+
+        const currentData = userDoc.data();
+        const currentWallet = Number(currentData.walletPoints) || 0;
+        const newWalletPoints = Math.max(0, currentWallet + pointsChange);
+
+        // 🔒 تحديث آمن مع التحقق من البيانات
+        await userRef.update({
+            walletPoints: newWalletPoints,
+            currentPoints: firebase.firestore.FieldValue.increment(pointsChange),
+            totalPoints: firebase.firestore.FieldValue.increment(pointsChange),
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+            lastTransaction: {
+                type: pointsChange > 0 ? 'ايداع' : 'سحب',
+                amount: Math.abs(pointsChange),
+                reason: reason,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                before: currentWallet,
+                after: newWalletPoints
+            }
+        });
+
+        // 📝 تسجيل المعاملة في السجل
+        await logPointsTransaction(userId, pointsChange, 'wallet_update', reason);
+
+        console.log(`✅ تم تحديث المحفظة: ${currentWallet} → ${newWalletPoints} (${pointsChange})`);
+
+    } catch (error) {
+        console.error('❌ خطأ في تحديث المحفظة:', error);
+        throw new Error('فشل تحديث النقاط');
+    }
+}
+
+// 🎁 تحديث دالة المكافأة اليومية
+async function claimDailyReward() {
+    if (!currentUser) return;
+    
+    const btn = document.getElementById('daily-claim-btn');
+    if (btn) btn.disabled = true;
+    
+    try {
+        // 🔍 التحقق من التلاعب أولاً
+        const isManipulation = await detectTimeManipulation();
+        if (isManipulation) {
+            await handleTimeManipulationDetected();
+            return;
+        }
+        
+        const userRef = db.collection('study').doc(currentUser.uid);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) {
+            showNotification("خطأ في تحميل البيانات", "error");
+            return;
+        }
+
+        const userData = userDoc.data();
+        const now = new Date();
+        const serverTime = userData.lastUpdated?.toDate?.() || now;
+        
+        // 🕒 التحقق من الوقت المتبقي بناءً على وقت السيرفر
+        const lastClaim = userData.lastDailyClaimAt ? 
+            userData.lastDailyClaimAt.toDate().getTime() : 0;
+        
+        const timeSinceLastClaim = serverTime.getTime() - lastClaim;
+        
+        if (timeSinceLastClaim < (23 * 60 * 60 * 1000)) { // 23 ساعة للاحتياط
+            const remaining = (24 * 60 * 60 * 1000) - timeSinceLastClaim;
+            showNotification(`لم يحن وقت المكافأة بعد. متبقي: ${msToHMS(remaining)}`, "error");
+            return;
+        }
+
+        // 💰 منح المكافأة إلى المحفظة مباشرة
+        await updateWalletPoints(currentUser.uid, 20, 'مكافأة يومية');
+
+        // 📝 تحديث وقت المكافأة الأخير
+        await userRef.update({
+            lastDailyClaimAt: firebase.firestore.Timestamp.fromDate(serverTime),
+            lastDailyClaimServerTime: firebase.firestore.FieldValue.serverTimestamp(),
+            lastClientTime: firebase.firestore.Timestamp.fromDate(new Date())
+        });
+
+        // 🔄 تحديث الحالة المحلية
+        studyState.currentPoints += 20;
+        studyState.walletPoints = (studyState.walletPoints || 0) + 20;
+        studyState.lastDailyClaimAt = serverTime;
+        
+        showNotification('مبروك! حصلت على 20 نقطة في محفظتك 🎁', 'success');
+        renderTimerUI();
+        updateDailyRewardUI();
+        
+    } catch (error) {
+        console.error("Error claiming daily reward:", error);
+        showNotification('تعذّر منح المكافأة', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+// 🔄 دالة محسّنة لتحديث واجهة المكافأة
+async function updateDailyRewardUI() {
+    const btn = document.getElementById('daily-claim-btn'); 
+    const rem = document.getElementById('daily-remaining');
+    
+    if(!btn || !rem || !currentUser) return;
+  
+    try {
+        const userRef = db.collection('study').doc(currentUser.uid);
+        const userDoc = await userRef.get();
+        
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            const lastClaim = userData.lastDailyClaimAt ? 
+                userData.lastDailyClaimAt.toDate().getTime() : 0;
+            
+            const serverTime = userData.lastUpdated?.toDate?.() || new Date();
+            const left = (24 * 60 * 60 * 1000) - (serverTime.getTime() - lastClaim);
+            
+            if(left > 0){
+                btn.disabled = true; 
+                btn.innerHTML = '<i class="fas fa-clock"></i> انتظر';
+                rem.textContent = 'متاح بعد: ' + msToHMS(left);
+                
+                if(!dailyRewardInterval){ 
+                    dailyRewardInterval = setInterval(updateDailyRewardUI, 30000); // كل 30 ثانية فقط
+                }
+            } else {
+                btn.disabled = false; 
+                btn.innerHTML = '<i class="fas fa-gift"></i> احصل على 20 نقطة';
+                rem.textContent = 'يمكنك الحصول على 20 نقطة مرة كل 24 ساعة.';
+                
+                if(dailyRewardInterval){ 
+                    clearInterval(dailyRewardInterval); 
+                    dailyRewardInterval = null; 
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error updating daily reward UI:", error);
+    }
+}
+
 /* ===========================================================
    🛡️ نظام المؤقت الآمن ضد التلاعب
 =========================================================== */
@@ -2387,6 +3140,7 @@ let dailyRewardInterval = null;
 let isClaiming = false;
 
 // 🕒 دالة تحويل الوقت
+// تصحيح دالة msToHMS
 function msToHMS(ms){
   let s = Math.max(0, Math.floor(ms/1000));
   const h = Math.floor(s/3600); 
@@ -2733,6 +3487,9 @@ function updateDailyRewardUI(){
 }
 
 // 🔒 المكافأة اليومية مع الحظر الدائم
+// 🗑️ احذف دالة monitorDailyRewardAttempt بالكامل واحذف المتغير dailyRewardAttempts
+
+// 🔄 دالة claimDailyReward الجديدة بدون نظام المحاولات
 async function claimDailyReward() {
     if (!currentUser) return;
     
@@ -2740,14 +3497,13 @@ async function claimDailyReward() {
     if (btn) btn.disabled = true;
     
     try {
-        // 🔍 الكشف عن التلاعب أولاً
+        // 🔍 التحقق من التلاعب الزمني فقط
         const isManipulation = await detectTimeManipulation();
         if (isManipulation) {
-            forceLogoutWithMessage('تم حظر حسابك بشكل دائم بسبب محاولة تلاعب بالنظام');
+            await handleTimeManipulationDetected();
             return;
         }
         
-        // باقي الكود الطبيعي للمكافأة...
         const userRef = db.collection('study').doc(currentUser.uid);
         const userDoc = await userRef.get();
         
@@ -2758,33 +3514,36 @@ async function claimDailyReward() {
 
         const userData = userDoc.data();
         const now = new Date();
+        const serverTime = userData.lastUpdated?.toDate?.() || now;
         
+        // 🕒 التحقق من الوقت المتبقي بناءً على وقت السيرفر
         const lastClaim = userData.lastDailyClaimAt ? 
             userData.lastDailyClaimAt.toDate().getTime() : 0;
         
-        const timeSinceLastClaim = now.getTime() - lastClaim;
+        const timeSinceLastClaim = serverTime.getTime() - lastClaim;
         
-        if (timeSinceLastClaim < (24 * 60 * 60 * 1000)) {
+        if (timeSinceLastClaim < (23 * 60 * 60 * 1000)) {
             const remaining = (24 * 60 * 60 * 1000) - timeSinceLastClaim;
             showNotification(`لم يحن وقت المكافأة بعد. متبقي: ${msToHMS(remaining)}`, "error");
             return;
         }
 
-        // منح المكافأة...
+        // 💰 منح المكافأة إلى المحفظة مباشرة
+        await updateWalletPoints(currentUser.uid, 20, 'مكافأة يومية');
+
+        // 📝 تحديث وقت المكافأة الأخير
         await userRef.update({
-            currentPoints: firebase.firestore.FieldValue.increment(20),
-            totalPoints: firebase.firestore.FieldValue.increment(20),
-            lastDailyClaimAt: firebase.firestore.Timestamp.fromDate(now),
+            lastDailyClaimAt: firebase.firestore.Timestamp.fromDate(serverTime),
             lastDailyClaimServerTime: firebase.firestore.FieldValue.serverTimestamp(),
-            lastClientTime: firebase.firestore.Timestamp.fromDate(now),
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            lastClientTime: firebase.firestore.Timestamp.fromDate(new Date())
         });
 
+        // 🔄 تحديث الحالة المحلية
         studyState.currentPoints += 20;
-        studyState.totalPoints += 20;
-        studyState.lastDailyClaimAt = now;
+        studyState.walletPoints = (studyState.walletPoints || 0) + 20;
+        studyState.lastDailyClaimAt = serverTime;
         
-        showNotification('مبروك! حصلت على 20 نقطة 🎁', 'success');
+        showNotification('مبروك! حصلت على 20 نقطة في محفظتك 🎁', 'success');
         renderTimerUI();
         updateDailyRewardUI();
         
@@ -3713,98 +4472,64 @@ async function deleteGift(id) {
    نظام الفقاعات والإشعارات المحسّن
 ========================= */
 
-// تحديث الفقاعات
-async function updateNavBadges() {
-  if (!currentUser) return;
-  
-  try {
-    let totalNotifications = 0;
+function updateNavBadges() {
+    console.log('🔄 تحديث الفقاعات - منشورات جديدة:', unreadPostsCount, 'إشعارات:', unreadNotifications.inbox);
     
-    // فقاعة البريد الوارد
-    const inboxSnapshot = await db.collection('inbox')
-      .where('userId', '==', currentUser.uid)
-      .where('status', '==', 'unread')
-      .get();
+    // فقاعة قسم المنشورات (التنقل السفلي)
+    const postsBadge = document.getElementById('posts-badge');
+    if (postsBadge) {
+        if (unreadPostsCount > 0) {
+            postsBadge.style.display = 'flex';
+            postsBadge.textContent = unreadPostsCount > 9 ? '9+' : unreadPostsCount.toString();
+            console.log('✅ عرض فقاعة المنشورات:', unreadPostsCount);
+        } else {
+            postsBadge.style.display = 'none';
+        }
+    }
     
-    const inboxCount = inboxSnapshot.size;
+    // فقاعة البريد الوارد (في صفحة الحساب)
     const inboxBadge = document.getElementById('inbox-badge');
     if (inboxBadge) {
-      if (inboxCount > 0) {
-        inboxBadge.style.display = 'flex';
-        inboxBadge.textContent = inboxCount > 9 ? '9+' : inboxCount.toString();
-        totalNotifications += inboxCount;
-      } else {
-        inboxBadge.style.display = 'none';
-      }
+        if (unreadNotifications.inbox > 0) {
+            inboxBadge.style.display = 'flex';
+            inboxBadge.textContent = unreadNotifications.inbox > 9 ? '9+' : unreadNotifications.inbox.toString();
+        } else {
+            inboxBadge.style.display = 'none';
+        }
     }
     
-    // فقاعة الأسئلة الجديدة
-    const lastSeenTime = getLastSeenTime();
-    const qnaSnapshot = await db.collection('qna')
-      .where('createdAt', '>', lastSeenTime)
-      .get();
-    
-    const qnaCount = qnaSnapshot.size;
-    const qnaBadge = document.getElementById('qna-badge');
-    if (qnaBadge) {
-      if (qnaCount > 0) {
-        qnaBadge.style.display = 'flex';
-        qnaBadge.textContent = qnaCount > 9 ? '9+' : qnaCount.toString();
-        totalNotifications += qnaCount;
-      } else {
-        qnaBadge.style.display = 'none';
-      }
+    // نقطة التنقل السفلي للحساب
+    const profileNavBadge = document.querySelector('.nav-item[data-page="profile"] .nav-badge');
+    if (profileNavBadge) {
+        if (unreadNotifications.inbox > 0) {
+            profileNavBadge.style.display = 'flex';
+            profileNavBadge.textContent = unreadNotifications.inbox > 9 ? '9+' : unreadNotifications.inbox.toString();
+        } else {
+            profileNavBadge.style.display = 'none';
+        }
     }
-    
-    // فقاعة المشتريات الجديدة (للمالك)
-    if (isOwner()) {
-      const purchasesSnapshot = await db.collection('purchases')
-        .where('createdAt', '>', lastSeenTime)
-        .get();
-      
-      const purchasesCount = purchasesSnapshot.size;
-      const purchasesBadge = document.getElementById('purchases-badge');
-      if (purchasesBadge && purchasesCount > 0) {
-        purchasesBadge.style.display = 'flex';
-        purchasesBadge.textContent = purchasesCount > 9 ? '9+' : purchasesCount.toString();
-        totalNotifications += purchasesCount;
-      }
-    }
-    
-    // فقاعة قسم حسابي (المجموع الكلي)
-    const profileBadge = document.getElementById('profile-badge');
-    if (profileBadge) {
-      if (totalNotifications > 0) {
-        profileBadge.style.display = 'flex';
-        profileBadge.textContent = totalNotifications > 9 ? '9+' : totalNotifications.toString();
-      } else {
-        profileBadge.style.display = 'none';
-      }
-    }
-    
-  } catch (error) {
-    console.error('Error updating badges:', error);
-  }
 }
 
-// الحصول على وقت آخر زيارة
-function getLastSeenTime() {
-  const lastSeen = localStorage.getItem('lastSeenTime');
-  if (lastSeen) {
-    return new Date(parseInt(lastSeen));
-  }
-  return new Date(Date.now() - 24 * 60 * 60 * 1000);
+/* ===== مستمع البريد الوارد ===== */
+function startInboxBadgeListener() {
+    if (!currentUser) return;
+    
+    // إيقاف المستمع القديم إذا كان موجوداً
+    if (window.inboxBadgeUnsubscribe) {
+        window.inboxBadgeUnsubscribe();
+    }
+    
+    // مستمع جديد للبريد الوارد
+    window.inboxBadgeUnsubscribe = db.collection('inbox')
+        .where('userId', '==', currentUser.uid)
+        .where('status', '==', 'unread')
+        .onSnapshot((snapshot) => {
+            unreadNotifications.inbox = snapshot.size;
+            updateNavBadges(); // تحديث جميع الفقاعات
+        }, (error) => {
+            console.error('Inbox badge listener error:', error);
+        });
 }
-
-// حفظ وقت الزيارة الحالي
-function updateLastSeenTime() {
-  localStorage.setItem('lastSeenTime', Date.now().toString());
-  // تحديث الفقاعات مباشرة بعد تحديث الوقت
-  setTimeout(updateNavBadges, 500);
-}
-
-// تحديث دوري للفقاعات
-setInterval(updateNavBadges, 30000);
 
 /* =========================
    تحديث النقاط الفوري
@@ -4198,6 +4923,7 @@ async function checkIfEmailBanned(email) {
 }
 
 /* ===== كشف التلاعب بالوقت مع الحظر الدائم ===== */
+// 🔍 كشف التلاعب المحسّن (الحظر فقط للفرق الكبير)
 async function detectTimeManipulation() {
     if (!currentUser) return false;
     
@@ -4209,50 +4935,75 @@ async function detectTimeManipulation() {
         
         const userData = userDoc.data();
         const now = new Date();
+        const clientTime = now.getTime();
         
-        // 🔍 التحقق 1: إذا كان lastDailyClaimAt في المستقبل
+        // 🕒 الحصول على وقت السيرفر الموثوق
+        const serverTimeDoc = await db.collection('server_time').doc('current').get();
+        let serverTime = now;
+        
+        if (serverTimeDoc.exists) {
+            serverTime = serverTimeDoc.data().timestamp.toDate();
+        }
+
+        // 📊 الفروق الزمنية المسموحة (مرنة وعادلة)
+        const MAX_TIME_DIFF = 2 * 24 * 60 * 60 * 1000; // 🔥 يومين كحد أقصى للفرق (بدل 5 دقايق)
+        const MIN_CLAIM_INTERVAL = 23 * 60 * 60 * 1000; // 23 ساعة كحد أدنى بين المكافآت
+
+        // 🔍 التحقق 1: الفرق الكبير بين وقت العميل والسيرفر (يومين+)
+        const timeDiff = Math.abs(serverTime.getTime() - clientTime);
+        if (timeDiff > MAX_TIME_DIFF) {
+            console.warn(`🚨 فرق زمني كبير: ${Math.floor(timeDiff/(24*60*60*1000))} أيام`);
+            
+            // 🔥 هنا فقط نحظر - إذا الفرق أكثر من يومين
+            await handleSevereTimeManipulation();
+            return true;
+        }
+
+        // 🔍 التحقق 2: المكافأة المتكررة بسرعة (بدون حظر - فقط منع)
         if (userData.lastDailyClaimAt) {
-            const lastClaimTime = userData.lastDailyClaimAt.toDate();
-            if (lastClaimTime > now) {
-                await permanentBanAndPrevent(currentUser.uid,
-                    `محاولة تلاعب: وقت المكافأة المسجل (${lastClaimTime.toLocaleString('ar-IQ')}) في المستقبل`
-                );
-                return true;
-            }
-        }
-        
-        // 🔍 التحقق 2: إذا كان هناك فرق كبير بين وقت العميل والسيرفر
-        if (userData.lastClientTime) {
-            const clientTime = userData.lastClientTime.toDate();
-            const serverTime = userData.lastUpdated?.toDate() || now;
-            const timeDiff = Math.abs(serverTime - clientTime);
+            const lastClaimTime = userData.lastDailyClaimAt.toDate().getTime();
+            const timeSinceLastClaim = clientTime - lastClaimTime;
             
-            // إذا كان الفرق أكثر من 10 دقائق (600,000 ملي ثانية)
-            if (timeDiff > 600000) {
-                await permanentBanAndPrevent(currentUser.uid,
-                    `تلاعب بوقت الجهاز: فرق ${Math.floor(timeDiff/60000)} دقيقة بين العميل والسيرفر`
-                );
+            if (timeSinceLastClaim < MIN_CLAIM_INTERVAL) {
+                console.warn(`⚠️ محاولة أخذ مكافأة مبكراً: ${msToHMS(timeSinceLastClaim)} فقط`);
+                // ❌ نمنع المكافأة لكن ما نحظر
+                showNotification('لم يحن وقت المكافأة بعد', 'error');
                 return true;
             }
         }
-        
-        // 🔍 التحقق 3: إذا طلب المكافأة بفاصل غير منطقي
-        if (userData.lastDailyClaimAt && userData.lastDailyClaimServerTime) {
-            const lastClaimServer = userData.lastDailyClaimServerTime.toDate();
-            const timeSinceLastClaim = now - lastClaimServer;
-            
-            if (timeSinceLastClaim < (20 * 60 * 60 * 1000)) { // 20 ساعة بدل 24 للاحتياط
-                await permanentBanAndPrevent(currentUser.uid,
-                    `محاولة أخذ المكافأة قبل الوقت المسموح: ${msToHMS(timeSinceLastClaim)} فقط من آخر مكافأة`
-                );
-                return true;
-            }
-        }
-        
+
+        // ✅ كل شيء طبيعي
         return false;
+        
     } catch (error) {
         console.error('Error in time manipulation detection:', error);
-        return false;
+        return false; // في حالة الخطأ، لا نحظر المستخدم
+    }
+}
+
+// 🛡️ معالجة التلاعب المكتشف (مرنة - بدون حظر)
+async function handleTimeManipulationDetected() {
+    try {
+        // 📝 تسجيل محاولة التلاعب فقط
+        await db.collection('suspicious_activities').add({
+            userId: currentUser.uid,
+            userName: currentUser.name,
+            userEmail: currentUser.email,
+            type: 'time_manipulation_daily_reward',
+            clientTime: new Date(),
+            serverTime: firebase.firestore.FieldValue.serverTimestamp(),
+            severity: 'low',
+            action_taken: 'prevent_reward_only'
+        });
+
+        // 🚫 منع المكافأة مع رسالة توضيحية
+        showNotification('❌ لا يمكن الحصول على المكافأة - يرجى التحقق من وقت الجهاز', 'error');
+        
+        // 🔄 تحديث الواجهة
+        updateDailyRewardUI();
+
+    } catch (error) {
+        console.error('Error handling time manipulation:', error);
     }
 }
 
@@ -4391,9 +5142,9 @@ async function openUserManagement() {
     await loadUsersStats();
 }
 
-// إغلاق النافذة
-function closeUserManagementModal() {
-    document.getElementById('user-management-modal').style.display = 'none';
+async function openPointsReport() {
+  if (!isOwner()) return showNotification('للمالك فقط', 'error');
+  document.getElementById('points-report-modal').style.display = 'block';
 }
 
 // تحميل إحصائيات المستخدمين
@@ -4617,31 +5368,170 @@ async function banUser(userId, userName) {
 }
 
 // 🔓 فك حظر مستخدم
+// 🔓 دالة فك الحظر الكاملة
 async function unbanUser(userId, userName) {
     if (!isOwner()) return;
     
+    if (!confirm(`هل تريد فك حظر ${userName}؟\n\nسيتم:\n• إرجاع جميع الصلاحيات\n• إزالة من القائمة السوداء\n• إمكانية التسجيل والدخول`)) return;
+    
     try {
-        const userDoc = await db.collection('users').doc(userId).get();
-        const userEmail = userDoc.data().email;
+        const userRef = db.collection('users').doc(userId);
+        const userDoc = await userRef.get();
         
-        // 1. إلغاء الحظر
-        await db.collection('users').doc(userId).update({
+        if (!userDoc.exists) {
+            showNotification('المستخدم غير موجود', 'error');
+            return;
+        }
+
+        const userData = userDoc.data();
+        const userEmail = userData.email;
+        
+        // 1. 🔓 إلغاء الحظر من المستخدم
+        await userRef.update({
             isPermanentlyBanned: false,
             banReason: null,
             unbannedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            unbannedBy: currentUser.uid
+            unbannedBy: currentUser.uid,
+            unbannedByName: currentUser.name
         });
-        
-        // 2. إزالة من قائمة البريد المحظور
+
+        // 2. 🗑️ إزالة من قائمة البريد المحظور
         await db.collection('banned_emails').doc(userEmail.toLowerCase()).delete();
+
+        // 3. 📝 تسجيل عملية فك الحظر
+        await db.collection('admin_actions').add({
+            type: 'unban_user',
+            targetUserId: userId,
+            targetUserName: userName,
+            targetUserEmail: userEmail,
+            adminId: currentUser.uid,
+            adminName: currentUser.name,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            notes: 'فك الحظر من قبل المالك'
+        });
+
+        // 4. 📢 إشعار للمالك
+        await sendTelegramNotification(
+            `🔓 <b>فك حظر مستخدم</b>\n\n` +
+            `👤 المستخدم: ${escapeHTML(userName)}\n` +
+            `📧 البريد: ${escapeHTML(userEmail)}\n` +
+            `🆔 المعرف: ${escapeHTML(userData.shortUid || 'غير معروف')}\n` +
+            `👨‍💼 فك الحظر بواسطة: ${escapeHTML(currentUser.name)}\n` +
+            `⏰ الوقت: ${new Date().toLocaleString('ar-IQ')}`
+        );
+
+        showNotification(`✅ تم فك حظر ${userName} بنجاح`, 'success');
         
-        showNotification(`تم فك حظر ${userName}`, 'success');
-        await searchUsers(); // إعادة تحميل القائمة
+        // 5. 🔄 إعادة تحميل قائمة المستخدمين
+        await searchUsers();
         
     } catch (error) {
         console.error('Error unbanning user:', error);
-        showNotification('فشل فك الحظر', 'error');
+        showNotification('❌ فشل فك الحظر', 'error');
     }
+}
+
+// 🔄 تحديث واجهة إدارة المستخدمين لعرض زر فك الحظر
+// في دالة renderUsersList - عدل الجزء الخاص بالمحظورين:
+async function renderUsersList(userDocs) {
+    const container = document.getElementById('users-list-container');
+    
+    const usersWithStats = await Promise.all(
+        userDocs.map(async (doc) => {
+            const userData = doc.data();
+            const userId = doc.id;
+            
+            // جلب إحصائيات المستخدم
+            const studyDoc = await db.collection('study').doc(userId).get();
+            const studyData = studyDoc.exists ? studyDoc.data() : {};
+            
+            // جلب عدد المنشورات
+            const postsQuery = await db.collection('posts')
+                .where('userId', '==', userId)
+                .get();
+            
+            return {
+                id: userId,
+                ...userData,
+                totalPoints: studyData.totalPoints || 0,
+                currentPoints: studyData.currentPoints || 0,
+                walletPoints: studyData.walletPoints || 0,
+                postsCount: postsQuery.size,
+                lastSeen: userData.lastSeen || null
+            };
+        })
+    );
+    
+    container.innerHTML = usersWithStats.map(user => `
+        <div class="post" style="border-left: 4px solid ${user.isPermanentlyBanned ? '#dc3545' : user.isVerified ? '#28a745' : '#6c757d'}; margin-bottom: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <strong>${escapeHTML(user.name || 'بدون اسم')}</strong>
+                        ${user.isVerified ? '<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>' : ''}
+                        ${user.isPermanentlyBanned ? '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">🚫 محظور</span>' : ''}
+                    </div>
+                    
+                    <div style="font-size: 14px; color: #666; margin-bottom: 5px;">
+                        📧 ${escapeHTML(user.email || 'لا يوجد بريد')}
+                    </div>
+                    
+                    <div style="font-size: 14px; color: #666; margin-bottom: 5px;">
+                        🆔 ${escapeHTML(user.shortUid || 'لا يوجد معرف')}
+                    </div>
+                    
+                    ${user.banReason ? `
+                    <div style="font-size: 12px; color: #dc3545; margin-bottom: 5px;">
+                        <strong>سبب الحظر:</strong> ${escapeHTML(user.banReason)}
+                    </div>
+                    ` : ''}
+                    
+                    <div style="font-size: 14px; color: #666; margin-bottom: 5px;">
+                        📊 النقاط: ${user.currentPoints} | المحفظة: ${user.walletPoints} | المنشورات: ${user.postsCount}
+                    </div>
+                    
+                    ${user.lastSeen ? `
+                    <div style="font-size: 12px; color: #888;">
+                        آخر نشاط: ${user.lastSeen.toDate ? user.lastSeen.toDate().toLocaleString('ar-IQ') : 'غير معروف'}
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    ${user.isPermanentlyBanned ? `
+                        <!-- 🔓 زر فك الحظر للمحظورين -->
+                        <button class="btn btn-success btn-xs" onclick="unbanUser('${user.id}', '${escapeHTML(user.name || 'مستخدم')}')">
+                            <i class="fas fa-check"></i> فك الحظر
+                        </button>
+                    ` : `
+                        <!-- 🛡️ أزرار الإدارة للمستخدمين النشطين -->
+                        <button class="btn btn-danger btn-xs" onclick="banUser('${user.id}', '${escapeHTML(user.name || 'مستخدم')}')">
+                            <i class="fas fa-ban"></i> حظر
+                        </button>
+                        <button class="btn btn-warning btn-xs" onclick="resetUserPoints('${user.id}', '${escapeHTML(user.name || 'مستخدم')}')">
+                            <i class="fas fa-undo"></i> تصفير النقاط
+                        </button>
+                    `}
+                    
+                    <button class="btn btn-secondary btn-xs" onclick="viewUserDetails('${user.id}')">
+                        <i class="fas fa-info-circle"></i> تفاصيل
+                    </button>
+                    
+                    ${!user.isVerified && !user.isPermanentlyBanned ? `
+                        <button class="btn btn-xs" onclick="verifyUser('${user.id}')">
+                            <i class="fas fa-crown"></i> توثيق
+                        </button>
+                    ` : ''}
+                    
+                    ${user.isVerified && !user.isPermanentlyBanned ? `
+                        <button class="btn btn-warning btn-xs" onclick="unverifyUser('${user.id}')">
+                            <i class="fas fa-times"></i> إلغاء التوثيق
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `).join('');
 }
 
 // 💰 تصفير نقاط مستخدم
@@ -4726,6 +5616,120 @@ async function viewUserDetails(userId) {
 }
 
 console.log('✅ تطبيق سوق الطلاب محمل وجاهز للعمل!');
+
+/* =========================
+   نظام زر باقي الأزرار
+========================= */
+
+// دالة عرض/إخفاء قائمة الأزرار
+function toggleMoreActions() {
+  const grid = document.getElementById('moreActionsGrid');
+  const btn = document.querySelector('.more-actions-btn');
+  
+  if (grid && btn) {
+    grid.classList.toggle('show');
+    btn.classList.toggle('active');
+    
+    // إضافة تأثير للزر عند النقر
+    if (grid.classList.contains('show')) {
+      btn.style.background = 'linear-gradient(135deg, #6a11cb, #4a6bff)';
+    } else {
+      btn.style.background = 'linear-gradient(135deg, #4a6bff, #6a11cb)';
+    }
+  }
+}
+
+// إغلاق القائمة عند النقر خارجها
+document.addEventListener('click', function(e) {
+  const moreActionsContainer = document.querySelector('.more-actions-container');
+  const moreActionsBtn = document.querySelector('.more-actions-btn');
+  
+  if (moreActionsContainer && 
+      !moreActionsContainer.contains(e.target) && 
+      e.target !== moreActionsBtn) {
+    const grid = document.getElementById('moreActionsGrid');
+    const btn = document.querySelector('.more-actions-btn');
+    
+    if (grid && btn) {
+      grid.classList.remove('show');
+      btn.classList.remove('active');
+      btn.style.background = 'linear-gradient(135deg, #4a6bff, #6a11cb)';
+    }
+  }
+});
+
+// دالة للتحقق من عرض الأزرار للمالك فقط
+function checkOwnerButtons() {
+  if (currentUser && isOwner()) {
+    const moreActionsContainer = document.querySelector('.more-actions-container.owner-only');
+    if (moreActionsContainer) {
+      moreActionsContainer.style.display = 'block';
+    }
+  }
+}
+
+// تحديث واجهة الأزرار عند تغيير الحالة
+function updateMoreActionsUI() {
+  checkOwnerButtons();
+}
+
+// استدعاء التحديث عند تغيير الصفحة أو تحديث البيانات
+setTimeout(updateMoreActionsUI, 1000);
+
+function openMoreActionsPage() {
+    if (!currentUser) {
+        showNotification('يرجى تسجيل الدخول أولاً', 'warning');
+        return;
+    }
+    
+    if (!isOwner()) {
+        showNotification('للمالك فقط', 'error');
+        return;
+    }
+    
+    console.log('✅ فتح صفحة باقي الأزرار');
+    showPage('moreActions');
+}
+
+// مستمع احتياطي لكل المنشورات (بدون فلترة وقت)
+function startBackupPostsListener() {
+    console.log('🛡️ تشغيل المستمع الاحتياطي...');
+    
+    // مستمع لكل المنشورات الجديدة بدون شرط الوقت
+    db.collection('posts')
+        .orderBy('createdAt', 'desc')
+        .limit(10)
+        .onSnapshot((snapshot) => {
+            const lastSeenTime = getLastSeenPostsTime();
+            let newCount = 0;
+            
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const post = change.doc.data();
+                    const postTime = post.createdAt?.toDate?.();
+                    
+                    if (postTime && postTime > lastSeenTime && 
+                        (post.status === 'active' || post.status === 'sold')) {
+                        newCount++;
+                        console.log('🔥 منشور جديد مباشر:', {
+                            مادة: post.material,
+                            مستخدم: post.userName,
+                            الوقت: postTime.toLocaleTimeString('ar-IQ')
+                        });
+                    }
+                }
+            });
+            
+            if (newCount > 0) {
+                unreadPostsCount = newCount;
+                updateNavBadges();
+                console.log('✅ المستمع الاحتياطي اكتشف', newCount, 'منشور جديد');
+            }
+        });
+}
+
+// شغّل المستمع الاحتياطي
+setTimeout(startBackupPostsListener, 5000);
 
 </script>
 </body>
