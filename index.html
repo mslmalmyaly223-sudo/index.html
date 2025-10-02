@@ -1232,28 +1232,44 @@ function handleAuthError(error){
 }
 
 function register(){
-  const name=document.getElementById("register-name").value.trim();
-  const email=document.getElementById("register-email").value.trim();
-  const password=document.getElementById("register-password").value;
-  const picked=(document.querySelector('input[name="register-avatar"]:checked')?.value)||"male";
+  const name = document.getElementById("register-name").value.trim();
+  const email = document.getElementById("register-email").value.trim().toLowerCase();
+  const password = document.getElementById("register-password").value;
+  const picked = (document.querySelector('input[name="register-avatar"]:checked')?.value) || "male";
+  
   pendingChosenAvatar = picked;
-  if(!name||!email||!password) return showNotification("يرجى ملء جميع الحقول","error");
+  
+  if(!name || !email || !password) return showNotification("يرجى ملء جميع الحقول","error");
   if(!validateEmail(email)) return showNotification("البريد الإلكتروني غير صالح","error");
-  auth.createUserWithEmailAndPassword(email,password)
-    .then(cred=>{
-      const shortUid = generateShortUid(cred.user.uid);
-      return db.collection("users").doc(cred.user.uid).set({
-        name,email,avatar:picked, createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-        isVerified:false,isOwner:false,blockedFromPosting:false,
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp(), lastPromoAt: null,
-        shortUid: shortUid
-      },{merge:true});
-    })
-    .then(()=>{ 
-      showNotification("تم إنشاء الحساب. سجّل الدخول الآن.","success"); 
-      switchAuthTab('login'); 
-    })
-    .catch(handleAuthError);
+  
+  // 🔍 التحقق من البريد المحظور أولاً
+  checkIfEmailBanned(email).then(isBanned => {
+      if (isBanned) {
+          showNotification("🚫 هذا البريد الإلكتروني محظور ولا يمكن التسجيل به", "error");
+          return;
+      }
+      
+      // متابعة التسجيل العادي
+      auth.createUserWithEmailAndPassword(email, password)
+          .then(cred => {
+              const shortUid = generateShortUid(cred.user.uid);
+              return db.collection("users").doc(cred.user.uid).set({
+                  name, email, avatar: picked, 
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  isVerified: false, isOwner: false, blockedFromPosting: false,
+                  lastSeen: firebase.firestore.FieldValue.serverTimestamp(), 
+                  lastPromoAt: null,
+                  shortUid: shortUid
+              }, { merge: true });
+          })
+          .then(() => { 
+              showNotification("تم إنشاء الحساب. سجّل الدخول الآن.", "success"); 
+              switchAuthTab('login'); 
+          })
+          .catch(handleAuthError);
+  }).catch(error => {
+      showNotification("خطأ في التحقق من البريد", "error");
+  });
 }
 function login(){
   const email=document.getElementById("login-email").value.trim();
@@ -2350,7 +2366,7 @@ async function startStudyTimer() {
     }
 }
 
-// ⏹️ إيقاف المؤقت - مع التحقق النهائي
+// ⏹️ إيقاف المؤقت - الإصدار المبسط والمضمون
 async function stopStudyTimer() {
     if (!currentUser || !studyState.running) return;
 
@@ -2358,35 +2374,64 @@ async function stopStudyTimer() {
         const endTime = new Date();
         const elapsedMs = endTime.getTime() - studyState.startAtMs;
         
-        // التحقق من صحة الوقت المنقضي
-        if (elapsedMs < 0 || elapsedMs > (24 * 60 * 60 * 1000)) {
-            console.warn("⏰ وقت غير صالح:", elapsedMs);
-            showNotification("تم اكتشاف وقت غير صالح", "warning");
-            resetTimerState();
-            return;
-        }
-
+        // حساب النقاط بشكل مبسط
         const isBoost = studyState.boostUntil && studyState.boostUntil > endTime;
-        const effectiveMs = isBoost ? elapsedMs * 2 : elapsedMs;
-        const pointsEarned = Math.floor(effectiveMs / (2 * 60 * 1000));
-
+        const pointsEarned = Math.floor(elapsedMs / (2 * 60 * 1000)); // نقطة لكل دقيقتين
+        
         if (pointsEarned > 0) {
-            await updatePointsOnServer(pointsEarned, elapsedMs, isBoost);
+            // تحديث النقاط مباشرة
+            await db.collection('study').doc(currentUser.uid).set({
+                currentPoints: firebase.firestore.FieldValue.increment(pointsEarned),
+                totalPoints: firebase.firestore.FieldValue.increment(pointsEarned),
+                running: false,
+                startAt: null,
+                lastStoppedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                name: currentUser.name || 'مستخدم',
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            // تحديث الحالة المحلية
+            studyState.currentPoints += pointsEarned;
+            studyState.totalPoints += pointsEarned;
         }
 
-        await db.collection('study').doc(currentUser.uid).update({
-            running: false,
-            startAt: null,
-            lastStoppedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        resetTimerState();
-        showNotification(`تم إيقاف المؤقت - ربحت ${pointsEarned} نقطة`, "success");
+        // إيقاف المؤقت
+        studyState.running = false;
+        studyState.startAtMs = null;
+        stopStudyInterval();
+        stopHeartbeatInterval();
+        
+        renderTimerUI();
+        showNotification(`تم إيقاف المؤقت - ربحت ${pointsEarned} نقطة 🎉`, "success");
 
     } catch (error) {
         console.error("Error stopping timer:", error);
-        showNotification("فشل إيقاف المؤقت", "error");
+        showNotification("فشل إيقاف المؤقت - جرب مرة أخرى", "error");
     }
+}
+
+// 🔄 دوال الإيقاف المساعدة
+function stopStudyInterval(){ 
+    if(studyInterval){ 
+        clearInterval(studyInterval); 
+        studyInterval = null; 
+    } 
+}
+
+function stopHeartbeatInterval(){ 
+    if(heartbeatInterval){ 
+        clearInterval(heartbeatInterval); 
+        heartbeatInterval = null; 
+    } 
+}
+
+function resetTimerState() {
+    studyState.running = false;
+    studyState.startAtMs = null;
+    studyState.totalSeconds = 0;
+    stopStudyInterval();
+    stopHeartbeatInterval();
+    renderTimerUI();
 }
 
 // 📊 تحديث النقاط على السيرفر
@@ -2590,16 +2635,22 @@ function updateDailyRewardUI(){
   }
 }
 
-// 🔒 المكافأة اليومية الآمنة - مع التحقق من وقت السيرفر
+// 🔒 المكافأة اليومية مع الحظر الدائم
 async function claimDailyReward() {
-    if (isClaiming || !currentUser) return;
-    isClaiming = true;
+    if (!currentUser) return;
     
     const btn = document.getElementById('daily-claim-btn');
     if (btn) btn.disabled = true;
     
     try {
-        // 🔒 التحقق من السيرفر أولاً
+        // 🔍 الكشف عن التلاعب أولاً
+        const isManipulation = await detectTimeManipulation();
+        if (isManipulation) {
+            forceLogoutWithMessage('تم حظر حسابك بشكل دائم بسبب محاولة تلاعب بالنظام');
+            return;
+        }
+        
+        // باقي الكود الطبيعي للمكافأة...
         const userRef = db.collection('study').doc(currentUser.uid);
         const userDoc = await userRef.get();
         
@@ -2611,32 +2662,27 @@ async function claimDailyReward() {
         const userData = userDoc.data();
         const now = new Date();
         
-        // 🔒 استخدام وقت السيرفر بدل وقت العميل
         const lastClaim = userData.lastDailyClaimAt ? 
             userData.lastDailyClaimAt.toDate().getTime() : 0;
         
         const timeSinceLastClaim = now.getTime() - lastClaim;
         
-        // 🔒 التحقق من مرور 24 ساعة حقيقية
         if (timeSinceLastClaim < (24 * 60 * 60 * 1000)) {
             const remaining = (24 * 60 * 60 * 1000) - timeSinceLastClaim;
             showNotification(`لم يحن وقت المكافأة بعد. متبقي: ${msToHMS(remaining)}`, "error");
             return;
         }
 
-        // 🔒 تحديث النقاط على السيرفر مع وقت السيرفر الرسمي
+        // منح المكافأة...
         await userRef.update({
             currentPoints: firebase.firestore.FieldValue.increment(20),
             totalPoints: firebase.firestore.FieldValue.increment(20),
             lastDailyClaimAt: firebase.firestore.Timestamp.fromDate(now),
-            lastDailyClaimServerTime: firebase.firestore.FieldValue.serverTimestamp(), // ⏰ وقت السيرفر
+            lastDailyClaimServerTime: firebase.firestore.FieldValue.serverTimestamp(),
+            lastClientTime: firebase.firestore.Timestamp.fromDate(now),
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // 🔒 تسجيل العملية مع التحقق
-        await logPointsTransaction(currentUser.uid, 20, 'daily_reward', 'المكافأة اليومية - مؤكدة');
-
-        // 🔒 تحديث الحالة المحلية
         studyState.currentPoints += 20;
         studyState.totalPoints += 20;
         studyState.lastDailyClaimAt = now;
@@ -2649,7 +2695,6 @@ async function claimDailyReward() {
         console.error("Error claiming daily reward:", error);
         showNotification('تعذّر منح المكافأة', 'error');
     } finally {
-        isClaiming = false;
         if (btn) btn.disabled = false;
     }
 }
@@ -3282,71 +3327,60 @@ function stopJourneyListener(){
     journeyUnsub=null;
   }
 }
-async function openJourneyItem(id){
-  try{
-    const doc=await db.collection('journey_content').doc(id).get();
-    if(!doc.exists) return showNotification('غير موجود','error');
-    
-    const it=doc.data(); 
-    openJourneyItemPage(it.title||'محتوى', it.content||'', id);
-  }catch(error){
-    console.error("Error opening journey item:", error);
-    showNotification('خطأ في الفتح','error'); 
-  }
-}
-async function addJourneyContent(){
-  if(!isOwner()) return;
-  const title=prompt('عنوان المحتوى:'); 
-  if(!title) return;
-  const content=prompt('المحتوى النصّي:'); 
-  if(!content) return;
-  try{
-    const last=await db.collection('journey_content').orderBy('order','desc').limit(1).get();
-    const ord = last.empty? 1 : (Number(last.docs[0].data().order)||0)+1;
-    await db.collection('journey_content').add({ 
-      title, 
-      content, 
-      order:ord, 
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
-      createdBy: currentUser.uid 
-    });
-    showNotification('أُضيف المحتوى','success');
-  }catch(e){
-    console.error("Error adding journey content:", e);
-    showNotification('فشل الإضافة','error'); 
-  }
-}
-async function editJourneyItem(id){
-  if(!isOwner()) return;
-  const d=await db.collection('journey_content').doc(id).get(); 
-  if(!d.exists) return;
-  const it=d.data(); 
-  const t=prompt('العنوان:', it.title); 
-  if(!t) return;
-  const c=prompt('المحتوى:', it.content); 
-  if(c===null) return;
-  try{ 
-    await db.collection('journey_content').doc(id).update({ 
-      title:t, 
-      content:c, 
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-    }); 
-    showNotification('تم التعديل','success'); 
-  }catch(e){
-    console.error("Error editing journey item:", e);
-    showNotification('فشل التعديل','error'); 
-  }
-}
-async function deleteJourneyItem(id){
-  if(!isOwner()) return; 
-  if(!confirm('حذف المحتوى؟')) return;
-  try{ 
-    await db.collection('journey_content').doc(id).delete(); 
-    showNotification('حُذف','success'); 
-  }catch(e){
-    console.error("Error deleting journey item:", e);
-    showNotification('فشل الحذف','error'); 
-  }
+// 📖 فتح محتوى رحلة السادس - الإصدار المصحح
+async function openJourneyItem(id) {
+    try {
+        showPage('journeyItem');
+        
+        const container = document.getElementById('journey-item-container');
+        container.innerHTML = '<div class="post"><p>جاري تحميل المحتوى...</p></div>';
+        
+        const doc = await db.collection('journey_content').doc(id).get();
+        
+        if (!doc.exists) {
+            container.innerHTML = '<div class="post"><p>المحتوى غير موجود</p></div>';
+            return;
+        }
+        
+        const item = doc.data();
+        
+        let contentHTML = `
+            <div class="post">
+                <h2>${escapeHTML(item.title || 'محتوى')}</h2>
+                <div class="post-description" style="white-space: pre-wrap; line-height: 1.8;">
+                    ${escapeHTML(item.content || 'لا يوجد محتوى')}
+                </div>
+        `;
+        
+        // إضافة أزرار التحكم للمالك
+        if (isOwner()) {
+            contentHTML += `
+                <div class="post-actions" style="margin-top: 15px;">
+                    <button class="btn btn-secondary" onclick="editJourneyItem('${id}')">
+                        <i class="fas fa-edit"></i> تعديل
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteJourneyItem('${id}')">
+                        <i class="fas fa-trash"></i> حذف
+                    </button>
+                </div>
+            `;
+        }
+        
+        contentHTML += `</div>`;
+        container.innerHTML = contentHTML;
+        
+    } catch (error) {
+        console.error("Error opening journey item:", error);
+        showNotification('خطأ في تحميل المحتوى', 'error');
+        
+        const container = document.getElementById('journey-item-container');
+        container.innerHTML = `
+            <div class="post">
+                <p>❌ تعذر تحميل المحتوى</p>
+                <button class="btn" onclick="showChallengePage()">العودة للتحدي</button>
+            </div>
+        `;
+    }
 }
 
 /* ===========================================================
@@ -3983,6 +4017,238 @@ function getPointsHistoryColor(type) {
   };
   return colors[type] || '#6c757d';
 }
+
+/* ===== نظام الحظر الدائم والمنع ===== */
+async function permanentBanAndPrevent(userId, reason) {
+    try {
+        const userRef = db.collection('users').doc(userId);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) return;
+
+        const userData = userDoc.data();
+        const userEmail = userData.email;
+        
+        // 1. 🔒 وضع علامة حظر دائمة
+        await userRef.update({
+            isPermanentlyBanned: true,
+            banReason: reason,
+            bannedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            originalEmail: userEmail, // حفظ البريد الأصلي
+            bannedBy: 'SYSTEM_AUTO',
+            banType: 'PERMANENT'
+        });
+
+        // 2. 🗂 إضافة إلى قائمة البريد المحظور عالمياً
+        await db.collection('banned_emails').doc(userEmail.toLowerCase()).set({
+            email: userEmail.toLowerCase(),
+            originalUserId: userId,
+            banReason: reason,
+            bannedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            bannedBy: 'SYSTEM_AUTO',
+            preventRegistration: true
+        });
+
+        // 3. 📢 إشعار للمالك
+        await sendTelegramNotification(
+            `🚫 <b>حظر دائم</b>\n\n` +
+            `👤 المستخدم: ${escapeHTML(userData.name || 'غير معروف')}\n` +
+            `📧 البريد: ${escapeHTML(userEmail)}\n` +
+            `🆔 المعرف: ${escapeHTML(userData.shortUid || 'غير معروف')}\n` +
+            `📝 السبب: ${escapeHTML(reason)}\n` +
+            `⏰ الوقت: ${new Date().toLocaleString('ar-IQ')}\n` +
+            `🚨 الإجراء: حظر دائم + منع إعادة التسجيل`
+        );
+
+        console.log(`✅ تم حظر ${userEmail} بشكل دائم`);
+
+    } catch (error) {
+        console.error('Error in permanent ban:', error);
+    }
+}
+
+// 🚪 تسجيل الخروج القسري مع رسالة واضحة
+function forceLogoutWithMessage(message) {
+    showNotification(`🚫 ${message}`, 'error');
+    
+    setTimeout(() => {
+        // تنظيف البيانات المحلية
+        localStorage.removeItem('seenBroadcasts');
+        localStorage.removeItem('userSignupTime');
+        localStorage.removeItem('lastSeenTime');
+        localStorage.removeItem('reportedPosts');
+        
+        // تسجيل الخروج
+        auth.signOut().then(() => {
+            // إعادة توجيه للصفحة الرئيسية
+            window.location.reload();
+        });
+    }, 4000);
+}
+
+/* ===== التحقق من البريد المحظور عند التسجيل ===== */
+async function checkIfEmailBanned(email) {
+    try {
+        const bannedEmailDoc = await db.collection('banned_emails')
+            .doc(email.toLowerCase())
+            .get();
+        
+        return bannedEmailDoc.exists;
+    } catch (error) {
+        console.error('Error checking banned email:', error);
+        return false;
+    }
+}
+
+/* ===== كشف التلاعب بالوقت مع الحظر الدائم ===== */
+async function detectTimeManipulation() {
+    if (!currentUser) return false;
+    
+    try {
+        const userRef = db.collection('study').doc(currentUser.uid);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) return false;
+        
+        const userData = userDoc.data();
+        const now = new Date();
+        
+        // 🔍 التحقق 1: إذا كان lastDailyClaimAt في المستقبل
+        if (userData.lastDailyClaimAt) {
+            const lastClaimTime = userData.lastDailyClaimAt.toDate();
+            if (lastClaimTime > now) {
+                await permanentBanAndPrevent(currentUser.uid,
+                    `محاولة تلاعب: وقت المكافأة المسجل (${lastClaimTime.toLocaleString('ar-IQ')}) في المستقبل`
+                );
+                return true;
+            }
+        }
+        
+        // 🔍 التحقق 2: إذا كان هناك فرق كبير بين وقت العميل والسيرفر
+        if (userData.lastClientTime) {
+            const clientTime = userData.lastClientTime.toDate();
+            const serverTime = userData.lastUpdated?.toDate() || now;
+            const timeDiff = Math.abs(serverTime - clientTime);
+            
+            // إذا كان الفرق أكثر من 10 دقائق (600,000 ملي ثانية)
+            if (timeDiff > 600000) {
+                await permanentBanAndPrevent(currentUser.uid,
+                    `تلاعب بوقت الجهاز: فرق ${Math.floor(timeDiff/60000)} دقيقة بين العميل والسيرفر`
+                );
+                return true;
+            }
+        }
+        
+        // 🔍 التحقق 3: إذا طلب المكافأة بفاصل غير منطقي
+        if (userData.lastDailyClaimAt && userData.lastDailyClaimServerTime) {
+            const lastClaimServer = userData.lastDailyClaimServerTime.toDate();
+            const timeSinceLastClaim = now - lastClaimServer;
+            
+            if (timeSinceLastClaim < (20 * 60 * 60 * 1000)) { // 20 ساعة بدل 24 للاحتياط
+                await permanentBanAndPrevent(currentUser.uid,
+                    `محاولة أخذ المكافأة قبل الوقت المسموح: ${msToHMS(timeSinceLastClaim)} فقط من آخر مكافأة`
+                );
+                return true;
+            }
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Error in time manipulation detection:', error);
+        return false;
+    }
+}
+
+console.log('✅ تطبيق سوق الطلاب محمل وجاهز للعمل!');
+
+/* ===== دوال إدارة محتوى رحلة السادس ===== */
+
+// ✏️ تعديل محتوى رحلة السادس
+async function editJourneyItem(id) {
+    if(!isOwner()) return;
+    
+    try {
+        const doc = await db.collection('journey_content').doc(id).get();
+        if(!doc.exists) return;
+        
+        const item = doc.data();
+        const newTitle = prompt('العنوان الجديد:', item.title);
+        if(!newTitle) return;
+        
+        const newContent = prompt('المحتوى الجديد:', item.content);
+        if(newContent === null) return;
+        
+        await db.collection('journey_content').doc(id).update({
+            title: newTitle,
+            content: newContent,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showNotification('تم تعديل المحتوى بنجاح', 'success');
+        // إعادة تحميل الصفحة الحالية
+        openJourneyItem(id);
+        
+    } catch(error) {
+        console.error('Error editing journey item:', error);
+        showNotification('فشل التعديل', 'error');
+    }
+}
+
+// 🗑️ حذف محتوى رحلة السادس
+async function deleteJourneyItem(id) {
+    if(!isOwner()) return;
+    
+    if(!confirm('هل أنت متأكد من حذف هذا المحتوى؟')) return;
+    
+    try {
+        await db.collection('journey_content').doc(id).delete();
+        showNotification('تم حذف المحتوى بنجاح', 'success');
+        // العودة لصفحة رحلة السادس الرئيسية
+        showChallengePage();
+        
+    } catch(error) {
+        console.error('Error deleting journey item:', error);
+        showNotification('فشل الحذف', 'error');
+    }
+}
+
+// ➕ إضافة محتوى جديد لرحلة السادس
+async function addJourneyContent() {
+    if(!isOwner()) return;
+    
+    const title = prompt('عنوان المحتوى الجديد:');
+    if(!title) return;
+    
+    const content = prompt('المحتوى النصي:');
+    if(!content) return;
+    
+    try {
+        // حساب الترتيب التلقائي
+        const lastItem = await db.collection('journey_content')
+            .orderBy('order', 'desc')
+            .limit(1)
+            .get();
+            
+        const newOrder = lastItem.empty ? 1 : (lastItem.docs[0].data().order + 1);
+        
+        await db.collection('journey_content').add({
+            title: title,
+            content: content,
+            order: newOrder,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdBy: currentUser.uid
+        });
+        
+        showNotification('تم إضافة المحتوى الجديد', 'success');
+        // إعادة تحميل قائمة رحلة السادس
+        startJourneyListener();
+        
+    } catch(error) {
+        console.error('Error adding journey content:', error);
+        showNotification('فشل الإضافة', 'error');
+    }
+}
+
 </script>
 </body>
 </html>
