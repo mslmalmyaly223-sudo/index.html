@@ -20,6 +20,115 @@
     body{background:#f5f5f5;color:var(--text-color);overscroll-behavior-y:contain;-webkit-text-size-adjust:100%;touch-action:manipulation}
     .container{max-width:100%;min-height:100vh;background:#fff;padding-bottom:70px}
 
+/* ===== أنميشن الشاشة الأولى مع التحميل ===== */
+.splash {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(60% 90% at 20% 10%, rgba(16,209,255,.20), transparent 60%),
+              radial-gradient(70% 80% at 90% 90%, rgba(106,17,203,.18), transparent 60%),
+              linear-gradient(135deg,#0d0f1a 0%, #0f1330 100%);
+  z-index: 9999;
+  overflow: hidden;
+  transition: opacity .6s ease;
+}
+
+.splash.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.runner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .08em;
+  filter: drop-shadow(0 10px 28px rgba(0,0,0,.45));
+  pointer-events: none;
+}
+
+.runner span {
+  font-weight: 900;
+  font-size: clamp(40px, 9vw, 74px);
+  color: #e6ebff;
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(6vw) scale(.96);
+  animation: runCentered .8s cubic-bezier(.2,.8,.2,1) forwards;
+  will-change: transform, opacity;
+}
+
+.runner span:nth-child(1){ animation-delay:.00s }
+.runner span:nth-child(2){ animation-delay:.05s }
+.runner span:nth-child(3){ animation-delay:.10s }
+.runner span:nth-child(4){ animation-delay:.15s }
+.runner span:nth-child(5){ animation-delay:.20s }
+.runner span:nth-child(6){ animation-delay:.25s }
+.runner span:nth-child(7){ animation-delay:.30s }
+.runner span:nth-child(8){ animation-delay:.35s }
+.runner span:nth-child(9){ animation-delay:.40s }
+.runner span:nth-child(10){ animation-delay:.45s }
+
+@keyframes runCentered {
+  0% { opacity: 0; transform: translateX(6vw) scale(.96) }
+  18% { opacity: 1 }
+  55% { transform: translateX(-6vw) scale(1.02) }
+  100% { opacity: 0; transform: translateX(-6vw) scale(.98) }
+}
+
+.final-logo {
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  font-weight: 900;
+  font-size: clamp(42px, 9.5vw, 72px);
+  color: #eef2ff;
+  text-shadow: 0 14px 40px rgba(16,209,255,.22), 0 4px 10px rgba(0,0,0,.5);
+  white-space: nowrap;
+  line-height: 1;
+  direction: rtl;
+  unicode-bidi: plaintext;
+  animation: logoMerge .55s cubic-bezier(.2,.9,.1,1) var(--merge-delay,1.35s) forwards;
+}
+
+@keyframes logoMerge {
+  0% { opacity: 0; transform: translateY(18px) scale(.94) }
+  100% { opacity: 1; transform: translateY(0) scale(1) }
+}
+
+/* 🔥 الإضافة: نص التحميل */
+.loading-text {
+  position: absolute;
+  bottom: 30%;
+  color: #a0b4ff;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  opacity: 0;
+  animation: loadingPulse 2s infinite;
+  direction: rtl;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.loading-text.show {
+  display: block;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
     /* ===== Splash ===== */
     .splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:
       radial-gradient(60% 90% at 20% 10%, rgba(16,209,255,.20), transparent 60%),
@@ -89,6 +198,32 @@
 
 .choose-avatar input[type="radio"] {
     display: none;
+}
+
+/* تأكد من أن الإشعار فوق كلشي */
+#broadcast-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 1000; /* زود الـ z-index */
+  display: none;
+}
+
+#broadcast-banner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: min(92%, 380px);
+  max-height: 70vh;
+  overflow: auto;
+  z-index: 1010; /* زود الـ z-index */
+  background: #e9f0ff;
+  border: 1px solid #d0dcff;
+  border-radius: 16px;
+  padding: 16px 46px 16px 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.28);
+  display: none;
 }
 
     /* Buttons */
@@ -648,6 +783,66 @@
     border-radius: 2px;
 }
 
+/* تحديث تصميم زر العجلة */
+#spin-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #dc3545 !important;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(220, 53, 69, 0.5);
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+#spin-button:hover {
+    background: #c82333 !important;
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 0 35px rgba(220, 53, 69, 0.7);
+}
+
+#spin-button:disabled {
+    background: #6c757d !important;
+    cursor: not-allowed;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 15px rgba(108, 117, 125, 0.5);
+}
+
+/* تصميم السهم */
+.wheel-arrow {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 40px;
+    color: #ff4757;
+    text-shadow: 0 3px 15px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+/* تحسين مظهر العجلة */
+#wheel-canvas {
+    border-radius: 50%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease;
+}
+
+/* إخفاء قسم النسب */
+.wheel-probabilities {
+    display: none !important;
+}
+
   </style>
 
   <!-- Firebase -->
@@ -660,12 +855,17 @@
 <body>
 
   <!-- Splash -->
-  <div id="splash" class="splash" aria-label="سوق الطلاب">
-    <div class="runner" dir="rtl" aria-hidden="true">
-      <span>س</span><span>و</span><span>ق</span><span>&nbsp;</span><span>ا</span><span>ل</span><span>ط</span><span>ل</span><span>ا</span><span>ب</span>
-    </div>
-    <div class="final-logo" id="final-logo" dir="rtl">سوق الطلاب</div>
+<div id="splash" class="splash" aria-label="سوق الطلاب">
+  <div class="runner" dir="rtl" aria-hidden="true">
+    <span>س</span><span>و</span><span>ق</span><span>&nbsp;</span><span>ا</span><span>ل</span><span>ط</span><span>ل</span><span>ا</span><span>ب</span>
   </div>
+  <div class="final-logo" id="final-logo" dir="rtl">سوق الطلاب</div>
+  
+  <!-- 🔥 الإضافة: نص التحميل تحت الأنميشن -->
+  <div id="loading-text" class="loading-text" style="display: none;">
+    جاري التحميل...
+  </div>
+</div>
 
   <!-- Auth -->
   <div id="auth-page" class="auth-container page" style="display:none">
@@ -733,13 +933,6 @@
         <option value="فيزياء">فيزياء</option><option value="اقتصاد">اقتصاد</option><option value="أدب ونصوص">أدب ونصوص</option>
         <option value="قواعد">قواعد</option>
       </select>
-    </div>
-
-    <div id="broadcast-overlay"></div>
-    <div id="broadcast-banner">
-      <button class="x" onclick="dismissBroadcast()">×</button>
-      <div style="font-weight:900;color:#0f235f" id="broadcast-title-display"></div>
-      <div id="broadcast-text-display" style="margin-top:4px;color:#0f235f"></div>
     </div>
 
     <div class="pull-indicator"><div id="pull-bubble" class="bubble">اسحب للتحديث…</div></div>
@@ -830,6 +1023,47 @@
     </div>
   </div>
   
+<!-- Modal عجلة الحظ -->
+<div id="wheel-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>عجلة الحظ 🎡</h2>
+      <button class="close-modal" onclick="closeWheelModal()">&times;</button>
+    </div>
+    <div style="text-align:center; padding:20px">
+      <!-- السهم - أضف هذا الكود -->
+<!-- السهم يضل في الأعلى علشان يبان أي جائزة كسبها المستخدم -->
+<div style="position:relative; margin:0 auto; width:300px;">
+    </div>
+    
+    <div id="wheel-container" style="position:relative; width:300px; height:300px; margin:40px auto 0 auto">
+        <canvas id="wheel-canvas" width="300" height="300"></canvas>
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
+                   background: #dc3545 !important; 
+                   border:3px solid #fff; 
+                   border-radius:50%; 
+                   width:80px; height:80px; 
+                   display:flex; align-items:center; justify-content:center;
+                   font-weight:900; color:#fff; cursor:pointer; 
+                   box-shadow:0 0 25px rgba(220,53,69,0.5); font-size:18px;"
+             onclick="spinWheel()" id="spin-button">
+            ابدء
+        </div>
+    </div>
+</div>
+      
+      <div id="wheel-result" style="margin-top:20px; font-weight:900; font-size:18px; display:none">
+        <!-- النتيجة تظهر هنا -->
+      </div>
+      
+      <div class="hint" style="margin-top:15px">
+        🎁 الجوائز: 10, 25, 50, 75, 100, 150, 200, 250 نقطة<br>
+        ⏰ يمكنك السحب مرة كل 6 ساعات
+      </div>
+    </div>
+  </div>
+</div>
+
   <!-- User posts -->
 <div id="user-posts-page" class="container page" style="display:none">
   <div class="header"><button class="btn btn-secondary" onclick="backToProfile()"><i class="fas fa-arrow-right"></i></button><span style="font-weight:900">منشوراتي</span></div>
@@ -895,14 +1129,16 @@
         <div id="timer-hint" class="hint">1 نقطة لكل دقيقتين. التسريع يُضاعف الدقيقة داخل فترة التفعيل.</div>
       </div>
 
-      <!-- مكافأة يومية واحدة فقط (الإصدار الفعّال) -->
-      <div class="daily-reward">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-          <div style="font-weight:800;color:#0f235f">هدية يومية</div>
-          <button id="daily-claim-btn" class="btn btn-success" onclick="claimDailyReward()"><i class="fas fa-gift"></i> احصل على 20 نقطة</button>
-        </div>
-        <div id="daily-remaining" class="hint" style="margin-top:10px"></div>
-      </div>
+      <!-- بدل الكود الحالي في قسم المؤقت -->
+<div class="daily-reward">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div style="font-weight:800;color:#0f235f">عجلة الحظ 🎡</div>
+    <button id="wheel-spin-btn" class="btn btn-success" onclick="openWheelModal()">
+      <i class="fas fa-gift"></i> سحب عجلة الحظ
+    </button>
+  </div>
+  <div id="wheel-remaining" class="hint" style="margin-top:10px"></div>
+</div>
 
       <div class="boost-card">
         <div class="timer-title">تسريع المؤقت</div>
@@ -994,6 +1230,13 @@
     </div>
 </div>
 
+    <div id="broadcast-overlay"></div>
+    <div id="broadcast-banner">
+      <button class="x" onclick="dismissBroadcast()">×</button>
+      <div style="font-weight:900;color:#0f235f" id="broadcast-title-display"></div>
+      <div id="broadcast-text-display" style="margin-top:4px;color:#0f235f"></div>
+    </div>
+    
 <!-- Bottom nav -->
 <div id="bottom-nav" class="bottom-nav">
   <div class="nav-item" data-page="challenge" onclick="showChallengePage()">
@@ -1427,9 +1670,21 @@ const firebaseConfig = {
   appId:"1:862363949793:web:e0dc01a4eb139da43f75a0",
   measurementId:"G-CT6WFGXRHH"
 };
-firebase.initializeApp(firebaseConfig);
+
+// 🔥 الإضافة: تهيئة Firebase فوراً
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log("✅ Firebase initialized immediately");
+} catch (error) {
+  console.log("Firebase already initialized");
+}
+
 const db = firebase.firestore();
 const auth = firebase.auth();
+
+// 🔥 الإضافة: تحميل البيانات مسبقاً
+let appInitialized = false;
+let cachedUserData = null;
 
 /* ===== Telegram ===== */
 const TELEGRAM_BOT_TOKEN = "8167852054:AAHt587_tOX_XASuNlskt3odkfJHNesiDxc";
@@ -1919,17 +2174,203 @@ async function sendBroadcastToAllUsers(message) {
 }
 
 /* =========================
-   Splash timing
+   Splash timing - يضل يظهر لحد ما يتحمل كل شي
 ========================= */
 (function(){
-  const lastDelay = 0.45, runDur=0.8, mergeDelay = lastDelay + runDur + .10;
+  const lastDelay = 0.45, runDur = 0.8, mergeDelay = lastDelay + runDur + .10;
   document.getElementById('final-logo').style.setProperty('--merge-delay', mergeDelay+'s');
-  setTimeout(()=>{ document.querySelector('.runner')?.remove(); }, (mergeDelay+0.4)*1000);
-  const splash=document.getElementById('splash');
-  function skip(){ splash.classList.add('fade-out'); setTimeout(()=>splash.remove(),600); }
+  
+  // 🔥 التغيير: ما نختفي الأنميشن تلقائياً
+  setTimeout(() => { 
+    document.querySelector('.runner')?.remove(); 
+    
+    // 🔥 الإضافة: إظهار نص "جاري التحميل" بعد الأنميشن
+    setTimeout(() => {
+      const loadingText = document.getElementById('loading-text');
+      if (loadingText) {
+        loadingText.style.display = 'block';
+        loadingText.classList.add('show');
+        console.log("📝 Showing loading text");
+      }
+    }, 300);
+    
+  }, (mergeDelay + 0.4) * 1000);
+  
+  // 🔥 الإضافة: منع تخطي الشاشة
+  const splash = document.getElementById('splash');
+  function skip(){ 
+    // لا تفعل شيئاً - منع التخطي
+  }
   splash.addEventListener('click', skip);
   splash.addEventListener('touchstart', skip, {passive:true});
 })();
+
+// 🔥 الإضافة: دالة لإخفاء الشاشة بعد التحميل
+function hideSplashAfterLoad() {
+  const splash = document.getElementById('splash');
+  if (splash) {
+    splash.classList.add('fade-out');
+    setTimeout(() => {
+      splash.remove();
+      console.log("✅ Splash hidden after complete load");
+    }, 600);
+  }
+}
+
+// 🔥 الإصدار المحسن: مستمع المصادقة مع التحميل التدريجي
+auth.onAuthStateChanged(async (user) => {
+  console.log("🚀 Auth state detected");
+  
+  if(!user){
+    // إذا ما كان فيه مستخدم، نخفي الشاشة ونظهر صفحة التسجيل
+    hideSplashAfterLoad();
+    updateUIForLoggedOutUser();
+    stopAllListeners();
+    return;
+  }
+  
+  try {
+    // 🔥 تحديث نص التحميل
+    updateLoadingText("جاري تحميل البيانات...");
+    
+    // 🔥 تحميل بيانات المستخدم الأساسية
+    let userData = await loadUserDataFast(user.uid);
+    
+    if (!userData) {
+      updateLoadingText("جاري إنشاء الحساب...");
+      // إنشاء حساب جديد
+      isFirstLoginSession = true;
+      const shortUid = generateShortUid(user.uid);
+      userData = {
+        name: user.displayName || user.email.split("@")[0], 
+        email: user.email, 
+        avatar: pendingChosenAvatar || "male",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
+        isVerified: false, 
+        isOwner: false, 
+        blockedFromPosting: false, 
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(), 
+        lastPromoAt: null,
+        shortUid: shortUid
+      };
+      
+      await db.collection("users").doc(user.uid).set(userData, {merge:true});
+    }
+    
+    currentUser = { uid: user.uid, ...userData };
+    
+    // 🔥 تحديث نص التحميل
+    updateLoadingText("جاري تحميل التحدي...");
+    
+    // 🔥 تحديث الواجهة الأساسية
+    updateUIForLoggedInUserFast();
+    
+    // 🔥 تحميل جميع البيانات مع تحديث النص
+    await loadAllDataWithProgress();
+    
+    // 🔥 أخيراً: إخفاء الشاشة بعد اكتمال التحميل
+    hideSplashAfterLoad();
+    
+    pendingChosenAvatar = null;
+    
+  } catch(e) {
+    console.error("User load error:", e);
+    // في حالة الخطأ، نستخدم بيانات افتراضية ونخفي الشاشة
+    currentUser = { 
+      uid: user.uid, 
+      name: user.email.split("@")[0], 
+      email: user.email, 
+      avatar: pendingChosenAvatar || "male"
+    };
+    updateUIForLoggedInUserFast();
+    hideSplashAfterLoad();
+  }
+});
+
+// 🔥 الإضافة: دالة لتحديث نص التحميل
+function updateLoadingText(text) {
+  const loadingText = document.getElementById('loading-text');
+  if (loadingText) {
+    loadingText.textContent = text;
+    console.log("📝 Loading:", text);
+  }
+}
+
+// 🔥 الإضافة: تحميل جميع البيانات مع التقدم
+async function loadAllDataWithProgress() {
+  try {
+    updateLoadingText("جاري تحميل النقاط...");
+    await loadStudyState();
+    
+    updateLoadingText("جاري تحميل المنشورات...");
+    await loadPostsFromFirestore();
+    
+    updateLoadingText("جاري تحميل الإعدادات...");
+    await Promise.all([
+      loadCompanies(),
+      fetchLatestBroadcast(),
+      loadLeaderboardSettings()
+    ]);
+    
+    updateLoadingText("جاري تفعيل النظام...");
+    
+    // تفعيل الأنظمة
+    setTimeout(() => {
+      startInboxBadgeListener();
+      startPostsListener();
+      updateNavBadges();
+      console.log('🚀 All systems activated');
+    }, 500);
+    
+    updateLoadingText("جاهز!");
+    
+  } catch (error) {
+    console.error("Data loading error:", error);
+    updateLoadingText("تم التحميل مع بعض الأخطاء");
+  }
+}
+
+// 🔥 الإضافة: دالة تحميل سريعة لبيانات المستخدم
+async function loadUserDataFast(uid) {
+  try {
+    const doc = await db.collection("users").doc(uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      
+      // تحديث lastSeen في الخلفية
+      setTimeout(() => {
+        db.collection("users").doc(uid).update({ 
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+      }, 2000);
+      
+      return data;
+    }
+    return null;
+  } catch (error) {
+    console.error("Fast user load error:", error);
+    return null;
+  }
+}
+
+// 🔥 الإضافة: تحديث سريع للواجهة
+function updateUIForLoggedInUserFast() {
+  // تحديث البيانات الأساسية فقط
+  if (document.getElementById("profile-name")) {
+    document.getElementById("profile-name").textContent = currentUser.name || "";
+  }
+  
+  const shortUid = currentUser.shortUid || generateShortUid(currentUser.uid);
+  if (document.getElementById("profile-uid-input")) {
+    document.getElementById("profile-uid-input").value = shortUid || "";
+  }
+  
+  renderAvatar(currentUser.avatar === "female" ? "female" : "male");
+  
+  document.querySelectorAll(".owner-only").forEach(el => {
+    el.style.display = isOwner() ? "flex" : "none";
+  });
+}
 
 /* =========================
    نظام استعادة كلمة المرور - الإصدار المحسن
@@ -2946,6 +3387,7 @@ async function sendBroadcast(){
     closeModal();
   }catch(e){ showNotification('فشل الإرسال','error'); }
 }
+
 async function fetchLatestBroadcast(){
   if (isFirstLoginSession) return;
   try {
@@ -2966,6 +3408,7 @@ async function fetchLatestBroadcast(){
     }
   } catch (e) { console.error("fetchLatestBroadcast", e); }
 }
+
 function dismissBroadcast(){
   document.getElementById('broadcast-banner').classList.remove('show');
   document.getElementById('broadcast-overlay').classList.remove('show');
@@ -3359,13 +3802,14 @@ let dailyRewardInterval = null;
 let isClaiming = false;
 
 // 🕒 دالة تحويل الوقت - الإصدار المصحح
-function msToHMS(ms){
-  let s = Math.max(0, Math.floor(ms/1000));
-  const h = Math.floor(s/3600); 
-  s -= h * 3600;
-  const m = Math.floor(s/60); 
-  const ss = s - m * 60;
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+function msToHMS(ms) {
+    let seconds = Math.floor(ms / 1000);
+    let hours = Math.floor(seconds / 3600);
+    seconds = seconds % 3600;
+    let minutes = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+    
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 // 🚀 بدء المؤقت - الإصدار المصحح
@@ -6325,6 +6769,394 @@ async function renderLeaderboardNew(items) {
 function renderLeaderboard(items) {
     renderLeaderboardNew(items);
 }
+
+/* =========================
+   🎡 نظام عجلة الحظ الجديد - التصميم الجديد
+========================= */
+
+let wheelPrizes = [10, 25, 50, 75, 100, 150, 200, 250];
+let wheelProbabilities = [35, 25, 15, 10, 8, 4, 2, 1];
+let wheelSpinning = false;
+let wheelCanvas, wheelCtx;
+
+// فتح عجلة الحظ
+function openWheelModal() {
+    if (!currentUser) return showNotification('يرجى تسجيل الدخول أولاً', 'error');
+    
+    checkTimeManipulationStrict().then(isManipulated => {
+        if (isManipulated) {
+            showNotification('🚫 تم اكتشاف تلاعب في الوقت - الحساب محظور', 'error');
+            return;
+        }
+        
+        document.getElementById('wheel-modal').style.display = 'block';
+        initWheel();
+        updateWheelUI();
+    });
+}
+
+// إغلاق العجلة
+function closeWheelModal() {
+    document.getElementById('wheel-modal').style.display = 'none';
+    wheelSpinning = false;
+}
+
+// تهيئة العجلة
+function initWheel() {
+    wheelCanvas = document.getElementById('wheel-canvas');
+    wheelCtx = wheelCanvas.getContext('2d');
+    drawWheel();
+}
+
+// رسم العجلة (بدون نسب)
+function drawWheel() {
+    const centerX = wheelCanvas.width / 2;
+    const centerY = wheelCanvas.height / 2;
+    const radius = wheelCanvas.width / 2 - 10;
+    
+    wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+    
+    const segmentAngle = (2 * Math.PI) / wheelPrizes.length;
+    
+    // 🔥 الإصلاح: نبدأ الرسم من تحت السهم مباشرة
+    // علشان أول جائزة تكون تحت السهم عندما تكون العجلة في البداية
+    const startOffset = -Math.PI / 2 - (segmentAngle / 2);
+    
+    for (let i = 0; i < wheelPrizes.length; i++) {
+        const startAngle = startOffset + (i * segmentAngle);
+        const endAngle = startOffset + ((i + 1) * segmentAngle);
+        const prize = wheelPrizes[i];
+        
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+        wheelCtx.fillStyle = colors[i % colors.length];
+        wheelCtx.strokeStyle = '#fff';
+        wheelCtx.lineWidth = 3;
+        
+        wheelCtx.beginPath();
+        wheelCtx.moveTo(centerX, centerY);
+        wheelCtx.arc(centerX, centerY, radius, startAngle, endAngle);
+        wheelCtx.closePath();
+        wheelCtx.fill();
+        wheelCtx.stroke();
+        
+        // كتابة النص في منتصف القطاع
+        wheelCtx.save();
+        wheelCtx.translate(centerX, centerY);
+        const textAngle = startAngle + (segmentAngle / 2);
+        wheelCtx.rotate(textAngle);
+        wheelCtx.textAlign = 'right';
+        wheelCtx.fillStyle = '#fff';
+        wheelCtx.font = 'bold 16px Tajawal';
+        wheelCtx.fillText(prize + ' نقطة', radius - 20, 5);
+        wheelCtx.restore();
+    }
+    
+    // رسم المركز
+    wheelCtx.fillStyle = '#fff';
+    wheelCtx.beginPath();
+    wheelCtx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+    wheelCtx.fill();
+    
+    // إضافة تأثير ظل للعجلة
+    wheelCtx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    wheelCtx.shadowBlur = 10;
+    wheelCtx.shadowOffsetX = 2;
+    wheelCtx.shadowOffsetY = 2;
+}
+
+// تدوير العجلة
+async function spinWheel() {
+    if (wheelSpinning) return;
+    
+    const spinBtn = document.getElementById('spin-button');
+    const resultDiv = document.getElementById('wheel-result');
+    
+    const userRef = db.collection('study').doc(currentUser.uid);
+    const userDoc = await userRef.get();
+    
+    if (userDoc.exists) {
+        const userData = userDoc.data();
+        const lastSpin = userData.lastWheelSpin ? userData.lastWheelSpin.toDate().getTime() : 0;
+        const now = new Date().getTime();
+        const timeSinceLastSpin = now - lastSpin;
+        
+        if (timeSinceLastSpin < (6 * 60 * 60 * 1000)) {
+            const remaining = (6 * 60 * 60 * 1000) - timeSinceLastSpin;
+            showNotification(`⏰ يمكنك السحب مرة أخرى بعد: ${msToHMS(remaining)}`, 'error');
+            return;
+        }
+    }
+    
+    wheelSpinning = true;
+    spinBtn.disabled = true;
+    spinBtn.innerHTML = '🔄';
+    resultDiv.style.display = 'none';
+    
+    // أولاً: نحدد الجائزة عشوائياً
+    const winningIndex = getRandomPrizeIndex();
+    const prize = wheelPrizes[winningIndex];
+    
+    console.log(`🎯 الجائزة المحددة: ${prize} نقطة (المؤشر: ${winningIndex})`);
+    
+    // ثانياً: نحسب الزاوية بدقة - الإصلاح الصحيح
+    const segmentAngle = (2 * Math.PI) / wheelPrizes.length;
+    
+    // 🔥 الإصلاح الصحيح: نوقف في منتصف الجائزة تماماً
+    // السهم في الأعلى (زاوية -90 درجة أو -π/2 راديان)
+    // نريد أن منتصف الجائزة يكون تحت السهم مباشرة
+    const targetAngleForPrize = (winningIndex * segmentAngle) + (segmentAngle / 2);
+    
+    // عدد الدورات الكاملة + الزاوية للقطاع الفائز
+    const fullRotations = 5; // 5 دورات كاملة
+    const targetAngle = (fullRotations * 2 * Math.PI) + targetAngleForPrize;
+    
+    console.log(`📐 الزاوية المستهدفة: ${targetAngle} راديان`);
+    console.log(`🎪 سيتوقف في منتصف الجائزة: ${prize} نقطة`);
+    
+    let currentRotation = 0;
+    const duration = 4000;
+    const startTime = Date.now();
+    
+    function animateWheel() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // تأثير تدريجي واقعي: سريع في البداية، بطيء في النهاية
+        const easeOut = 1 - Math.pow(1 - progress, 4);
+        
+        currentRotation = targetAngle * easeOut;
+        
+        wheelCanvas.style.transform = `rotate(${currentRotation}rad)`;
+        wheelCanvas.style.transition = 'none';
+        
+        if (progress < 1) {
+            requestAnimationFrame(animateWheel);
+        } else {
+            setTimeout(() => {
+                console.log(`✅ التوقفت في منتصف الجائزة: ${prize} نقطة`);
+                showWheelResult(prize);
+                wheelSpinning = false;
+                spinBtn.disabled = false;
+                spinBtn.innerHTML = 'ابدء';
+                
+            }, 500);
+        }
+    }
+    
+    requestAnimationFrame(animateWheel);
+}
+
+// تأكد من أن رسم العجلة يبدأ من الأعلى (حيث السهم)
+function drawWheel() {
+    const centerX = wheelCanvas.width / 2;
+    const centerY = wheelCanvas.height / 2;
+    const radius = wheelCanvas.width / 2 - 10;
+    
+    wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+    
+    const segmentAngle = (2 * Math.PI) / wheelPrizes.length;
+    
+    // نبدأ الرسم من الأعلى (زاوية -π/2)
+    const startOffset = -Math.PI / 2;
+    
+    for (let i = 0; i < wheelPrizes.length; i++) {
+        const startAngle = startOffset + (i * segmentAngle);
+        const endAngle = startOffset + ((i + 1) * segmentAngle);
+        const prize = wheelPrizes[i];
+        
+        const colors = ['#4a6bff', '#6a11cb', '#28a745', '#17a2b8', '#ffc107', '#fd7e14', '#e83e8c', '#dc3545'];
+        wheelCtx.fillStyle = colors[i % colors.length];
+        wheelCtx.strokeStyle = '#fff';
+        wheelCtx.lineWidth = 2;
+        
+        wheelCtx.beginPath();
+        wheelCtx.moveTo(centerX, centerY);
+        wheelCtx.arc(centerX, centerY, radius, startAngle, endAngle);
+        wheelCtx.closePath();
+        wheelCtx.fill();
+        wheelCtx.stroke();
+        
+        // كتابة النص في منتصف القطاع
+        wheelCtx.save();
+        wheelCtx.translate(centerX, centerY);
+        const textAngle = startAngle + (segmentAngle / 2);
+        wheelCtx.rotate(textAngle);
+        wheelCtx.textAlign = 'right';
+        wheelCtx.fillStyle = '#fff';
+        wheelCtx.font = 'bold 14px Tajawal';
+        wheelCtx.fillText(prize + ' نقطة', radius - 15, 5);
+        wheelCtx.restore();
+    }
+    
+    wheelCtx.fillStyle = '#fff';
+    wheelCtx.beginPath();
+    wheelCtx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+    wheelCtx.fill();
+}
+
+// دالة محسنة لاختيار الجائزة بناءً على الاحتمالات
+function getRandomPrizeIndex() {
+    const total = wheelProbabilities.reduce((sum, prob) => sum + prob, 0);
+    let random = Math.random() * total;
+    
+    console.log('🎲 عملية السحب العشوائي:');
+    
+    for (let i = 0; i < wheelProbabilities.length; i++) {
+        random -= wheelProbabilities[i];
+        if (random <= 0) {
+            console.log(`✅ تم اختيار الجائزة: ${wheelPrizes[i]} نقطة (الاحتمال: ${wheelProbabilities[i]}%)`);
+            return i;
+        }
+    }
+    
+    console.log(`✅ الجائزة الافتراضية: ${wheelPrizes[wheelPrizes.length - 1]} نقطة`);
+    return wheelProbabilities.length - 1;
+}
+
+// عرض نتيجة السحب
+async function showWheelResult(prize) {
+    const resultDiv = document.getElementById('wheel-result');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+        <div style="color:#28a745; background:#e9f7ef; padding:20px; border-radius:15px; border:3px solid #28a745; text-align:center">
+            <div style="font-size:28px; margin-bottom:15px; font-weight:900">🎉 مبروك!</div>
+            <div style="font-size:24px; font-weight:800">فزت بـ <span style="color:#dc3545">${prize} نقطة</span>! 🎁</div>
+            <div style="margin-top:10px; font-size:14px; color:#666">تم إضافة النقاط إلى رصيدك تلقائياً</div>
+        </div>
+    `;
+    
+    try {
+        // منح النقاط
+        await db.collection('study').doc(currentUser.uid).set({
+            currentPoints: firebase.firestore.FieldValue.increment(prize),
+            totalPoints: firebase.firestore.FieldValue.increment(prize),
+            walletPoints: firebase.firestore.FieldValue.increment(prize),
+            lastWheelSpin: firebase.firestore.FieldValue.serverTimestamp(),
+            lastWheelPrize: prize,
+            name: currentUser.name || 'مستخدم'
+        }, { merge: true });
+        
+        // تسجيل العملية
+        await logPointsTransaction(currentUser.uid, prize, 'wheel_spin', `سحب عجلة الحظ - ${prize} نقطة`);
+        
+        // تحديث الحالة المحلية
+        studyState.currentPoints += prize;
+        studyState.totalPoints += prize;
+        studyState.walletPoints = (studyState.walletPoints || 0) + prize;
+        
+        renderTimerUI();
+        updateWheelUI();
+        
+        // إشعار تيليجرام للمالك
+        if (isOwner()) {
+            await sendTelegramNotification(
+                `🎡 <b>سحب عجلة حظ</b>\n\n👤 ${currentUser.name}\n🆔 ${currentUser.shortUid}\n🎁 ${prize} نقطة`
+            );
+        }
+        
+    } catch (error) {
+        console.error('Error awarding wheel prize:', error);
+        showNotification('فشل منح الجائزة', 'error');
+    }
+}
+
+// تحديث واجهة العجلة
+async function updateWheelUI() {
+    const spinBtn = document.getElementById('wheel-spin-btn');
+    const remainingDiv = document.getElementById('wheel-remaining');
+    
+    if (!spinBtn || !remainingDiv || !currentUser) return;
+    
+    try {
+        const userRef = db.collection('study').doc(currentUser.uid);
+        const userDoc = await userRef.get();
+        
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            const lastSpin = userData.lastWheelSpin ? userData.lastWheelSpin.toDate().getTime() : 0;
+            const now = new Date().getTime();
+            const timeSinceLastSpin = now - lastSpin;
+            const remaining = (6 * 60 * 60 * 1000) - timeSinceLastSpin;
+            
+            if (remaining > 0) {
+                spinBtn.disabled = true;
+                spinBtn.innerHTML = '<i class="fas fa-clock"></i> انتظر';
+                spinBtn.style.background = '#6c757d';
+                remainingDiv.textContent = `السحب متاح بعد: ${msToHMS(remaining)}`;
+            } else {
+                spinBtn.disabled = false;
+                spinBtn.innerHTML = '<i class="fas fa-play"></i> ابدء';
+                spinBtn.style.background = '#dc3545';
+                remainingDiv.textContent = '🎁 جاهز للسحب! اضغط "ابدء"';
+            }
+        }
+    } catch (error) {
+        console.error('Error updating wheel UI:', error);
+    }
+}
+
+/* =========================
+   🔒 نظام كشف التلاعب الصارم
+========================= */
+
+async function checkTimeManipulationStrict() {
+    if (!currentUser) return false;
+    
+    try {
+        const userRef = db.collection('study').doc(currentUser.uid);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) return false;
+        
+        const userData = userDoc.data();
+        const now = new Date();
+        const clientTime = now.getTime();
+        
+        // الحصول على وقت السيرفر
+        const serverTimeDoc = await db.collection('server_time').doc('current').get();
+        let serverTime = now;
+        
+        if (serverTimeDoc.exists) {
+            serverTime = serverTimeDoc.data().timestamp.toDate();
+        }
+        
+        // 🔥 الفرق المسموح: يومين فقط (بدل 6 ساعات)
+        const MAX_TIME_DIFF = 2 * 24 * 60 * 60 * 1000; // يومين
+        
+        const timeDiff = Math.abs(serverTime.getTime() - clientTime);
+        
+        if (timeDiff > MAX_TIME_DIFF) {
+            console.warn(`🚨 اكتشاف تلاعب صارم: ${Math.floor(timeDiff/(24*60*60*1000))} أيام فرق`);
+            
+            // 🔥 حظر فوري وكامل
+            await permanentBanAndPrevent(currentUser.uid, `تلاعب في الوقت - فرق ${Math.floor(timeDiff/(24*60*60*1000))} أيام`);
+            
+            // تسجيل الحادث
+            await db.collection('suspicious_activities').add({
+                userId: currentUser.uid,
+                userName: currentUser.name,
+                userEmail: currentUser.email,
+                type: 'strict_time_manipulation_wheel',
+                clientTime: new Date(),
+                serverTime: firebase.firestore.FieldValue.serverTimestamp(),
+                timeDifference: timeDiff,
+                severity: 'CRITICAL',
+                action_taken: 'PERMANENT_BAN'
+            });
+            
+            return true;
+        }
+        
+        return false;
+        
+    } catch (error) {
+        console.error('Error in strict time manipulation detection:', error);
+        return false;
+    }
+}
+
+// تحديث دوري للعجلة
+setInterval(updateWheelUI, 30000);
 
 </script>
 </body>
