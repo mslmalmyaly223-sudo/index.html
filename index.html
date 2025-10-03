@@ -3338,7 +3338,7 @@ async function updateDailyRewardUI() {
 }
 
 /* ===========================================================
-   🛡️ نظام المؤقت الآمن ضد التلاعب
+   🛡️ نظام المؤقت الآمن ضد التلاعب - الإصدار المصحح
 =========================================================== */
 
 let studyInterval = null, boostInterval = null, heartbeatInterval = null, lastHeartbeatSentAt = 0;
@@ -3350,15 +3350,15 @@ let studyState = {
   currentPoints: 0, 
   multiplierActive: false,
   multiplierUntil: null,
-  multiplierFactor: 1, // 1 = عادي, 2 = ضعف, 3 = ثلاثة أضعاف, إلخ
+  multiplierFactor: 1,
   lastDailyClaimAt: null,
-  walletPoints: 0
+  walletPoints: 0,
+  boostUntil: null
 };
 let dailyRewardInterval = null;
 let isClaiming = false;
 
-// 🕒 دالة تحويل الوقت
-// تصحيح دالة msToHMS
+// 🕒 دالة تحويل الوقت - الإصدار المصحح
 function msToHMS(ms){
   let s = Math.max(0, Math.floor(ms/1000));
   const h = Math.floor(s/3600); 
@@ -3368,15 +3368,9 @@ function msToHMS(ms){
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
 }
 
-// 🚀 بدء المؤقت - مع التحقق من السيرفر
+// 🚀 بدء المؤقت - الإصدار المصحح
 async function startStudyTimer() {
     if (!currentUser) return showNotification("يرجى تسجيل الدخول أولاً", "error");
-    
-    // 🔥 الإضافة: التحقق من الحظر قبل بدء المؤقت
-    const userDoc = await db.collection('users').doc(currentUser.uid).get();
-    if (userDoc.exists && userDoc.data().isPermanentlyBanned) {
-        return showNotification("حسابك محظور ولا يمكنك استخدام المؤقت", "error");
-    }
     
     if (studyState.running) return;
 
@@ -3384,7 +3378,7 @@ async function startStudyTimer() {
         const startTime = new Date();
         const studyRef = db.collection('study').doc(currentUser.uid);
         
-        // التحقق من الحظر
+        // 🔥 الإضافة: التحقق من الحظر قبل بدء المؤقت
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
         if (userDoc.exists && userDoc.data().isPermanentlyBanned) {
             return showNotification("حسابك محظور ولا يمكنك استخدام المؤقت", "error");
@@ -3414,19 +3408,26 @@ async function startStudyTimer() {
     }
 }
 
+// ⏹️ إيقاف المؤقت - الإصدار المصحح (تسريع الوقت بدل النقاط)
 async function stopStudyTimer() {
     if (!currentUser || !studyState.running) return;
 
     try {
         const endTime = new Date();
-        const elapsedMs = endTime.getTime() - studyState.startAtMs;
+        let elapsedMs = endTime.getTime() - studyState.startAtMs;
+        
+        // 🔥 التغيير: نظام تسريع الوقت - تضاعف الوقت المنقضي خلال فترة التسريع
+        const isBoostActive = studyState.boostUntil && studyState.boostUntil > endTime;
+        if (isBoostActive) {
+            // تضاعف الوقت المنقضي (كل دقيقة حقيقية تعتبر دقيقتين)
+            elapsedMs = elapsedMs * 2;
+            console.log(`⚡ الوقت مضاعف: ${elapsedMs}ms بدل ${endTime.getTime() - studyState.startAtMs}ms`);
+        }
         
         // ✅ حساب النقاط: نقطة لكل دقيقتين (120,000 ملي ثانية)
-        const basePoints = Math.floor(elapsedMs / (2 * 60 * 1000));
-        
-        // نظام التسريع: تضاعف النقاط خلال فترة التسريع
-        const isBoost = studyState.boostUntil && studyState.boostUntil > endTime;
-        const pointsEarned = isBoost ? basePoints * 2 : basePoints;
+        const pointsEarned = Math.floor(elapsedMs / (2 * 60 * 1000));
+
+        console.log(`🕒 الوقت المنقضي: ${elapsedMs}ms, النقاط المكتسبة: ${pointsEarned}, التسريع: ${isBoostActive}`);
 
         if (pointsEarned > 0) {
             // تحديث النقاط مع التسجيل
@@ -3439,12 +3440,13 @@ async function stopStudyTimer() {
                 name: currentUser.name || 'مستخدم',
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
                 lastSessionPoints: pointsEarned,
-                lastSessionDuration: elapsedMs
+                lastSessionDuration: elapsedMs,
+                lastSessionBoost: isBoostActive
             }, { merge: true });
 
             // تسجيل العملية
             await logPointsTransaction(currentUser.uid, pointsEarned, 'timer_earned', 
-                `نقاط مؤقت: ${Math.floor(elapsedMs/60000)} دقيقة ${isBoost ? '(مضاعفة)' : ''}`);
+                `نقاط مؤقت: ${Math.floor(elapsedMs/60000)} دقيقة ${isBoostActive ? '(مضاعفة الوقت)' : ''}`);
 
             // تحديث الحالة المحلية
             studyState.currentPoints += pointsEarned;
@@ -3460,7 +3462,7 @@ async function stopStudyTimer() {
         renderTimerUI();
         
         if (pointsEarned > 0) {
-            showNotification(`تم إيقاف المؤقت - ربحت ${pointsEarned} نقطة 🎉${isBoost ? ' (مضاعفة)' : ''}`, "success");
+            showNotification(`تم إيقاف المؤقت - ربحت ${pointsEarned} نقطة 🎉${isBoostActive ? ' (تسريع الوقت)' : ''}`, "success");
         } else {
             showNotification("تم إيقاف المؤقت - الوقت غير كافي للنقاط", "info");
         }
@@ -3471,7 +3473,12 @@ async function stopStudyTimer() {
     }
 }
 
-// 🔄 دوال الإيقاف المساعدة
+// 🔄 دوال التحكم المساعدة
+function startStudyInterval(){ 
+    stopStudyInterval(); 
+    studyInterval = setInterval(renderTimerUI, 1000); 
+}
+
 function stopStudyInterval(){ 
     if(studyInterval){ 
         clearInterval(studyInterval); 
@@ -3495,40 +3502,181 @@ function resetTimerState() {
     renderTimerUI();
 }
 
-// 📊 تحديث النقاط على السيرفر
-async function updatePointsOnServer(pointsEarned, elapsedMs, isBoost) {
-    const studyRef = db.collection('study').doc(currentUser.uid);
-    const batch = db.batch();
-
-    batch.update(studyRef, {
-        currentPoints: firebase.firestore.FieldValue.increment(pointsEarned),
-        totalPoints: firebase.firestore.FieldValue.increment(pointsEarned),
-        lastSessionPoints: pointsEarned,
-        lastSessionDuration: elapsedMs,
-        lastSessionBoost: isBoost,
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    const sessionLogRef = db.collection('study_sessions').doc();
-    batch.set(sessionLogRef, {
-        userId: currentUser.uid,
-        userName: currentUser.name,
-        pointsEarned: pointsEarned,
-        durationMs: elapsedMs,
-        isBoost: isBoost,
-        startTime: firebase.firestore.Timestamp.fromDate(new Date(studyState.startAtMs)),
-        endTime: firebase.firestore.FieldValue.serverTimestamp(),
-        clientReportedDuration: elapsedMs,
-        suspicious: elapsedMs > (6 * 60 * 60 * 1000)
-    });
-
-    await batch.commit();
-
-    studyState.currentPoints += pointsEarned;
-    studyState.totalPoints += pointsEarned;
+// 📊 عرض واجهة المؤقت - الإصدار المصحح
+function renderTimerUI(){
+  const disp = document.getElementById('timer-display');
+  const startBtn = document.getElementById('timer-start-btn');
+  const stopBtn = document.getElementById('timer-stop-btn');
+  const pointsDisp = document.getElementById('current-points-display');
+  const boostInfo = document.getElementById('boost-status');
+  
+  // 🔥 الإصلاح: التحقق من حالة التسريع بشكل صحيح
+  const isBoostActive = studyState.boostUntil && studyState.boostUntil > new Date();
+  let seconds = 0;
+  
+  if(studyState.running && studyState.startAtMs){
+    const elapsed = Date.now() - studyState.startAtMs;
+    // 🔥 التغيير: عرض الوقت الحقيقي (بدون تضاعف في العرض)
+    seconds = Math.floor(elapsed / 1000);
+  }
+  
+  if(disp) {
+    disp.innerHTML = msToHMS(seconds * 1000) + (isBoostActive ? ' <span style="color:#ff8c00;font-size:16px">(⚡ الوقت مضاعف)</span>' : '');
+  }
+  
+  if(pointsDisp) pointsDisp.textContent = (studyState.currentPoints || 0).toLocaleString('ar-IQ');
+  if(startBtn) startBtn.disabled = !!studyState.running;
+  if(stopBtn) stopBtn.disabled = !studyState.running;
+  
+  // عرض/إخفاء معلومات التسريع
+  if(boostInfo) {
+    if (isBoostActive) {
+      const left = studyState.boostUntil.getTime() - Date.now();
+      boostInfo.textContent = `⚡ التسريع مفعل - المتبقي: ${msToHMS(left)} (الوقت مضاعف)`;
+      boostInfo.style.display = 'block';
+    } else {
+      boostInfo.textContent = '';
+      boostInfo.style.display = 'none';
+    }
+  }
 }
 
-// 💓 نظام مراقبة الوقت
+// ⚡ نظام التسريع المحسّن - الإصدار المصحح (تسريع الوقت)
+function startBoostInterval(){ 
+    stopBoostInterval(); 
+    updateBoostStatus(); 
+    boostInterval = setInterval(updateBoostStatus, 1000); 
+}
+
+function stopBoostInterval(){ 
+    if(boostInterval){ 
+        clearInterval(boostInterval); 
+        boostInterval = null; 
+    } 
+}
+
+function updateBoostStatus(){
+  const st = studyState; 
+  const el = document.getElementById('boost-status');
+  
+  if(!st.boostUntil){ 
+    if(el) {
+      el.textContent = ''; 
+      el.style.display = 'none';
+    }
+    stopBoostInterval(); 
+    renderTimerUI();
+    return; 
+  }
+  
+  const left = st.boostUntil.getTime() - Date.now();
+  if(left <= 0){ 
+    st.boostUntil = null; 
+    if(el) {
+      el.textContent = ''; 
+      el.style.display = 'none';
+    }
+    stopBoostInterval(); 
+    renderTimerUI(); 
+    showNotification("انتهت فترة تسريع الوقت ⏰", "info");
+    return; 
+  }
+  
+  if(el) {
+    el.textContent = `⚡ التسريع مفعل - المتبقي: ${msToHMS(left)} (الوقت مضاعف)`;
+    el.style.display = 'block';
+  }
+  
+  renderTimerUI();
+}
+
+// 🛒 شراء التسريع - الإصدار المصحح (تسريع الوقت)
+async function buyBoost(hours){
+  if(!currentUser) return;
+  const cost = (hours===1?25:hours===2?50:hours===3?75:hours===5?100:hours*25);
+  
+  if(studyState.currentPoints < cost){
+    return showNotification('نقاط غير كافية','error');
+  }
+  
+  try{
+    // 🔥 الإصلاح: حساب وقت التسريع بشكل صحيح (تراكمي)
+    const base = (studyState.boostUntil && studyState.boostUntil > new Date()) ? 
+                 studyState.boostUntil.getTime() : Date.now();
+    const until = new Date(base + hours * 3600 * 1000);
+    
+    await db.collection('study').doc(currentUser.uid).set({
+      currentPoints: firebase.firestore.FieldValue.increment(-cost),
+      boostUntil: firebase.firestore.Timestamp.fromDate(until),
+      name: currentUser.name || 'مستخدم',
+      lastBoostPurchase: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    await logPointsTransaction(currentUser.uid, -cost, 'boost_purchase', `شراء تسريع وقت ${hours} ساعة`);
+    
+    studyState.currentPoints -= cost;
+    studyState.boostUntil = until;
+    startBoostInterval();
+    renderTimerUI();
+    showNotification(`تم تفعيل تسريع الوقت لمدة ${hours} ساعة ⚡ (الوقت مضاعف)`,'success');
+    
+  } catch(e){
+    console.error('buyBoost error', e);
+    showNotification('فشل شراء التسريع','error');
+  }
+}
+
+// 📥 تحميل الحالة من السيرفر - الإصدار المصحح
+async function loadStudyState() {
+    if (!currentUser) return;
+    
+    const ref = db.collection('study').doc(currentUser.uid);
+    try {
+        const doc = await ref.get();
+        if (doc.exists) {
+            const data = doc.data();
+            
+            // 🔥 الإصلاح: تحميل حالة التسريع بشكل صحيح
+            if (data.boostUntil && data.boostUntil.toDate) {
+                studyState.boostUntil = data.boostUntil.toDate();
+                if (studyState.boostUntil > new Date()) {
+                    startBoostInterval();
+                } else {
+                    studyState.boostUntil = null;
+                }
+            }
+            
+            if (data.running && data.startAt) {
+                const serverStartTime = data.startAt.toDate().getTime();
+                const now = Date.now();
+                const elapsed = now - serverStartTime;
+                
+                if (elapsed > (24 * 60 * 60 * 1000)) {
+                    await handleSuspiciousActivity("جلسة طويلة بشكل غير طبيعي");
+                    await ref.update({ running: false, startAt: null });
+                    return;
+                }
+                
+                studyState.running = true;
+                studyState.startAtMs = serverStartTime;
+                startStudyInterval();
+                startHeartbeatInterval();
+            }
+            
+            studyState.totalPoints = Number(data.totalPoints || 0);
+            studyState.currentPoints = Number(data.currentPoints || 0);
+            studyState.lastDailyClaimAt = data.lastDailyClaimAt?.toDate ? data.lastDailyClaimAt.toDate() : null;
+            studyState.walletPoints = Number(data.walletPoints || 0);
+            
+            renderTimerUI();
+            updateDailyRewardUI();
+        }
+    } catch (error) {
+        console.error("Error loading study state:", error);
+    }
+}
+
+// 💓 نظام مراقبة الوقت - الإصدار المصحح
 function startHeartbeatInterval() {
     stopHeartbeatInterval();
     lastHeartbeatSentAt = Date.now();
@@ -3588,98 +3736,7 @@ async function handleSuspiciousActivity(reason) {
     showNotification("تم اكتشاف نشاط غير عادي - تم إيقاف المؤقت", "warning");
 }
 
-// 📥 تحميل الحالة من السيرفر
-async function loadStudyState() {
-    if (!currentUser) return;
-    
-    const ref = db.collection('study').doc(currentUser.uid);
-    try {
-        const doc = await ref.get();
-        if (doc.exists) {
-            const data = doc.data();
-            
-            if (data.running && data.startAt) {
-                const serverStartTime = data.startAt.toDate().getTime();
-                const now = Date.now();
-                const elapsed = now - serverStartTime;
-                
-                if (elapsed > (24 * 60 * 60 * 1000)) {
-                    await handleSuspiciousActivity("جلسة طويلة بشكل غير طبيعي");
-                    await ref.update({ running: false, startAt: null });
-                    return;
-                }
-                
-                studyState.running = true;
-                studyState.startAtMs = serverStartTime;
-                startStudyInterval();
-                startHeartbeatInterval();
-            }
-            
-            studyState.totalPoints = Number(data.totalPoints || 0);
-            studyState.currentPoints = Number(data.currentPoints || 0);
-            studyState.boostUntil = data.boostUntil?.toDate ? data.boostUntil.toDate() : null;
-            studyState.lastDailyClaimAt = data.lastDailyClaimAt?.toDate ? data.lastDailyClaimAt.toDate() : null;
-            
-            renderTimerUI();
-            updateDailyRewardUI();
-        }
-    } catch (error) {
-        console.error("Error loading study state:", error);
-    }
-}
-
-// 🎮 عرض واجهة المؤقت
-function renderTimerUI(){
-  const disp = document.getElementById('timer-display');
-  const startBtn = document.getElementById('timer-start-btn');
-  const stopBtn = document.getElementById('timer-stop-btn');
-  const pointsDisp = document.getElementById('current-points-display');
-  const totalPointsDisp = document.getElementById('total-points-display');
-  const boostInfo = document.getElementById('boost-info');
-  const isBoost = studyState.boostUntil && studyState.boostUntil > new Date();
-  let seconds = 0;
-  
-  if(studyState.running && studyState.startAtMs){
-    const elapsed = Date.now() - studyState.startAtMs;
-    seconds = Math.floor(elapsed / 1000);
-  }
-  
-  if(disp) disp.innerHTML = msToHMS(seconds * 1000) + (isBoost ? ' <span style="color:#ff8c00;font-size:16px">(⚡ مضاعفة)</span>' : '');
-  if(pointsDisp) pointsDisp.textContent = (studyState.currentPoints || 0).toLocaleString('ar-IQ');
-  if(totalPointsDisp) totalPointsDisp.textContent = (studyState.totalPoints || 0).toLocaleString('ar-IQ');
-  if(startBtn) startBtn.disabled = !!studyState.running;
-  if(stopBtn) stopBtn.disabled = !studyState.running;
-  
-  // عرض/إخفاء معلومات التسريع
-  if(boostInfo) {
-    boostInfo.style.display = isBoost ? 'block' : 'none';
-  }
-}
-
-// 🔄 دوال التحكم
-function startStudyInterval(){ 
-    stopStudyInterval(); 
-    studyInterval = setInterval(renderTimerUI, 1000); 
-}
-
-function stopStudyInterval(){ 
-    if(studyInterval){ clearInterval(studyInterval); studyInterval = null; } 
-}
-
-function stopHeartbeatInterval(){ 
-    if(heartbeatInterval){ clearInterval(heartbeatInterval); heartbeatInterval = null; } 
-}
-
-function resetTimerState() {
-    studyState.running = false;
-    studyState.startAtMs = null;
-    studyState.totalSeconds = 0;
-    stopStudyInterval();
-    stopHeartbeatInterval();
-    renderTimerUI();
-}
-
-// 🎁 المكافأة اليومية
+// 🎁 المكافأة اليومية - الإصدار المصحح
 function updateDailyRewardUI(){
   const btn = document.getElementById('daily-claim-btn'); 
   const rem = document.getElementById('daily-remaining');
@@ -3690,12 +3747,14 @@ function updateDailyRewardUI(){
   
   if(left > 0){
     btn.disabled = true; 
+    btn.innerHTML = '<i class="fas fa-clock"></i> انتظر';
     rem.textContent = 'متاح بعد: ' + msToHMS(left);
     if(!dailyRewardInterval){ 
-      dailyRewardInterval = setInterval(updateDailyRewardUI, 1000); 
+      dailyRewardInterval = setInterval(updateDailyRewardUI, 30000); 
     }
   } else {
     btn.disabled = false; 
+    btn.innerHTML = '<i class="fas fa-gift"></i> احصل على 20 نقطة';
     rem.textContent = 'يمكنك الحصول على 20 نقطة مرة كل 24 ساعة.';
     if(dailyRewardInterval){ 
       clearInterval(dailyRewardInterval); 
@@ -3704,10 +3763,7 @@ function updateDailyRewardUI(){
   }
 }
 
-// 🔒 المكافأة اليومية مع الحظر الدائم
-// 🗑️ احذف دالة monitorDailyRewardAttempt بالكامل واحذف المتغير dailyRewardAttempts
-
-// 🔄 دالة claimDailyReward الجديدة بدون نظام المحاولات
+// 🔥 الإضافة: دالة المكافأة اليومية المحسنة
 async function claimDailyReward() {
     if (!currentUser) return;
     
@@ -3715,13 +3771,6 @@ async function claimDailyReward() {
     if (btn) btn.disabled = true;
     
     try {
-        // 🔍 التحقق من التلاعب الزمني فقط
-        const isManipulation = await detectTimeManipulation();
-        if (isManipulation) {
-            await handleTimeManipulationDetected();
-            return;
-        }
-        
         const userRef = db.collection('study').doc(currentUser.uid);
         const userDoc = await userRef.get();
         
@@ -3732,13 +3781,12 @@ async function claimDailyReward() {
 
         const userData = userDoc.data();
         const now = new Date();
-        const serverTime = userData.lastUpdated?.toDate?.() || now;
         
-        // 🕒 التحقق من الوقت المتبقي بناءً على وقت السيرفر
+        // التحقق من الوقت المتبقي
         const lastClaim = userData.lastDailyClaimAt ? 
             userData.lastDailyClaimAt.toDate().getTime() : 0;
         
-        const timeSinceLastClaim = serverTime.getTime() - lastClaim;
+        const timeSinceLastClaim = now.getTime() - lastClaim;
         
         if (timeSinceLastClaim < (23 * 60 * 60 * 1000)) {
             const remaining = (24 * 60 * 60 * 1000) - timeSinceLastClaim;
@@ -3746,22 +3794,26 @@ async function claimDailyReward() {
             return;
         }
 
-        // 💰 منح المكافأة إلى المحفظة مباشرة
-        await updateWalletPoints(currentUser.uid, 20, 'مكافأة يومية');
+        // منح المكافأة
+        await db.collection('study').doc(currentUser.uid).set({
+            currentPoints: firebase.firestore.FieldValue.increment(20),
+            totalPoints: firebase.firestore.FieldValue.increment(20),
+            walletPoints: firebase.firestore.FieldValue.increment(20),
+            lastDailyClaimAt: firebase.firestore.Timestamp.fromDate(now),
+            name: currentUser.name || 'مستخدم',
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
 
-        // 📝 تحديث وقت المكافأة الأخير
-        await userRef.update({
-            lastDailyClaimAt: firebase.firestore.Timestamp.fromDate(serverTime),
-            lastDailyClaimServerTime: firebase.firestore.FieldValue.serverTimestamp(),
-            lastClientTime: firebase.firestore.Timestamp.fromDate(new Date())
-        });
+        // تسجيل العملية
+        await logPointsTransaction(currentUser.uid, 20, 'daily_reward', 'مكافأة يومية');
 
-        // 🔄 تحديث الحالة المحلية
+        // تحديث الحالة المحلية
         studyState.currentPoints += 20;
+        studyState.totalPoints += 20;
         studyState.walletPoints = (studyState.walletPoints || 0) + 20;
-        studyState.lastDailyClaimAt = serverTime;
+        studyState.lastDailyClaimAt = now;
         
-        showNotification('مبروك! حصلت على 20 نقطة في محفظتك 🎁', 'success');
+        showNotification('مبروك! حصلت على 20 نقطة 🎁', 'success');
         renderTimerUI();
         updateDailyRewardUI();
         
