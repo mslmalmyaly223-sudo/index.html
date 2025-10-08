@@ -890,6 +890,15 @@
         <div class="form-group"><label for="register-name">الاسم الكامل</label><input type="text" id="register-name" class="form-control" required></div>
         <div class="form-group"><label for="register-email">البريد الإلكتروني</label><input type="email" id="register-email" class="form-control" required></div>
         <div class="form-group"><label for="register-password">كلمة المرور</label><input type="password" id="register-password" class="form-control" required></div>
+
+<!-- في نموذج التسجيل بعد اختيار الصورة -->
+<div class="form-group">
+  <label for="register-referral">رمز الإحالة (اختياري)</label>
+  <input type="text" id="register-referral" class="form-control" placeholder="أدخل رمز الإحالة لربح 75 نقطة مجانية">
+  <div class="hint" style="text-align: center; color: #28a745; font-size: 12px; margin-top: 5px;">
+    🎁 ستحصل على 75 نقطة مجانية عند استخدام رمز إحالة صحيح
+  </div>
+</div>
         <div class="form-group">
           <label>اختر الصورة</label>
           <div class="choose-avatar">
@@ -1001,15 +1010,24 @@
   <i class="fas fa-book"></i>
   <span>منشوراتي</span>
 </div>
+
   <div class="menu-item" onclick="showInbox();">
     <i class="fas fa-inbox"></i>
     <span>البريد الوارد</span>
     <div id="inbox-badge" class="nav-badge" style="display: none">0</div>
   </div>
+  
+  <!-- في صفحة profile-page تحت عنصر البريد الوارد -->
+<div class="menu-item" onclick="showReferralSystem()">
+  <i class="fas fa-user-plus"></i>
+  <span>نظام الإحالة</span>
+</div>
+
   <div class="menu-item" onclick="openUserStats()">
     <i class="fas fa-chart-pie"></i>
     <span>إحصائيات المستخدمين</span>
   </div>
+  
           <div class="menu-item" onclick="openAppExplanation()"><i class="fas fa-info-circle"></i><span>شرح التطبيق</span></div>
           <div class="menu-item" onclick="openTelegram('MSLM_ALMYALY')"><i class="fas fa-thumbtack"></i><span>تثبيت المنشور بـ 1$</span></div>
 <!-- زر باقي الأزرار -->
@@ -1022,7 +1040,7 @@
       </div>
     </div>
   </div>
-  
+
 <!-- Modal عجلة الحظ -->
 <div id="wheel-modal" class="modal">
   <div class="modal-content">
@@ -1141,7 +1159,7 @@
 </div>
 
       <div class="boost-card">
-        <div class="timer-title">تسريع المؤقت</div>
+        <div class="timer-title">مضاعفة النقاط 2× </div>
         <div class="hint">اختر حزمة التسريع المناسبة لك:</div>
         <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
           <button class="btn" onclick="buyBoost(1)">1 ساعة (25 نقطة)</button>
@@ -1293,6 +1311,61 @@
   </div>
 </div></div>
 
+<!-- صفحة نظام الإحالة -->
+<div id="referral-page" class="container page" style="display:none">
+  <div class="header">
+    <button class="btn btn-secondary" onclick="showProfilePage()">
+      <i class="fas fa-arrow-right"></i>
+    </button>
+    <span style="font-weight:900">نظام الإحالة</span>
+  </div>
+  <div class="profile-shell">
+    <div class="profile-actions-card">
+      <!-- رمز الإحالة -->
+      <div class="post" style="text-align: center; margin-bottom: 20px;">
+        <h3>🎁 كود الإحالة الخاص بك</h3>
+        <div class="row" style="align-items: center; justify-content: center; gap: 10px; margin: 15px 0;">
+          <input id="referral-code-input" class="form-control" style="text-align: center; font-weight: bold; font-size: 18px;" readonly />
+          <button class="btn btn-success" onclick="copyReferralCode()">
+            <i class="fas fa-copy"></i> نسخ
+          </button>
+        </div>
+      </div>
+
+      <!-- إحصائيات الإحالة -->
+      <div class="stats-grid" style="margin: 20px 0;">
+        <div class="stat-card">
+          <div class="stat-number" id="referral-count">0</div>
+          <div class="stat-label">عدد المُحالِين</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="referral-points">0</div>
+          <div class="stat-label">النقاط المكتسبة</div>
+        </div>
+      </div>
+
+      <!-- تفاصيل النظام -->
+      <div class="post" style="background: #fff3cd; border: 1px solid #ffeaa7;">
+        <h4>📋 تفاصيل نظام الإحالة:</h4>
+        <ul style="text-align: right; line-height: 1.8; margin: 10px 0;">
+          <li>🎯 <strong>أنت تربح 150 نقطة</strong> لكل مستخدم جديد يدخل برمزك</li>
+          <li>🎁 <strong>المستخدم الجديد يربح 75 نقطة</strong> مجاناً</li>
+          <li>🚫 <strong>تحذير:</strong> محاولة إنشاء حسابات وهمية تؤدي إلى حظر دائم</li>
+          <li>✅ <strong>يدعم جميع الحسابات</strong> القديمة والجديدة</li>
+        </ul>
+      </div>
+
+      <!-- كيفية الاستخدام -->
+      <div class="post">
+        <h4>📝 كيفية الاستخدام:</h4>
+        <p style="text-align: center; font-weight: bold; color: #4a6bff;">
+          شارك رمزك: <span id="referral-share-code" style="color: #dc3545;"></span>
+        </p>
+        <p style="text-align: center;">اطلب من أصدقائك إدخال هذا الرمز عند إنشاء الحساب الجديد</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- مودالات إضافية ليشتغل كل الأزرار -->
 <div id="create-post-modal" class="modal"><div class="modal-content">
@@ -1413,61 +1486,6 @@
     <button class="btn btn-success" onclick="sendBroadcast()">إرسال</button>
   </div>
 </div></div>
-
-<div id="qna-create-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>سؤال جديد</h2>
-      <button class="close-modal" onclick="closeModal()">&times;</button>
-    </div>
-    <div class="select-group">
-      <label>المادة</label>
-      <select id="qna-material" class="select-control">
-      <option value="اسلامية">اسلامية</option><option value="عربي">عربي</option><option value="انكليزي">انكليزي</option>
-      <option value="رياضيات">رياضيات</option><option value="احياء">احياء</option><option value="كيمياء">كيمياء</option>
-      <option value="فيزياء">فيزياء</option><option value="اقتصاد">اقتصاد</option><option value="أدب ونصوص">أدب ونصوص</option>
-      <option value="قواعد">قواعد</option>
-    </select>
-    </div>
-    <div class="select-group">
-      <label>السؤال</label>
-      <textarea id="qna-text" class="select-control" rows="3"></textarea>
-    </div>
-    <div class="select-group">
-      <label>الخيار الأول</label>
-      <input id="qna-option1" class="select-control">
-    </div>
-    <div class="select-group">
-      <label>الخيار الثاني</label>
-      <input id="qna-option2" class="select-control">
-    </div>
-    <div class="select-group">
-      <label>الخيار الثالث</label>
-      <input id="qna-option3" class="select-control">
-    </div>
-    <div class="select-group">
-      <label>الخيار الرابع</label>
-      <input id="qna-option4" class="select-control">
-    </div>
-    <div class="select-group">
-      <label>الإجابة الصحيحة</label>
-      <select id="qna-correct" class="select-control">
-        <option value="1">الخيار الأول</option>
-        <option value="2">الخيار الثاني</option>
-        <option value="3">الخيار الثالث</option>
-        <option value="4">الخيار الرابع</option>
-      </select>
-    </div>
-    <div class="select-group">
-      <label>الجائزة (نقاط)</label>
-      <input id="qna-prize" type="number" class="select-control" value="50">
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-      <button class="btn btn-success" onclick="createQna()">نشر السؤال</button>
-    </div>
-  </div>
-</div>
 
 <!-- Modal نسيت كلمة المرور - الإصدار المبسط -->
 <div id="forgot-password-modal" class="modal">
@@ -1711,10 +1729,15 @@ let leaderboardSettings = {
   scheduleTime: "00:00"
 };
 
+/* ===== نظام الإحالة الجديد ===== */
+let referralListener = null;
+
 let _ownerUidCache = null;
-// أضف هنا المتغيرات الجديدة
+// أضف هذه المتغيرات في قسم State
 let leaderboardUnsub = null;
 let journeyUnsub = null;
+window._leaderboardInit = false;
+window._journeyInit = false;
 // خطأ: متغيرات غير معرفة
 window._leaderboardInit = false; // يجب تعريفها في الأعلى
 window._journeyInit = false;
@@ -2478,46 +2501,95 @@ function handleAuthError(error){
   console.error('Auth error:', error);
 }
 
-function register(){
-  const name = document.getElementById("register-name").value.trim();
-  const email = document.getElementById("register-email").value.trim().toLowerCase();
-  const password = document.getElementById("register-password").value;
-  const picked = (document.querySelector('input[name="register-avatar"]:checked')?.value) || "male";
-  
-  pendingChosenAvatar = picked;
-  
-  if(!name || !email || !password) return showNotification("يرجى ملء جميع الحقول","error");
-  if(!validateEmail(email)) return showNotification("البريد الإلكتروني غير صالح","error");
-  
-  // 🔍 التحقق من البريد المحظور أولاً
-  checkIfEmailBanned(email).then(isBanned => {
-      if (isBanned) {
-          showNotification("🚫 هذا البريد الإلكتروني محظور ولا يمكن التسجيل به", "error");
-          return;
-      }
-      
-      // متابعة التسجيل العادي
-      auth.createUserWithEmailAndPassword(email, password)
-          .then(cred => {
-              const shortUid = generateShortUid(cred.user.uid);
-              return db.collection("users").doc(cred.user.uid).set({
-                  name, email, avatar: picked, 
-                  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                  isVerified: false, isOwner: false, blockedFromPosting: false,
-                  lastSeen: firebase.firestore.FieldValue.serverTimestamp(), 
-                  lastPromoAt: null,
-                  shortUid: shortUid
-              }, { merge: true });
-          })
-          .then(() => { 
-              showNotification("تم إنشاء الحساب. سجّل الدخول الآن.", "success"); 
-              switchAuthTab('login'); 
-          })
-          .catch(handleAuthError);
-  }).catch(error => {
-      showNotification("خطأ في التحقق من البريد", "error");
-  });
+// استبدل دالة register الحالية بهذه النسخة المبسطة
+async function register(){
+    const name = document.getElementById("register-name").value.trim();
+    const email = document.getElementById("register-email").value.trim().toLowerCase();
+    const password = document.getElementById("register-password").value;
+    const picked = (document.querySelector('input[name="register-avatar"]:checked')?.value) || "male";
+    const referralCode = document.getElementById("register-referral")?.value.trim() || '';
+    
+    pendingChosenAvatar = picked;
+    
+    if(!name || !email || !password) return showNotification("يرجى ملء جميع الحقول","error");
+    if(!validateEmail(email)) return showNotification("البريد الإلكتروني غير صالح","error");
+    
+    // تعطيل زر التسجيل
+    const registerBtn = document.getElementById("register-submit");
+    const originalText = registerBtn.textContent;
+    registerBtn.disabled = true;
+    registerBtn.textContent = "جاري التحقق...";
+    
+    try {
+        // 1. 🔍 الحصول على الـ IP
+        const userIP = await getUserIP();
+        
+        // 2. 🚫 التحقق من منع الحسابات المتعددة
+        const ipCheck = await preventMultipleAccounts(userIP, email);
+        if (!ipCheck.allowed) {
+            // عرض رسالة المنع بشكل واضح
+            showNotification("🚫 لا يمكن إنشاء حساب جديد", "error");
+            
+            // عرض التفاصيل في alert منفصل
+            setTimeout(() => {
+                alert(ipCheck.message);
+            }, 1000);
+            
+            return;
+        }
+        
+        // 3. 🔍 التحقق من البريد المحظور
+        const isBanned = await checkIfEmailBanned(email);
+        if (isBanned) {
+            showNotification("🚫 هذا البريد الإلكتروني محظور", "error");
+            return;
+        }
+        
+        // 4. ✅ متابعة التسجيل العادي
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        const shortUid = generateShortUid(cred.user.uid);
+        
+        // حفظ بيانات المستخدم مع الـ IP
+        await db.collection("users").doc(cred.user.uid).set({
+            name, 
+            email, 
+            avatar: picked, 
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            isVerified: false, 
+            isOwner: false, 
+            blockedFromPosting: false,
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp(), 
+            lastPromoAt: null,
+            shortUid: shortUid,
+            registrationIP: userIP, // ✅ تسجيل الـ IP
+            ipRegisteredAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        
+        // 5. 🎁 معالجة رمز الإحالة إذا كان موجوداً
+        if (referralCode) {
+            try {
+                const referralResult = await processSuccessfulReferral(cred.user.uid, name, referralCode);
+                if (referralResult.success) {
+                    showNotification("🎉 تمت الإحالة بنجاح! ربحت 75 نقطة", "success");
+                }
+            } catch (referralError) {
+                console.error('Error in referral:', referralError);
+            }
+        }
+        
+        showNotification("✅ تم إنشاء الحساب بنجاح! سجّل الدخول الآن.", "success"); 
+        switchAuthTab('login'); 
+        
+    } catch (error) {
+        console.error('Registration error:', error);
+        handleAuthError(error);
+    } finally {
+        // إعادة تفعيل زر التسجيل
+        registerBtn.disabled = false;
+        registerBtn.textContent = originalText;
+    }
 }
+
 function login(){
   const email=document.getElementById("login-email").value.trim();
   const password=document.getElementById("login-password").value;
@@ -2621,7 +2693,8 @@ const pages = {
   journeyItem: document.getElementById("journey-item-page"),
   appExplainPage: document.getElementById("app-explanation-page"),
   userStats: document.getElementById("user-stats-page"),
-  moreActions: document.getElementById("more-actions-page"), // <- تأكد من هذا السطر
+  moreActions: document.getElementById("more-actions-page"),
+  referral: document.getElementById("referral-page"), // ✅ أضف هذا السطر
 };
 const postsContainer = document.getElementById("posts-container");
 const companiesContainer = document.getElementById("companies-container");
@@ -2675,7 +2748,10 @@ function updateUIForLoggedInUser(){
   document.getElementById("profile-email").textContent = currentUser.email || "";
   const shortUid = currentUser.shortUid || generateShortUid(currentUser.uid);
   document.getElementById("profile-uid-input").value = shortUid || "";
-  renderAvatar(currentUser.avatar==="female"?"female":"male");
+  
+  // 🔥 الإصلاح: تحديث عرض الصورة الشخصية
+  updateAvatarDisplay(); // أضف هذا السطر
+  
   const pv=document.getElementById("profile-verified");
   pv.innerHTML = currentUser.isVerified? `<span class="badge-verified"><i class="fa-solid fa-crown"></i> موثّق</span>` : '';
   document.querySelectorAll(".owner-only").forEach(el=> el.style.display = isOwner()? "flex":"none");
@@ -3812,30 +3888,112 @@ function msToHMS(ms) {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-// 🚀 بدء المؤقت - الإصدار المصحح
+
+/* ===== نظام تتبع المضاعفة ===== */
+let boostTracker = {
+    active: false,
+    startTime: null,
+    endTime: null,
+    totalBoostedTime: 0,
+    segments: []
+};
+
+// بدء تتبع المضاعفة
+function startBoostTracking() {
+    if (studyState.boostUntil && studyState.boostUntil > new Date()) {
+        boostTracker = {
+            active: true,
+            startTime: new Date(),
+            endTime: studyState.boostUntil,
+            totalBoostedTime: 0,
+            segments: []
+        };
+        console.log('⚡ بدء تتبع المضاعفة');
+    }
+}
+
+// تحديث تتبع المضاعفة
+function updateBoostTracking() {
+    if (boostTracker.active && boostTracker.startTime) {
+        const now = new Date();
+        const boostEnd = boostTracker.endTime;
+        
+        if (now <= boostEnd) {
+            // حساب الوقت المضاعف في هذه الجلسة
+            const sessionBoostedTime = now.getTime() - boostTracker.startTime.getTime();
+            boostTracker.totalBoostedTime = sessionBoostedTime;
+        } else {
+            // انتهت فترة المضاعفة
+            boostTracker.active = false;
+            if (boostTracker.startTime && boostTracker.endTime) {
+                const totalBoosted = boostTracker.endTime.getTime() - boostTracker.startTime.getTime();
+                boostTracker.totalBoostedTime = totalBoosted;
+                boostTracker.segments.push({
+                    start: boostTracker.startTime,
+                    end: boostTracker.endTime,
+                    duration: totalBoosted
+                });
+            }
+        }
+    }
+}
+
+// حساب الوقت المضاعف الإجمالي
+function calculateBoostedTime() {
+    let totalBoosted = 0;
+    
+    // الوقت من الجلسة الحالية
+    if (boostTracker.active && boostTracker.startTime) {
+        const now = new Date();
+        const boostEnd = Math.min(now.getTime(), boostTracker.endTime.getTime());
+        totalBoosted += boostEnd - boostTracker.startTime.getTime();
+    }
+    
+    // الوقت من الجلسات السابقة
+    boostTracker.segments.forEach(segment => {
+        totalBoosted += segment.duration;
+    });
+    
+    return totalBoosted;
+}
+
+// نسخة محسنة من دالة بدء المؤعت مع تتبع المضاعفة
 async function startStudyTimer() {
     if (!currentUser) return showNotification("يرجى تسجيل الدخول أولاً", "error");
     
     if (studyState.running) return;
 
+    // التحقق من حالة الإنترنت
+    if (!navigator.onLine) {
+        showNotification("⚠️ لا يوجد اتصال بالإنترنت", "warning");
+        return;
+    }
+
     try {
         const startTime = new Date();
         const studyRef = db.collection('study').doc(currentUser.uid);
         
-        // 🔥 الإضافة: التحقق من الحظر قبل بدء المؤقت
+        // التحقق من الحظر
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
         if (userDoc.exists && userDoc.data().isPermanentlyBanned) {
-            return showNotification("حسابك محظور ولا يمكنك استخدام المؤقت", "error");
+            return showNotification("حسابك محظور", "error");
         }
 
-        // حفظ وقت البداية على السيرفر
+        // بدء تتبع المضاعفة إذا كانت فعالة
+        if (studyState.boostUntil && studyState.boostUntil > startTime) {
+            startBoostTracking();
+        }
+
         await studyRef.set({
             running: true,
             startAt: firebase.firestore.Timestamp.fromDate(startTime),
             lastVerifiedAt: firebase.firestore.Timestamp.fromDate(startTime),
             name: currentUser.name || 'مستخدم',
             lastPingAt: firebase.firestore.FieldValue.serverTimestamp(),
-            clientStartTime: firebase.firestore.Timestamp.fromDate(startTime)
+            clientStartTime: firebase.firestore.Timestamp.fromDate(startTime),
+            networkStatus: 'online',
+            boostActive: studyState.boostUntil && studyState.boostUntil > startTime,
+            boostUntil: studyState.boostUntil ? firebase.firestore.Timestamp.fromDate(studyState.boostUntil) : null
         }, { merge: true });
 
         studyState.running = true;
@@ -3843,8 +4001,16 @@ async function startStudyTimer() {
         
         startStudyInterval();
         startHeartbeatInterval();
+        startNetworkMonitoring();
         renderTimerUI();
-        showNotification("بدأ المؤقت - تربح نقطة كل دقيقتين ⏰", "success");
+        
+        let startMessage = "⏰ بدأ المؤقت";
+        if (studyState.boostUntil && studyState.boostUntil > startTime) {
+            const boostLeft = Math.floor((studyState.boostUntil.getTime() - startTime.getTime()) / 60000);
+            startMessage += ` - المضاعفة فعالة (${boostLeft} دقيقة متبقية ⚡)`;
+        }
+        
+        showNotification(startMessage, "success");
 
     } catch (error) {
         console.error("Error starting timer:", error);
@@ -3852,75 +4018,13 @@ async function startStudyTimer() {
     }
 }
 
-// ⏹️ إيقاف المؤقت - الإصدار المصحح (تسريع الوقت بدل النقاط)
-async function stopStudyTimer() {
-    if (!currentUser || !studyState.running) return;
-
-    try {
-        const endTime = new Date();
-        let elapsedMs = endTime.getTime() - studyState.startAtMs;
-        
-        // 🔥 التغيير: نظام تسريع الوقت - تضاعف الوقت المنقضي خلال فترة التسريع
-        const isBoostActive = studyState.boostUntil && studyState.boostUntil > endTime;
-        if (isBoostActive) {
-            // تضاعف الوقت المنقضي (كل دقيقة حقيقية تعتبر دقيقتين)
-            elapsedMs = elapsedMs * 2;
-            console.log(`⚡ الوقت مضاعف: ${elapsedMs}ms بدل ${endTime.getTime() - studyState.startAtMs}ms`);
-        }
-        
-        // ✅ حساب النقاط: نقطة لكل دقيقتين (120,000 ملي ثانية)
-        const pointsEarned = Math.floor(elapsedMs / (2 * 60 * 1000));
-
-        console.log(`🕒 الوقت المنقضي: ${elapsedMs}ms, النقاط المكتسبة: ${pointsEarned}, التسريع: ${isBoostActive}`);
-
-        if (pointsEarned > 0) {
-            // تحديث النقاط مع التسجيل
-            await db.collection('study').doc(currentUser.uid).set({
-                currentPoints: firebase.firestore.FieldValue.increment(pointsEarned),
-                totalPoints: firebase.firestore.FieldValue.increment(pointsEarned),
-                running: false,
-                startAt: null,
-                lastStoppedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                name: currentUser.name || 'مستخدم',
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-                lastSessionPoints: pointsEarned,
-                lastSessionDuration: elapsedMs,
-                lastSessionBoost: isBoostActive
-            }, { merge: true });
-
-            // تسجيل العملية
-            await logPointsTransaction(currentUser.uid, pointsEarned, 'timer_earned', 
-                `نقاط مؤقت: ${Math.floor(elapsedMs/60000)} دقيقة ${isBoostActive ? '(مضاعفة الوقت)' : ''}`);
-
-            // تحديث الحالة المحلية
-            studyState.currentPoints += pointsEarned;
-            studyState.totalPoints += pointsEarned;
-        }
-
-        // إيقاف المؤقت
-        studyState.running = false;
-        studyState.startAtMs = null;
-        stopStudyInterval();
-        stopHeartbeatInterval();
-        
-        renderTimerUI();
-        
-        if (pointsEarned > 0) {
-            showNotification(`تم إيقاف المؤقت - ربحت ${pointsEarned} نقطة 🎉${isBoostActive ? ' (تسريع الوقت)' : ''}`, "success");
-        } else {
-            showNotification("تم إيقاف المؤقت - الوقت غير كافي للنقاط", "info");
-        }
-
-    } catch (error) {
-        console.error("Error stopping timer:", error);
-        showNotification("فشل إيقاف المؤقت - جرب مرة أخرى", "error");
-    }
-}
-
-// 🔄 دوال التحكم المساعدة
-function startStudyInterval(){ 
+// تحديث دالة الدراسة لتتبع المضاعفة
+function startStudyInterval() { 
     stopStudyInterval(); 
-    studyInterval = setInterval(renderTimerUI, 1000); 
+    studyInterval = setInterval(() => {
+        renderTimerUI();
+        updateBoostTracking(); // ✅ تحديث تتبع المضاعفة
+    }, 1000); 
 }
 
 function stopStudyInterval(){ 
@@ -4120,7 +4224,7 @@ async function loadStudyState() {
     }
 }
 
-// 💓 نظام مراقبة الوقت - الإصدار المصحح
+// نظام Heartbeat محسن مع مراقبة الإنترنت
 function startHeartbeatInterval() {
     stopHeartbeatInterval();
     lastHeartbeatSentAt = Date.now();
@@ -4131,293 +4235,75 @@ function startHeartbeatInterval() {
         const now = Date.now();
         const timeSinceLastHeartbeat = now - lastHeartbeatSentAt;
         
-        if (timeSinceLastHeartbeat > 120000) {
-            console.warn("⏰ اكتشاف تخطي في الوقت:", timeSinceLastHeartbeat);
-            await handleSuspiciousActivity("فجوة زمنية كبيرة بين الheartbeats");
+        // إذا كانت الفجوة كبيرة جداً (أكثر من 5 دقائق)
+        if (timeSinceLastHeartbeat > 300000) {
+            console.warn("⏰ فجوة زمنية كبيرة في الـ Heartbeat:", timeSinceLastHeartbeat);
+            
+            // التحقق من حالة الإنترنت أولاً
+            if (navigator.onLine) {
+                // الإنترنت متصل لكن الـ Heartbeat متوقف - مشكلة في التطبيق
+                await handleAppCrash();
+            } else {
+                // الإنترنت مقطوع - نترك نظام مراقبة الإنترنت يتعامل معها
+                console.log('🌐 الإنترنت مقطوع - تخطي الـ Heartbeat');
+            }
             return;
         }
 
         try {
-            await db.collection('study').doc(currentUser.uid).update({
-                lastPingAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastClientTime: firebase.firestore.Timestamp.fromDate(new Date(now)),
-                totalHeartbeats: firebase.firestore.FieldValue.increment(1)
-            });
-            
-            lastHeartbeatSentAt = now;
+            // إرسال الـ Heartbeat فقط إذا الإنترنت متصل
+            if (navigator.onLine) {
+                await db.collection('study').doc(currentUser.uid).update({
+                    lastPingAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastClientTime: firebase.firestore.Timestamp.fromDate(new Date(now)),
+                    totalHeartbeats: firebase.firestore.FieldValue.increment(1),
+                    networkStatus: 'online',
+                    lastOnlineCheck: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                lastHeartbeatSentAt = now;
+                consecutiveOfflineCount = 0;
+            } else {
+                console.log('🌐 الإنترنت مقطوع - تخطي الـ Heartbeat');
+                consecutiveOfflineCount++;
+            }
         } catch (error) {
             console.error("Heartbeat error:", error);
-        }
-    }, 30000);
-}
-
-// 🚨 التعامل مع النشاط المشبوه
-async function handleSuspiciousActivity(reason) {
-    console.warn("🚨 نشاط مشبوه:", reason);
-    
-    studyState.running = false;
-    stopStudyInterval();
-    stopHeartbeatInterval();
-    
-    try {
-        await db.collection('suspicious_activities').add({
-            userId: currentUser.uid,
-            userName: currentUser.name,
-            reason: reason,
-            clientTime: new Date(),
-            serverTime: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        if (isOwner()) {
-            await sendTelegramNotification(
-                `🚨 نشاط مشبوه\n👤 ${currentUser.name}\n📧 ${currentUser.email}\n🆔 ${currentUser.shortUid}\n📝 ${reason}`
-            );
-        }
-    } catch (error) {
-        console.error("Error reporting suspicious activity:", error);
-    }
-    
-    showNotification("تم اكتشاف نشاط غير عادي - تم إيقاف المؤقت", "warning");
-}
-
-// 🎁 المكافأة اليومية - الإصدار المصحح
-function updateDailyRewardUI(){
-  const btn = document.getElementById('daily-claim-btn'); 
-  const rem = document.getElementById('daily-remaining');
-  if(!btn || !rem) return;
-  
-  const last = studyState.lastDailyClaimAt ? studyState.lastDailyClaimAt.getTime() : 0;
-  const left = (24 * 3600 * 1000) - (Date.now() - last);
-  
-  if(left > 0){
-    btn.disabled = true; 
-    btn.innerHTML = '<i class="fas fa-clock"></i> انتظر';
-    rem.textContent = 'متاح بعد: ' + msToHMS(left);
-    if(!dailyRewardInterval){ 
-      dailyRewardInterval = setInterval(updateDailyRewardUI, 30000); 
-    }
-  } else {
-    btn.disabled = false; 
-    btn.innerHTML = '<i class="fas fa-gift"></i> احصل على 20 نقطة';
-    rem.textContent = 'يمكنك الحصول على 20 نقطة مرة كل 24 ساعة.';
-    if(dailyRewardInterval){ 
-      clearInterval(dailyRewardInterval); 
-      dailyRewardInterval = null; 
-    }
-  }
-}
-
-// 🔥 الإضافة: دالة المكافأة اليومية المحسنة
-async function claimDailyReward() {
-    if (!currentUser) return;
-    
-    const btn = document.getElementById('daily-claim-btn');
-    if (btn) btn.disabled = true;
-    
-    try {
-        const userRef = db.collection('study').doc(currentUser.uid);
-        const userDoc = await userRef.get();
-        
-        if (!userDoc.exists) {
-            showNotification("خطأ في تحميل البيانات", "error");
-            return;
-        }
-
-        const userData = userDoc.data();
-        const now = new Date();
-        
-        // التحقق من الوقت المتبقي
-        const lastClaim = userData.lastDailyClaimAt ? 
-            userData.lastDailyClaimAt.toDate().getTime() : 0;
-        
-        const timeSinceLastClaim = now.getTime() - lastClaim;
-        
-        if (timeSinceLastClaim < (23 * 60 * 60 * 1000)) {
-            const remaining = (24 * 60 * 60 * 1000) - timeSinceLastClaim;
-            showNotification(`لم يحن وقت المكافأة بعد. متبقي: ${msToHMS(remaining)}`, "error");
-            return;
-        }
-
-        // منح المكافأة
-        await db.collection('study').doc(currentUser.uid).set({
-            currentPoints: firebase.firestore.FieldValue.increment(20),
-            totalPoints: firebase.firestore.FieldValue.increment(20),
-            walletPoints: firebase.firestore.FieldValue.increment(20),
-            lastDailyClaimAt: firebase.firestore.Timestamp.fromDate(now),
-            name: currentUser.name || 'مستخدم',
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        // تسجيل العملية
-        await logPointsTransaction(currentUser.uid, 20, 'daily_reward', 'مكافأة يومية');
-
-        // تحديث الحالة المحلية
-        studyState.currentPoints += 20;
-        studyState.totalPoints += 20;
-        studyState.walletPoints = (studyState.walletPoints || 0) + 20;
-        studyState.lastDailyClaimAt = now;
-        
-        showNotification('مبروك! حصلت على 20 نقطة 🎁', 'success');
-        renderTimerUI();
-        updateDailyRewardUI();
-        
-    } catch (error) {
-        console.error("Error claiming daily reward:", error);
-        showNotification('تعذّر منح المكافأة', 'error');
-    } finally {
-        if (btn) btn.disabled = false;
-    }
-}
-
-// 🔒 تحديث واجهة المكافأة اليومية بناءً على وقت السيرفر
-async function updateDailyRewardUI(){
-    const btn = document.getElementById('daily-claim-btn'); 
-    const rem = document.getElementById('daily-remaining');
-    
-    if(!btn || !rem || !currentUser) return;
-  
-    try {
-        // 🔒 جلب البيانات من السيرفر دائماً
-        const userRef = db.collection('study').doc(currentUser.uid);
-        const userDoc = await userRef.get();
-        
-        if (userDoc.exists) {
-            const userData = userDoc.data();
-            const lastClaim = userData.lastDailyClaimAt ? 
-                userData.lastDailyClaimAt.toDate().getTime() : 0;
             
-            const now = Date.now();
-            const left = (24 * 60 * 60 * 1000) - (now - lastClaim);
-            
-            if(left > 0){
-                btn.disabled = true; 
-                rem.textContent = 'متاح بعد: ' + msToHMS(left);
-                if(!dailyRewardInterval){ 
-                    dailyRewardInterval = setInterval(updateDailyRewardUI, 1000); 
-                }
-            } else {
-                btn.disabled = false; 
-                rem.textContent = 'يمكنك الحصول على 20 نقطة مرة كل 24 ساعة.';
-                if(dailyRewardInterval){ 
-                    clearInterval(dailyRewardInterval); 
-                    dailyRewardInterval = null; 
-                }
+            // إذا فشل الـ Heartbeat عدة مرات متتالية
+            if (consecutiveOfflineCount > 5) {
+                console.warn('🚫 فشل متكرر في الـ Heartbeat - تحقق من الإنترنت');
             }
         }
-    } catch (error) {
-        console.error("Error updating daily reward UI:", error);
-        // استخدام الحالة المحلية كبديل
-        const last = studyState.lastDailyClaimAt ? studyState.lastDailyClaimAt.getTime() : 0;
-        const left = (24 * 3600 * 1000) - (Date.now() - last);
-        
-        if(left > 0){
-            btn.disabled = true; 
-            rem.textContent = 'متاح بعد: ' + msToHMS(left);
-        } else {
-            btn.disabled = false; 
-            rem.textContent = 'يمكنك الحصول على 20 نقطة مرة كل 24 ساعة.';
-        }
-    }
-}
-// أضف هذا في دالة renderTimerUI أو في challenge-page
-function addMobileResetButton() {
-    if (isOwner()) {
-        const dailyRewardSection = document.querySelector('.daily-reward');
-        if (dailyRewardSection && !document.getElementById('reset-reward-btn')) {
-            const resetBtn = document.createElement('button');
-            resetBtn.id = 'reset-reward-btn';
-            resetBtn.className = 'btn btn-warning btn-xs';
-            resetBtn.innerHTML = '🔄 إصلاح المكافأة';
-            resetBtn.onclick = resetDailyRewardMobile;
-            resetBtn.style.marginTop = '10px';
-            dailyRewardSection.appendChild(resetBtn);
-        }
-    }
+    }, 45000); // كل 45 ثانية (بدل 30)
 }
 
-async function resetDailyRewardMobile() {
-    if (!confirm('إعادة تعيين المكافأة اليومية؟')) return;
+// التعامل مع تحطم التطبيق
+async function handleAppCrash() {
+    console.log('🚑 اكتشاف تحطم محتمل في التطبيق');
     
     try {
+        // حفظ حالة الطوارئ
         await db.collection('study').doc(currentUser.uid).update({
-            lastDailyClaimAt: null
+            running: false,
+            startAt: null,
+            lastCrashDetected: firebase.firestore.FieldValue.serverTimestamp(),
+            crashReason: 'heartbeat_gap_detected'
         });
         
-        studyState.lastDailyClaimAt = null;
-        updateDailyRewardUI();
-        showNotification('✅ تم الإصلاح!', 'success');
+        // إيقاف العداد محلياً
+        studyState.running = false;
+        studyState.startAtMs = null;
+        stopStudyInterval();
+        stopHeartbeatInterval();
+        
+        renderTimerUI();
+        
+        showNotification("⚠️ تم اكتشاف مشكلة في التطبيق - تم إيقاف العداد", "warning");
         
     } catch (error) {
-        showNotification('❌ فشل الإصلاح', 'error');
+        console.error("Error handling app crash:", error);
     }
-}
-
-// استدعها بعد تحميل الصفحة
-setTimeout(addMobileResetButton, 3000);
-
-// ⚡ نظام التسريع
-function startBoostInterval(){ 
-    stopBoostInterval(); 
-    updateBoostStatus(); 
-    boostInterval = setInterval(updateBoostStatus, 1000); 
-}
-
-function stopBoostInterval(){ 
-    if(boostInterval){ clearInterval(boostInterval); boostInterval = null; } 
-}
-
-function updateBoostStatus(){
-  const st = studyState; 
-  const el = document.getElementById('boost-status');
-  if(!el) return;
-  
-  if(!st.boostUntil){ 
-    el.textContent = ''; 
-    stopBoostInterval(); 
-    return; 
-  }
-  
-  const left = st.boostUntil.getTime() - Date.now();
-  if(left <= 0){ 
-    st.boostUntil = null; 
-    el.textContent = ''; 
-    stopBoostInterval(); 
-    renderTimerUI(); 
-    return; 
-  }
-  
-  el.textContent = `التسريع مفعل! الوقت المتبقي: ${msToHMS(left)}`;
-}
-
-async function buyBoost(hours){
-  if(!currentUser) return;
-  const cost = (hours===1?25:hours===2?50:hours===3?75:hours===5?100:hours*25);
-  if(studyState.currentPoints < cost){
-    return showNotification('نقاط غير كافية','error');
-  }
-  
-  try{
-    const base = (studyState.boostUntil && studyState.boostUntil > new Date()) ? studyState.boostUntil.getTime() : Date.now();
-    const until = new Date(base + hours * 3600 * 1000);
-    
-    await db.collection('study').doc(currentUser.uid).set({
-      currentPoints: firebase.firestore.FieldValue.increment(-cost),
-      boostUntil: firebase.firestore.Timestamp.fromDate(until),
-      name: currentUser.name || 'مستخدم'
-    }, { merge: true });
-    
-    await logPointsTransaction(currentUser.uid, -cost, 'boost_purchase', `شراء تسريع ${hours} ساعة`);
-    
-    studyState.currentPoints -= cost;
-    studyState.boostUntil = until;
-    startBoostInterval();
-    renderTimerUI();
-    showNotification('تم تفعيل التسريع بشكل تراكمي','success');
-    
-  } catch(e){
-    console.error('buyBoost error', e);
-    showNotification('فشل شراء التسريع','error');
-  }
 }
 
 /* ===========================================================
@@ -4584,148 +4470,246 @@ async function ownerSetLbSchedule(){
   }
 }
 
-/* ===== توزيع المكافآت الأسبوعية - الإصدار الجديد (بالبريد الوارد) ===== */
+// أضف هذه الدوال المفقودة
+function stopLeaderboardListener() { 
+    if(leaderboardUnsub){
+        try{leaderboardUnsub();}catch{} 
+        leaderboardUnsub=null;
+    }
+}
+
+function stopJourneyListener() { 
+    if(journeyUnsub){
+        try{journeyUnsub();}catch{} 
+        journeyUnsub=null;
+    }
+}
+
+/* =========================
+   🏆 نظام توزيع الجوائز الأسبوعي الصارم
+========================= */
+
+let distributionInProgress = false;
+
+// نظام توزيع محسن مع تأكيدات
 async function distributeWeeklyRewards(){
-  if(!isOwner()) return;
-  
-  try {
-    const leaderboardSnapshot = await db.collection('study')
-      .orderBy('totalPoints', 'desc')
-      .limit(50)
-      .get();
+    if(!isOwner()) return;
     
-    if(leaderboardSnapshot.empty) {
-      console.log('لا يوجد مستخدمين في التصنيف');
-      await sendTelegramNotification('📊 لا يوجد مستخدمين في التصنيف لهذا الأسبوع');
-      return;
+    if (distributionInProgress) {
+        showNotification('⚠️ عملية توزيع سابقة قيد التنفيذ', 'warning');
+        return;
     }
     
-    const topUsers = leaderboardSnapshot.docs.map(doc => ({
-      uid: doc.id,
-      name: doc.data().name || 'مستخدم',
-      shortUid: doc.data().shortUid || 'غير معروف',
-      totalPoints: Number(doc.data().totalPoints) || 0,
-      currentPoints: Number(doc.data().currentPoints) || 0,
-      walletPoints: Number(doc.data().walletPoints) || 0
-    }));
-
-    const rewards = {
-      0: 2000,
-      1: 1500,  
-      2: 1000,
-      3: 500,
-      4: 300
-    };
+    distributionInProgress = true;
     
-    const winners = [];
-    
-    for(let i = 0; i < Math.min(5, topUsers.length); i++){
-      const user = topUsers[i];
-      const reward = rewards[i];
-      
-      if(user.totalPoints >= 200){
-        winners.push({
-          rank: i + 1,
-          name: user.name || 'مستخدم',
-          uid: user.uid || '',
-          shortUid: user.shortUid || generateShortUid(user.uid),
-          oldPoints: user.walletPoints || user.currentPoints || 0,
-          reward: reward || 0,
-          newPoints: (user.walletPoints || user.currentPoints || 0) + (reward || 0)
+    try {
+        console.log('🚀 بدء توزيع الجوائز الأسبوعي...');
+        
+        // 1. 🔒 قفل النظام أثناء التوزيع
+        await db.collection('settings').doc('leaderboard').update({
+            distributionStatus: 'in_progress',
+            distributionStartedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            distributedBy: currentUser.uid
         });
         
-        // تحديث النقاط في walletPoints أولاً
-        await db.collection('study').doc(user.uid).set({
-          walletPoints: firebase.firestore.FieldValue.increment(reward),
-          currentPoints: firebase.firestore.FieldValue.increment(reward),
-          totalPoints: firebase.firestore.FieldValue.increment(reward),
-          lastWeeklyReward: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+        // 2. 📊 جلب بيانات التصنيف
+        const leaderboardSnapshot = await db.collection('study')
+            .orderBy('totalPoints', 'desc')
+            .limit(50)
+            .get();
+        
+        if(leaderboardSnapshot.empty) {
+            console.log('📭 لا يوجد مستخدمين في التصنيف');
+            await sendTelegramNotification('📊 لا يوجد مستخدمين في التصنيف لهذا الأسبوع');
+            
+            await db.collection('settings').doc('leaderboard').update({
+                distributionStatus: 'completed',
+                distributionMessage: 'لا يوجد مستخدمين'
+            });
+            
+            distributionInProgress = false;
+            return;
+        }
+        
+        const topUsers = leaderboardSnapshot.docs.map(doc => ({
+            uid: doc.id,
+            name: doc.data().name || 'مستخدم',
+            shortUid: doc.data().shortUid || 'غير معروف',
+            totalPoints: Number(doc.data().totalPoints) || 0,
+            currentPoints: Number(doc.data().currentPoints) || 0,
+            walletPoints: Number(doc.data().walletPoints) || 0
+        }));
 
-        // تسجيل المكافأة الأسبوعية في السجل
-        await logPointsTransaction(user.uid, reward, 'weekly_reward', `مكافأة أسبوعية - المركز ${i + 1}`);
+        const rewards = {
+            0: 2000, // المركز الأول
+            1: 1500, // المركز الثاني  
+            2: 1000, // المركز الثالث
+            3: 500,  // المركز الرابع
+            4: 300   // المركز الخامس
+        };
+        
+        const winners = [];
+        const batch = db.batch();
+        
+        // 3. 🎁 منح الجوائز للمراكز الأولى
+        for(let i = 0; i < Math.min(5, topUsers.length); i++){
+            const user = topUsers[i];
+            
+            if(user.totalPoints >= 200){ // شرط 200 نقطة كحد أدنى
+                const reward = rewards[i];
+                
+                winners.push({
+                    rank: i + 1,
+                    name: user.name,
+                    uid: user.uid,
+                    shortUid: user.shortUid,
+                    oldPoints: user.walletPoints || user.currentPoints || 0,
+                    reward: reward,
+                    newPoints: (user.walletPoints || user.currentPoints || 0) + reward,
+                    totalPoints: user.totalPoints
+                });
+                
+                // تحديث النقاط في المحفظة
+                const userRef = db.collection('study').doc(user.uid);
+                batch.update(userRef, {
+                    walletPoints: firebase.firestore.FieldValue.increment(reward),
+                    currentPoints: firebase.firestore.FieldValue.increment(reward),
+                    totalPoints: firebase.firestore.FieldValue.increment(reward),
+                    lastWeeklyReward: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastRewardAmount: reward,
+                    lastRewardRank: i + 1
+                });
 
-        // إرسال إشعار إلى البريد الوارد للمستخدم الفائز
-        await db.collection('inbox').add({
-          userId: user.uid,
-          type: 'weekly_reward',
-          title: `🎉 مبروك! فوز أسبوعي - المركز ${i + 1}`,
-          message: `
-مبارك لك! لقد فزت في التصنيف الأسبوعي 🏆
+                // تسجيل المكافأة
+                await logPointsTransaction(user.uid, reward, 'weekly_reward', 
+                    `مكافأة أسبوعية - المركز ${i + 1}`);
+
+                // إرسال إشعار للمستخدم الفائز
+                await db.collection('inbox').add({
+                    userId: user.uid,
+                    type: 'weekly_reward',
+                    title: `🎉 مبروك! فوز أسبوعي - المركز ${i + 1}`,
+                    message: `
+🏆 مبارك لك! لقد فزت في التصنيف الأسبوعي
 
 • المركز: ${i + 1}
 • المكافأة: ${reward} نقطة 🎁
 • رصيدك الجديد: ${(user.walletPoints || user.currentPoints || 0) + reward} نقطة
+• نقاطك الإجمالية: ${user.totalPoints} نقطة
 
 استمر في التفوق وحقق مراكز أعلى! 💪
-          `.trim(),
-          status: 'unread',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          rewardPoints: reward,
-          rank: i + 1
-        });
+                    `.trim(),
+                    status: 'unread',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    rewardPoints: reward,
+                    rank: i + 1
+                });
 
-        console.log(`✅ تم منح ${reward} نقطة وإرسال إشعار للمستخدم ${user.name}`);
-      }
+                console.log(`✅ تم منح ${reward} نقطة للمركز ${i + 1}: ${user.name}`);
+            }
+        }
+        
+        // 4. 💾 تنفيذ جميع التحديثات دفعة واحدة
+        await batch.commit();
+        console.log('✅ تم تنفيذ جميع تحديثات النقاط');
+        
+        // 5. 🔄 تصفير نقاط التصنيف للجميع
+        await resetLeaderboardPoints(leaderboardSnapshot);
+        
+        // 6. 📝 تسجيل عملية التوزيع
+        const distributionRecord = {
+            winners: winners,
+            distributedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            totalWinners: winners.length,
+            totalPointsDistributed: winners.reduce((sum, winner) => sum + winner.reward, 0),
+            totalParticipants: leaderboardSnapshot.size,
+            distributedBy: currentUser.uid,
+            distributedByName: currentUser.name
+        };
+        
+        await db.collection('weekly_distributions').add(distributionRecord);
+        
+        // 7. 🗓️ حساب الموعد القادم
+        await calculateNextReset();
+        
+        // 8. 📢 إرسال تقرير للمالك
+        await sendDistributionReport(winners, distributionRecord);
+        
+        console.log('✅ تم توزيع الجوائز الأسبوعية بنجاح');
+        showNotification('✅ تم توزيع الجوائز وتصفير التصنيف بنجاح','success');
+        
+    } catch(e) {
+        console.error('❌ فشل توزيع الجوائز:', e);
+        
+        // تحديث حالة الفشل
+        await db.collection('settings').doc('leaderboard').update({
+            distributionStatus: 'failed',
+            distributionError: e.message,
+            lastFailedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        await sendTelegramNotification(
+            `❌ <b>فشل توزيع الجوائز</b>\n\n📝 ${e.message}\n⏰ ${new Date().toLocaleString('ar-IQ')}`
+        );
+        
+        showNotification('❌ فشل توزيع الجوائز','error');
+    } finally {
+        distributionInProgress = false;
     }
-    
-    const distributionRecord = {
-      winners: winners.map(winner => ({
-        rank: winner.rank || 0,
-        name: winner.name || 'مستخدم',
-        uid: winner.uid || '',
-        shortUid: winner.shortUid || 'غير معروف',
-        oldPoints: winner.oldPoints || 0,
-        reward: winner.reward || 0,
-        newPoints: winner.newPoints || 0
-      })),
-      distributedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      totalWinners: winners.length || 0,
-      totalPointsDistributed: winners.reduce((sum, winner) => sum + (winner.reward || 0), 0) || 0
-    };
-    
-    await db.collection('weekly_distributions').add(distributionRecord);
-    
-    // تصفير totalPoints فقط (الحفاظ على currentPoints و walletPoints)
-    const batch = db.batch();
-    leaderboardSnapshot.docs.forEach(doc => {
-      batch.update(doc.ref, {
-        totalPoints: 0
-      });
-    });
-    await batch.commit();
-    
-    let ownerMessage = `✅ تم توزيع المكافآت الأسبوعية بنجاح\n\n`;
-    ownerMessage += `📊 إجمالي الفائزين: ${winners.length}\n`;
-    ownerMessage += `💰 إجمالي النقاط الموزعة: ${distributionRecord.totalPointsDistributed}\n\n`;
-    
-    if(winners.length > 0){
-      ownerMessage += `🏆 الفائزون:\n`;
-      winners.forEach(winner => {
-        ownerMessage += `${winner.rank}. ${winner.name} (${winner.shortUid}) - ${winner.reward} نقطة\n`;
-      });
-    } else {
-      ownerMessage += `⚠️ لا يوجد فائزون مؤهلون هذه الأسبوع (النقاط أقل من 200)`;
+}
+
+// تصفير نقاط التصنيف للجميع
+async function resetLeaderboardPoints(leaderboardSnapshot) {
+    try {
+        console.log('🔄 بدء تصفير نقاط التصنيف...');
+        
+        const batch = db.batch();
+        let resetCount = 0;
+        
+        leaderboardSnapshot.docs.forEach(doc => {
+            batch.update(doc.ref, {
+                totalPoints: 0, // تصفير نقاط التصنيف فقط
+                lastResetAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            resetCount++;
+        });
+        
+        await batch.commit();
+        console.log(`✅ تم تصفير نقاط ${resetCount} مستخدم`);
+        
+    } catch (error) {
+        console.error('❌ فشل تصفير النقاط:', error);
+        throw error;
     }
-    
-    await sendTelegramNotification(ownerMessage);
-    
-    await calculateNextReset();
-    
-    console.log('تم توزيع المكافآت الأسبوعية بنجاح');
-    showNotification('تم توزيع المكافآت الأسبوعية بنجاح','success');
-    
-  } catch(e) {
-    console.error('Error distributing weekly rewards:', e);
-    
-    let errorMsg = `❌ فشل توزيع المكافآت الأسبوعية: ${e.message}`;
-    if(e.message.includes('undefined')) {
-      errorMsg += '\n\n🔍 السبب: وجود قيم غير معرّفة في بيانات المستخدمين';
+}
+
+// إرسال تقرير التوزيع
+async function sendDistributionReport(winners, distributionRecord) {
+    try {
+        let reportMessage = `🏆 <b>تقرير توزيع الجوائز الأسبوعية</b>\n\n`;
+        
+        reportMessage += `📊 الإحصائيات:\n`;
+        reportMessage += `• عدد الفائزين: ${distributionRecord.totalWinners}\n`;
+        reportMessage += `• إجمالي النقاط: ${distributionRecord.totalPointsDistributed}\n`;
+        reportMessage += `• عدد المشاركين: ${distributionRecord.totalParticipants}\n\n`;
+        
+        if (winners.length > 0) {
+            reportMessage += `🎖️ الفائزون:\n`;
+            winners.forEach(winner => {
+                reportMessage += `${winner.rank}. ${winner.name} (${winner.shortUid}) - ${winner.reward} نقطة\n`;
+            });
+        } else {
+            reportMessage += `⚠️ لا يوجد فائزون مؤهلون هذه الأسبوع\n`;
+            reportMessage += `(النقاط أقل من 200 نقطة)`; 
+        }
+        
+        reportMessage += `\n⏰ الموعد القادم: ${leaderboardSettings.nextReset.toLocaleString('ar-IQ')}`;
+        
+        await sendTelegramNotification(reportMessage);
+        
+    } catch (error) {
+        console.error('Error sending distribution report:', error);
     }
-    
-    await sendTelegramNotification(errorMsg);
-    showNotification('فشل توزيع المكافآت الأسبوعية','error');
-  }
 }
 /* ===========================================================
    التصنيف (Top 50)
@@ -4802,49 +4786,59 @@ function closeLbRewardsModal(){ document.getElementById('lb-rewards-modal').styl
 
 /* عدّ تنازلي أسبوعي */
 let lbCountdownInterval=null;
+// نظام عد تنازلي محسن مع تأكيد التوزيع
 function startLeaderboardCountdown(){
-  const daysEl = document.getElementById('cd-days');
-  const hrsEl  = document.getElementById('cd-hours');
-  const minEl  = document.getElementById('cd-mins');
-  const secEl  = document.getElementById('cd-secs');
-  if(!daysEl||!hrsEl||!minEl||!secEl) return;
-  
-  if (lbCountdownInterval) clearInterval(lbCountdownInterval);
-  
-  const tick = ()=>{
-    const now = new Date();
-    let target = leaderboardSettings.nextReset;
+    const daysEl = document.getElementById('cd-days');
+    const hrsEl  = document.getElementById('cd-hours');
+    const minEl  = document.getElementById('cd-mins');
+    const secEl  = document.getElementById('cd-secs');
     
-    if(!target){
-      calculateNextReset();
-      target = leaderboardSettings.nextReset;
-    }
+    if(!daysEl || !hrsEl || !minEl || !secEl) return;
     
-    let diff = target - now;
+    if (lbCountdownInterval) clearInterval(lbCountdownInterval);
     
-    if (diff <= 0) {
-      if(isOwner()){
-        distributeWeeklyRewards();
-      }
-      calculateNextReset();
-      target = leaderboardSettings.nextReset;
-      diff = target - now;
-    }
+    const tick = async () => {
+        const now = new Date();
+        let target = leaderboardSettings.nextReset;
+        
+        if(!target){
+            await calculateNextReset();
+            target = leaderboardSettings.nextReset;
+        }
+        
+        let diff = target - now;
+        
+        // إذا انتهى الوقت - توزيع فوري
+        if (diff <= 0) {
+            console.log('⏰ انتهى وقت التصنيف - بدء التوزيع...');
+            
+            daysEl.textContent = '00';
+            hrsEl.textContent  = '00';
+            minEl.textContent  = '00';
+            secEl.textContent  = '00';
+            
+            // توزيع فوري
+            if (isOwner()) {
+                await distributeWeeklyRewards();
+            }
+            
+            return;
+        }
+        
+        const totalSeconds = Math.floor(diff/1000);
+        const days = Math.floor(totalSeconds / (24*3600));
+        const hours = Math.floor((totalSeconds % (24*3600)) / 3600);
+        const mins = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+        
+        daysEl.textContent = String(days).padStart(2,'0');
+        hrsEl.textContent  = String(hours).padStart(2,'0');
+        minEl.textContent  = String(mins).padStart(2,'0');
+        secEl.textContent  = String(secs).padStart(2,'0');
+    };
     
-    const totalSeconds = Math.floor(diff/1000);
-    const days = Math.floor(totalSeconds / (24*3600));
-    const hours = Math.floor((totalSeconds % (24*3600)) / 3600);
-    const mins = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
-    
-    daysEl.textContent = String(days).padStart(2,'0');
-    hrsEl.textContent  = String(hours).padStart(2,'0');
-    minEl.textContent  = String(mins).padStart(2,'0');
-    secEl.textContent  = String(secs).padStart(2,'0');
-  };
-  
-  tick();
-  lbCountdownInterval = setInterval(tick, 1000);
+    tick();
+    lbCountdownInterval = setInterval(tick, 1000);
 }
 
 /* مالك: حذف من التصنيف */
@@ -5298,20 +5292,41 @@ async function ownerQuickResetLeaderboard(){
   }
 }
 
-function addManualDistributionButton(){
-  if(isOwner()){
-    const lbTools = document.querySelector('.lb-tools');
-    if(lbTools){
-      const manualBtn = document.createElement('button');
-      manualBtn.className = 'btn btn-warning';
-      manualBtn.innerHTML = '<i class="fas fa-bolt"></i> توزيع يدوي';
-      manualBtn.onclick = manualDistributeRewards;
-      lbTools.appendChild(manualBtn);
+// زر توزيع يدوي مع تأكيد
+function addManualDistributionButton() {
+    if(isOwner()){
+        const lbTools = document.querySelector('.lb-tools');
+        if(lbTools && !document.getElementById('manual-distribute-btn')){
+            const manualBtn = document.createElement('button');
+            manualBtn.id = 'manual-distribute-btn';
+            manualBtn.className = 'btn btn-danger';
+            manualBtn.innerHTML = '<i class="fas fa-bolt"></i> توزيع يدوي';
+            manualBtn.onclick = confirmManualDistribution;
+            lbTools.appendChild(manualBtn);
+        }
     }
-  }
 }
 
-setTimeout(addManualDistributionButton, 2000);
+// تأكيد التوزيع اليدوي
+function confirmManualDistribution() {
+    if(!isOwner()) return;
+    
+    const confirmation = confirm(`⚠️ تأكيد التوزيع اليدوي
+
+هل أنت متأكد من توزيع الجوائز الآن؟
+• سيتم تصفير جميع نقاط التصنيف
+• سيتم منح الجوائز للمراكز الأولى
+• لا يمكن التراجع عن هذه العملية
+
+اضغط "موافق" للمتابعة.`);
+    
+    if (confirmation) {
+        distributeWeeklyRewards();
+    }
+}
+
+// استدعاء إضافة الزر
+setTimeout(addManualDistributionButton, 3000);
 
 /* =========================
    تهيئة التطبيق
@@ -7157,6 +7172,1046 @@ async function checkTimeManipulationStrict() {
 
 // تحديث دوري للعجلة
 setInterval(updateWheelUI, 30000);
+
+/* =========================
+   🎯 نظام الإحالة الجديد
+========================= */
+
+// عرض صفحة نظام الإحالة
+function showReferralSystem() {
+    if (!currentUser) {
+        showNotification('يرجى تسجيل الدخول أولاً', 'warning');
+        return;
+    }
+    showPage('referral');
+    loadReferralData();
+    startReferralListener();
+}
+
+// تحميل بيانات الإحالة
+async function loadReferralData() {
+    if (!currentUser) return;
+    
+    try {
+        // عرض رمز الإحالة (نفس الـ UID)
+        const referralCode = currentUser.shortUid || generateShortUid(currentUser.uid);
+        document.getElementById('referral-code-input').value = referralCode;
+        document.getElementById('referral-share-code').textContent = referralCode;
+        
+        // جلب إحصائيات الإحالة
+        const referralStats = await getReferralStats(currentUser.uid);
+        
+        document.getElementById('referral-count').textContent = referralStats.referralCount;
+        document.getElementById('referral-points').textContent = referralStats.earnedPoints;
+        
+    } catch (error) {
+        console.error('Error loading referral data:', error);
+    }
+}
+
+// نسخ رمز الإحالة
+function copyReferralCode() {
+    const codeInput = document.getElementById('referral-code-input');
+    codeInput.select();
+    document.execCommand('copy');
+    showNotification('تم نسخ رمز الإحالة بنجاح! 🎉', 'success');
+}
+
+// جلب إحصائيات الإحالة
+async function getReferralStats(userId) {
+    try {
+        const referralsSnapshot = await db.collection('referrals')
+            .where('referrerId', '==', userId)
+            .get();
+        
+        const referralCount = referralsSnapshot.size;
+        let earnedPoints = 0;
+        
+        referralsSnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.rewardClaimed) {
+                earnedPoints += 150; // 150 نقطة لكل إحالة ناجحة
+            }
+        });
+        
+        return { referralCount, earnedPoints };
+        
+    } catch (error) {
+        console.error('Error getting referral stats:', error);
+        return { referralCount: 0, earnedPoints: 0 };
+    }
+}
+
+// مستمع للإحالات الجديدة
+function startReferralListener() {
+    if (!currentUser || referralListener) return;
+    
+    referralListener = db.collection('referrals')
+        .where('referrerId', '==', currentUser.uid)
+        .onSnapshot((snapshot) => {
+            loadReferralData(); // تحديث البيانات عند وجود تغييرات
+        }, (error) => {
+            console.error('Referral listener error:', error);
+        });
+}
+
+// إيقاف مستمع الإحالات
+function stopReferralListener() {
+    if (referralListener) {
+        referralListener();
+        referralListener = null;
+    }
+}
+
+// التحقق من رمز الإحالة عند التسجيل
+async function validateReferralCode(referralCode) {
+    try {
+        // البحث عن المستخدم صاحب رمز الإحالة
+        const userQuery = await db.collection('users')
+            .where('shortUid', '==', referralCode.toUpperCase())
+            .limit(1)
+            .get();
+        
+        if (userQuery.empty) {
+            return { valid: false, error: 'رمز الإحالة غير صحيح' };
+        }
+        
+        const referrerDoc = userQuery.docs[0];
+        const referrerData = referrerDoc.data();
+        
+        // التحقق من أن المستخدم لا يحيل نفسه
+        if (referrerDoc.id === currentUser.uid) {
+            return { valid: false, error: 'لا يمكن استخدام رمز الإحالة الخاص بك' };
+        }
+        
+        return { 
+            valid: true, 
+            referrerId: referrerDoc.id,
+            referrerName: referrerData.name,
+            referrerShortUid: referrerData.shortUid
+        };
+        
+    } catch (error) {
+        console.error('Error validating referral code:', error);
+        return { valid: false, error: 'خطأ في التحقق من رمز الإحالة' };
+    }
+}
+
+// معالجة الإحالة الناجحة
+async function processSuccessfulReferral(referredUserId, referredUserName, referralCode) {
+    try {
+        const validation = await validateReferralCode(referralCode);
+        
+        if (!validation.valid) {
+            return { success: false, error: validation.error };
+        }
+        
+        const { referrerId, referrerName, referrerShortUid } = validation;
+        
+        // تسجيل الإحالة
+        await db.collection('referrals').add({
+            referrerId: referrerId,
+            referrerName: referrerName,
+            referrerShortUid: referrerShortUid,
+            referredUserId: referredUserId,
+            referredUserName: referredUserName,
+            referralCode: referralCode.toUpperCase(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            rewardClaimed: true
+        });
+        
+        // منح المكافآت
+        await grantReferralRewards(referrerId, referredUserId);
+        
+        return { success: true };
+        
+    } catch (error) {
+        console.error('Error processing referral:', error);
+        return { success: false, error: 'فشل معالجة الإحالة' };
+    }
+}
+
+// منح مكافآت الإحالة
+async function grantReferralRewards(referrerId, referredUserId) {
+    try {
+        // المكافأة للمُحيل (150 نقطة)
+        await db.collection('study').doc(referrerId).set({
+            currentPoints: firebase.firestore.FieldValue.increment(150),
+            totalPoints: firebase.firestore.FieldValue.increment(150),
+            walletPoints: firebase.firestore.FieldValue.increment(150),
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        
+        // تسجيل العملية للمُحيل
+        await logPointsTransaction(referrerId, 150, 'referral_reward', 
+            `مكافأة إحالة - 150 نقطة`);
+        
+        // المكافأة للمُحال (75 نقطة)
+        await db.collection('study').doc(referredUserId).set({
+            currentPoints: firebase.firestore.FieldValue.increment(75),
+            totalPoints: firebase.firestore.FieldValue.increment(75),
+            walletPoints: firebase.firestore.FieldValue.increment(75),
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        
+        // تسجيل العملية للمُحال
+        await logPointsTransaction(referredUserId, 75, 'referral_bonus', 
+            `مكافأة دخول برمز إحالة - 75 نقطة`);
+        
+        // إرسال إشعارات البريد الوارد
+        await sendReferralNotifications(referrerId, referredUserId);
+        
+        console.log('✅ تم منح مكافآت الإحالة بنجاح');
+        
+    } catch (error) {
+        console.error('Error granting referral rewards:', error);
+        throw error;
+    }
+}
+
+// إرسال إشعارات البريد الوارد
+async function sendReferralNotifications(referrerId, referredUserId) {
+    try {
+        const referredUserDoc = await db.collection('users').doc(referredUserId).get();
+        const referredUserName = referredUserDoc.data().name || 'مستخدم جديد';
+        
+        // إشعار للمُحيل
+        await db.collection('inbox').add({
+            userId: referrerId,
+            type: 'referral_success',
+            title: '🎉 مبروك! إحالة ناجحة',
+            message: `لقد ربحت 150 نقطة! المستخدم ${referredUserName} قام بالتسجيل برمز الإحالة الخاص بك.`,
+            status: 'unread',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            points: 150
+        });
+        
+        // إشعار للمُحال
+        await db.collection('inbox').add({
+            userId: referredUserId,
+            type: 'referral_welcome',
+            title: '🎁 مبروك! مكافأة ترحيب',
+            message: `لقد ربحت 75 نقطة مجانية بسبب استخدامك رمز الإحالة. استمر في التفوق!`,
+            status: 'unread',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            points: 75
+        });
+        
+    } catch (error) {
+        console.error('Error sending referral notifications:', error);
+    }
+}
+
+// التحقق من منع الحسابات الوهمية
+async function checkForFakeAccounts(userId, userEmail) {
+    try {
+        // التحقق من وجود حسابات أخرى بنفس البريد أو الجهاز
+        const suspiciousQuery = await db.collection('suspicious_activities')
+            .where('type', '==', 'multiple_accounts')
+            .where('userEmail', '==', userEmail)
+            .limit(1)
+            .get();
+        
+        if (!suspiciousQuery.empty) {
+            // حظر جميع الحسابات المرتبطة
+            await banMultipleAccounts(userEmail);
+            return true;
+        }
+        
+        return false;
+        
+    } catch (error) {
+        console.error('Error checking for fake accounts:', error);
+        return false;
+    }
+}
+
+// حظر الحسابات المتعددة
+async function banMultipleAccounts(email) {
+    try {
+        const usersQuery = await db.collection('users')
+            .where('email', '==', email)
+            .get();
+        
+        const batch = db.batch();
+        
+        usersQuery.forEach(doc => {
+            batch.update(doc.ref, {
+                isPermanentlyBanned: true,
+                banReason: 'إنشاء حسابات متعددة للغش في نظام الإحالة',
+                bannedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+        
+        await batch.commit();
+        
+        // إرسال إشعار للمالك
+        await sendTelegramNotification(
+            `🚫 <b>حظر حسابات متعددة</b>\n\n📧 ${email}\n📝 إنشاء حسابات وهمية للغش في نظام الإحالة`
+        );
+        
+    } catch (error) {
+        console.error('Error banning multiple accounts:', error);
+    }
+}
+// التحقق من صحة الإحالة عند تحميل المستخدم
+async function checkPendingReferrals(userId) {
+    try {
+        const pendingRef = await db.collection('pending_referrals')
+            .where('referredUserId', '==', userId)
+            .where('processed', '==', false)
+            .limit(1)
+            .get();
+        
+        if (!pendingRef.empty) {
+            const pendingDoc = pendingRef.docs[0];
+            const pendingData = pendingDoc.data();
+            
+            // معالجة الإحالة المعلقة
+            await processSuccessfulReferral(userId, pendingData.referredUserName, pendingData.referralCode);
+            
+            // تحديث حالة الإحالة
+            await pendingDoc.ref.update({ processed: true });
+        }
+    } catch (error) {
+        console.error('Error checking pending referrals:', error);
+    }
+}
+
+// تحديث نظام المصادقة لدعم الإحالة
+auth.onAuthStateChanged(async (user) => {
+  if(!user){
+    updateUIForLoggedOutUser();
+    stopAllListeners();
+    return;
+  }
+  try{
+    let doc = await db.collection("users").doc(user.uid).get();
+    if(!doc.exists){
+      isFirstLoginSession = true;
+      const shortUid = generateShortUid(user.uid);
+      await db.collection("users").doc(user.uid).set({
+        name: user.displayName || user.email.split("@")[0], 
+        email: user.email, 
+        avatar: pendingChosenAvatar || "male",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
+        isVerified:false, isOwner:false, blockedFromPosting:false, 
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(), 
+        lastPromoAt: null,
+        shortUid: shortUid
+      },{merge:true});
+      doc = await db.collection("users").doc(user.uid).get();
+    }else{
+      isFirstLoginSession = false;
+      if (!doc.data().shortUid) {
+        const shortUid = generateShortUid(user.uid);
+        await db.collection("users").doc(user.uid).update({
+          shortUid: shortUid,
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } else {
+        await db.collection("users").doc(user.uid).update({ 
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+      }
+    }
+    currentUser = { uid:user.uid, ...doc.data() };
+    
+    // 🔥 الإصلاح: تحميل الصورة الشخصية من الفايربيز
+    if (doc.data().avatarBase64) {
+      currentUser.avatarBase64 = doc.data().avatarBase64;
+    }
+    
+  }catch(e){
+    console.error("user load error:", e);
+    currentUser = { uid:user.uid, name:user.email.split("@")[0], email:user.email, avatar: pendingChosenAvatar || "male", isVerified:false, blockedFromPosting:false, isOwner:false };
+  }
+  
+  updateUIForLoggedInUser();
+  await Promise.all([loadPostsFromFirestore(), loadCompanies(), fetchLatestBroadcast()]);
+  await loadStudyState();
+  await loadLeaderboardSettings();
+  
+  // بدء مستمع الإحالات
+  startReferralListener();
+  // باقي الكود...
+});
+
+/* =========================
+   🚫 نظام منع الحسابات المتعددة (حساب واحد لكل IP للأبد)
+========================= */
+
+// التحقق من وجود حساب سابق بنفس الـ IP
+async function checkExistingAccountByIP(userIP) {
+    try {
+        console.log('🔍 التحقق من الحسابات بنفس الـ IP:', userIP);
+        
+        if (!userIP) {
+            console.log('⚠️ لا يمكن الحصول على الـ IP');
+            return { hasExisting: false };
+        }
+        
+        // البحث عن أي حساب سابق بنفس الـ IP
+        const existingAccounts = await db.collection('users')
+            .where('registrationIP', '==', userIP)
+            .limit(1)
+            .get();
+        
+        if (!existingAccounts.empty) {
+            const existingAccount = existingAccounts.docs[0].data();
+            const accountId = existingAccounts.docs[0].id;
+            console.log('🚫 وجد حساب موجود بنفس الـ IP:', existingAccount.email);
+            
+            return { 
+                hasExisting: true, 
+                existingEmail: existingAccount.email,
+                existingName: existingAccount.name,
+                accountId: accountId,
+                createdAt: existingAccount.createdAt
+            };
+        }
+        
+        return { hasExisting: false };
+        
+    } catch (error) {
+        console.error('Error checking existing account by IP:', error);
+        return { hasExisting: false };
+    }
+}
+
+// منع التسجيل إذا كان هناك حساب سابق بنفس الـ IP
+async function preventMultipleAccounts(userIP, userEmail) {
+    try {
+        const existingCheck = await checkExistingAccountByIP(userIP);
+        
+        if (existingCheck.hasExisting) {
+            console.log('🚫 منع التسجيل - يوجد حساب سابق بنفس الـ IP');
+            
+            // رسالة توضيحية للمستخدم
+            const message = `
+⚠️ لا يمكن إنشاء حساب جديد
+
+لديك حساب مسجل مسبقاً في النظام:
+• البريد: ${existingCheck.existingEmail}
+• الاسم: ${existingCheck.existingName}
+
+إذا كنت صاحب هذا الحساب، يرجى تسجيل الدخول بدلاً من إنشاء حساب جديد.
+
+للاستفسارات: @MSLM_ALMYALY
+            `.trim();
+            
+            return { 
+                allowed: false, 
+                message: message,
+                existingAccount: existingCheck 
+            };
+        }
+        
+        return { allowed: true };
+        
+    } catch (error) {
+        console.error('Error in preventMultipleAccounts:', error);
+        return { allowed: true }; // في حالة الخطأ، نسمح بالتسجيل
+    }
+}
+
+// تسجيل الـ IP عند التسجيل الناجح
+async function registerUserIP(userId, userIP) {
+    try {
+        if (!userIP) return;
+        
+        await db.collection('users').doc(userId).update({
+            registrationIP: userIP,
+            ipRegisteredAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        console.log('✅ تم تسجيل الـ IP للمستخدم:', userIP);
+        
+    } catch (error) {
+        console.error('Error registering user IP:', error);
+    }
+}
+
+// نظام محسن للحصول على الـ IP
+async function getUserIP() {
+    try {
+        // محاولة من مصادر متعددة
+        const sources = [
+            'https://api.ipify.org?format=json',
+            'https://api64.ipify.org?format=json',
+            'https://ipinfo.io/json'
+        ];
+        
+        for (const source of sources) {
+            try {
+                const response = await fetch(source, { timeout: 5000 });
+                if (response.ok) {
+                    const data = await response.json();
+                    const ip = data.ip || data.ipAddress;
+                    if (ip && isValidIP(ip)) {
+                        console.log('✅ تم الحصول على الـ IP من:', source, ip);
+                        return ip;
+                    }
+                }
+            } catch (sourceError) {
+                console.log('⚠️ فشل الحصول على الـ IP من:', source);
+                continue;
+            }
+        }
+        
+        // إذا فشلت جميع المصادر، استخدام IP افتراضي
+        console.log('❌ فشل الحصول على الـ IP، استخدام افتراضي');
+        return 'unknown-ip';
+        
+    } catch (error) {
+        console.error('Error in getUserIP:', error);
+        return 'unknown-ip';
+    }
+}
+
+// التحقق من صحة الـ IP
+function isValidIP(ip) {
+    if (!ip || ip === 'unknown-ip') return false;
+    
+    // تحقق من تنسيق IPv4 أو IPv6
+    const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+    const ipv6Pattern = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+    
+    return ipv4Pattern.test(ip) || ipv6Pattern.test(ip);
+}
+
+// التحقق من صحة الـ IPs المخزنة (للمالك)
+async function validateStoredIPs() {
+    if (!isOwner()) return;
+    
+    try {
+        const allUsers = await db.collection('users').get();
+        const ipCounts = {};
+        
+        allUsers.forEach(doc => {
+            const userData = doc.data();
+            const ip = userData.registrationIP;
+            
+            if (ip && ip !== 'unknown-ip') {
+                ipCounts[ip] = (ipCounts[ip] || 0) + 1;
+            }
+        });
+        
+        // عرض الإحصائيات
+        console.log('📊 إحصائيات الـ IPs:', ipCounts);
+        
+        const multipleIPs = Object.entries(ipCounts).filter(([ip, count]) => count > 1);
+        if (multipleIPs.length > 0) {
+            console.log('🚫 IPs بها أكثر من حساب:', multipleIPs);
+        }
+        
+    } catch (error) {
+        console.error('Error validating stored IPs:', error);
+    }
+}
+
+// استدعاء التحقق (للمالك فقط)
+if (isOwner()) {
+    setTimeout(validateStoredIPs, 10000);
+}
+// قائمة الـ IPs المسموحة (للاختبار والتطوير)
+const ALLOWED_MULTIPLE_IPS = [
+    '127.0.0.1',
+    'localhost',
+    '::1',
+    'unknown-ip'
+];
+
+// التحقق إذا كان الـ IP مسموحاً به للحسابات المتعددة
+function isIPAllowedForMultiple(ip) {
+    return ALLOWED_MULTIPLE_IPS.includes(ip);
+}
+
+// نسخة محسنة من preventMultipleAccounts
+async function preventMultipleAccounts(userIP, userEmail) {
+    try {
+        // إذا كان الـ IP مسموحاً به، نسمح بالتسجيل
+        if (isIPAllowedForMultiple(userIP)) {
+            console.log('✅ IP مسموح به للحسابات المتعددة:', userIP);
+            return { allowed: true };
+        }
+        
+        const existingCheck = await checkExistingAccountByIP(userIP);
+        
+        if (existingCheck.hasExisting) {
+            console.log('🚫 منع التسجيل - يوجد حساب سابق بنفس الـ IP');
+            
+            const message = `
+⚠️ لا يمكن إنشاء حساب جديد
+
+لديك حساب مسجل مسبقاً في النظام من نفس شبكة الانترنت:
+• البريد: ${existingCheck.existingEmail}
+• الاسم: ${existingCheck.existingName}
+
+📋 القواعد:
+- مسموح حساب واحد فقط لكل شبكة انترنت
+- إذا كنت صاحب هذا الحساب، سجّل الدخول به
+- إذا كنت في مكان عام، استخدم شبكة مختلفة
+
+للاستفسارات: @MSLM_ALMYALY
+            `.trim();
+            
+            return { 
+                allowed: false, 
+                message: message,
+                existingAccount: existingCheck 
+            };
+        }
+        
+        return { allowed: true };
+        
+    } catch (error) {
+        console.error('Error in preventMultipleAccounts:', error);
+        return { allowed: true };
+    }
+}
+
+/* =========================
+   🌐 نظام مراقبة الإنترنت المتقدم للعداد
+========================= */
+
+let networkMonitorInterval = null;
+let lastNetworkCheck = Date.now();
+let networkStatus = 'online';
+let consecutiveOfflineCount = 0;
+const MAX_OFFLINE_DURATION = 3 * 60 * 60 * 1000; // 3 ساعات
+
+// بدء مراقبة الإنترنت
+function startNetworkMonitoring() {
+    stopNetworkMonitoring();
+    
+    console.log('🌐 بدء مراقبة حالة الإنترنت...');
+    
+    networkMonitorInterval = setInterval(() => {
+        checkNetworkStatus();
+    }, 30000); // كل 30 ثانية
+    
+    // أيضًا نستمع لأحداث المتصفح
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOfflineStatus);
+}
+
+// إيقاف مراقبة الإنترنت
+function stopNetworkMonitoring() {
+    if (networkMonitorInterval) {
+        clearInterval(networkMonitorInterval);
+        networkMonitorInterval = null;
+    }
+    
+    window.removeEventListener('online', handleOnlineStatus);
+    window.removeEventListener('offline', handleOfflineStatus);
+}
+
+// التحقق من حالة الإنترنت
+async function checkNetworkStatus() {
+    const now = Date.now();
+    
+    try {
+        // محاولة الاتصال بالسيرفر
+        const response = await fetch('https://www.google.com/favicon.ico', { 
+            method: 'HEAD',
+            cache: 'no-cache',
+            timeout: 10000 
+        });
+        
+        if (response.ok) {
+            handleOnlineStatus();
+        } else {
+            handleOfflineStatus();
+        }
+    } catch (error) {
+        handleOfflineStatus();
+    }
+    
+    lastNetworkCheck = now;
+}
+
+// التعامل مع حالة الاتصال
+function handleOnlineStatus() {
+    if (networkStatus === 'online') return;
+    
+    console.log('✅ الإنترنت عاد للعمل');
+    networkStatus = 'online';
+    consecutiveOfflineCount = 0;
+    
+    // إذا كان العداد شغال، نستأنف العمل
+    if (studyState.running) {
+        showNotification('✅ اتصال الإنترنت عاد - العداد يعمل بشكل طبيعي', 'success');
+    }
+}
+
+// التعامل مع حالة انقطاع الإنترنت
+function handleOfflineStatus() {
+    if (networkStatus === 'offline') {
+        consecutiveOfflineCount++;
+    } else {
+        console.log('❌ انقطع الإنترنت');
+        networkStatus = 'offline';
+        consecutiveOfflineCount = 1;
+    }
+    
+    // التحقق إذا تجاوز الانقطاع 3 ساعات
+    checkOfflineDuration();
+}
+
+// التحقق من مدة انقطاع الإنترنت
+async function checkOfflineDuration() {
+    if (!studyState.running) return;
+    
+    const offlineDuration = Date.now() - lastNetworkCheck;
+    const offlineHours = Math.floor(offlineDuration / (60 * 60 * 1000));
+    
+    console.log(`⏰ مدة انقطاع الإنترنت: ${offlineHours} ساعات`);
+    
+    // إذا تجاوز الانقطاع 3 ساعات
+    if (offlineDuration >= MAX_OFFLINE_DURATION) {
+        console.log('🚫 انقطاع الإنترنت تجاوز 3 ساعات - إيقاف العداد');
+        await stopTimerDueToNetworkIssue();
+    }
+}
+
+// إيقاف العداد بسبب انقطاع الإنترنت
+async function stopTimerDueToNetworkIssue() {
+    if (!studyState.running) return;
+    
+    try {
+        const endTime = new Date();
+        const elapsedMs = endTime.getTime() - studyState.startAtMs;
+        
+        // حساب النقاط المكتسبة حتى الآن
+        const pointsEarned = Math.floor(elapsedMs / (2 * 60 * 1000));
+        
+        if (pointsEarned > 0) {
+            // حفظ النقاط المكتسبة
+            await db.collection('study').doc(currentUser.uid).set({
+                currentPoints: firebase.firestore.FieldValue.increment(pointsEarned),
+                totalPoints: firebase.firestore.FieldValue.increment(pointsEarned),
+                running: false,
+                startAt: null,
+                lastStoppedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                name: currentUser.name || 'مستخدم',
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                lastSessionPoints: pointsEarned,
+                lastSessionDuration: elapsedMs,
+                stopReason: 'network_disconnection'
+            }, { merge: true });
+            
+            // تسجيل العملية
+            await logPointsTransaction(currentUser.uid, pointsEarned, 'timer_earned', 
+                `نقاط مؤقت - توقف بسبب انقطاع الإنترنت (${Math.floor(elapsedMs/60000)} دقيقة)`);
+            
+            // تحديث الحالة المحلية
+            studyState.currentPoints += pointsEarned;
+            studyState.totalPoints += pointsEarned;
+        }
+        
+        // إيقاف العداد
+        studyState.running = false;
+        studyState.startAtMs = null;
+        stopStudyInterval();
+        stopHeartbeatInterval();
+        stopNetworkMonitoring();
+        
+        renderTimerUI();
+        
+        // إشعار للمستخدم
+        showNotification(`⏰ توقف العداد - انقطع الإنترنت لمدة 3 ساعات. تم حفظ ${pointsEarned} نقطة.`, "warning");
+        
+        // إرسال إشعار للبريد الوارد
+        await sendNetworkStopNotification(pointsEarned, elapsedMs);
+        
+    } catch (error) {
+        console.error("Error stopping timer due to network issue:", error);
+        showNotification("خطأ في إيقاف العداد", "error");
+    }
+}
+
+// إرسال إشعار انقطاع الإنترنت للبريد الوارد
+async function sendNetworkStopNotification(pointsEarned, durationMs) {
+    try {
+        const durationMinutes = Math.floor(durationMs / 60000);
+        const durationHours = Math.floor(durationMinutes / 60);
+        const remainingMinutes = durationMinutes % 60;
+        
+        await db.collection('inbox').add({
+            userId: currentUser.uid,
+            type: 'timer_auto_stop',
+            title: '⏰ توقف العداد تلقائياً',
+            message: `
+انقطع الاتصال بالإنترنت لمدة 3 ساعات متواصلة.
+
+📊 التفاصيل:
+• المدة: ${durationHours} ساعة و ${remainingMinutes} دقيقة
+• النقاط المحفوظة: ${pointsEarned} نقطة
+• السبب: انقطاع الإنترنت
+
+💡 نصائح:
+- تأكد من استقرار اتصال الإنترنت
+- أغلق التطبيقات التي تستهلك الإنترنت
+- حاول استخدام شبكة Wi-Fi مستقرة
+
+للاستفسارات: @MSLM_ALMYALY
+            `.trim(),
+            status: 'unread',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            points: pointsEarned,
+            duration: durationMs
+        });
+        
+    } catch (error) {
+        console.error('Error sending network stop notification:', error);
+    }
+}
+
+// استرداد العداد بعد انقطاع الإنترنت القصير
+async function recoverTimerAfterShortDisconnection() {
+    if (!currentUser || !studyState.running) return;
+    
+    try {
+        const studyDoc = await db.collection('study').doc(currentUser.uid).get();
+        
+        if (studyDoc.exists) {
+            const data = studyDoc.data();
+            
+            // إذا كان العداد شغال في السيرفر لكن متوقف محلياً
+            if (data.running && !studyState.running) {
+                console.log('🔄 استرداد العداد بعد انقطاع قصير');
+                
+                const serverStartTime = data.startAt.toDate().getTime();
+                const now = Date.now();
+                const elapsed = now - serverStartTime;
+                
+                // إذا الانقطاع كان أقل من 10 دقائق، نسترد العداد
+                if (elapsed < (10 * 60 * 1000)) {
+                    studyState.running = true;
+                    studyState.startAtMs = serverStartTime;
+                    startStudyInterval();
+                    startHeartbeatInterval();
+                    startNetworkMonitoring();
+                    
+                    renderTimerUI();
+                    showNotification("✅ تم استرداد العداد بعد انقطاع بسيط", "success");
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error recovering timer:", error);
+    }
+}
+
+// استدعاء الاسترداد عند تحميل التطبيق
+setTimeout(recoverTimerAfterShortDisconnection, 5000);
+
+async function stopStudyTimer() {
+    if (!currentUser || !studyState.running) return;
+
+    try {
+        const endTime = new Date();
+        const elapsedMs = endTime.getTime() - studyState.startAtMs;
+        
+        // حساب النقاط الأساسية (بدون مضاعفة)
+        const basePoints = Math.floor(elapsedMs / (2 * 60 * 1000));
+        
+        // حساب النقاط مع المضاعفة إذا كانت فعالة
+        let totalPoints = basePoints;
+        let boostedMessage = '';
+        
+        if (studyState.boostUntil && studyState.boostUntil > studyState.startAtMs) {
+            const boostStart = new Date(Math.max(studyState.startAtMs, studyState.boostUntil.getTime() - (studyState.boostUntil.getTime() - studyState.startAtMs)));
+            const boostEnd = new Date(Math.min(endTime.getTime(), studyState.boostUntil.getTime()));
+            const boostedMs = Math.max(0, boostEnd.getTime() - boostStart.getTime());
+            
+            if (boostedMs > 0) {
+                const boostedPoints = Math.floor(boostedMs / (60 * 1000)); // نقطة لكل دقيقة مضاعفة
+                totalPoints = basePoints + boostedPoints;
+                boostedMessage = ` (${Math.floor(boostedMs/60000)} دقيقة مضاعفة ⚡)`;
+            }
+        }
+
+        console.log('💰 حساب النقاط:', {
+            'النقاط الأساسية': basePoints,
+            'الإجمالي': totalPoints,
+            'المدة': Math.floor(elapsedMs/60000) + ' دقيقة'
+        });
+
+        if (totalPoints > 0) {
+            await db.collection('study').doc(currentUser.uid).set({
+                currentPoints: firebase.firestore.FieldValue.increment(totalPoints),
+                totalPoints: firebase.firestore.FieldValue.increment(totalPoints),
+                running: false,
+                startAt: null,
+                lastStoppedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                name: currentUser.name || 'مستخدم',
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            await logPointsTransaction(currentUser.uid, totalPoints, 'timer_earned', 
+                `نقاط مؤقت - ${Math.floor(elapsedMs/60000)} دقيقة`);
+
+            studyState.currentPoints += totalPoints;
+            studyState.totalPoints += totalPoints;
+        }
+
+        // إيقاف جميع الأنظمة
+        studyState.running = false;
+        studyState.startAtMs = null;
+        stopStudyInterval();
+        stopHeartbeatInterval();
+        stopNetworkMonitoring();
+        
+        renderTimerUI();
+        
+        if (totalPoints > 0) {
+            showNotification(`⏰ تم الإيقاف - ربحت ${totalPoints} نقطة${boostedMessage}`, "success");
+        } else {
+            showNotification("تم إيقاف المؤقت - الوقت غير كافي للنقاط", "info");
+        }
+
+    } catch (error) {
+        console.error("Error stopping timer:", error);
+        showNotification("فشل إيقاف المؤقت - جرب مرة أخرى", "error");
+    }
+}
+
+// إعادة تعيين تتبع المضاعفة
+function resetBoostTracking() {
+    boostTracker = {
+        active: false,
+        startTime: null,
+        endTime: null,
+        totalBoostedTime: 0,
+        segments: []
+    };
+}
+
+// إضافة معلومات التوزيع في واجهة التصنيف
+function addDistributionInfo() {
+    const leaderboardContainer = document.getElementById('challenge-leaderboard');
+    if (!leaderboardContainer) return;
+    
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'post';
+    infoDiv.style.background = '#fff3cd';
+    infoDiv.style.border = '1px solid #ffeaa7';
+    infoDiv.innerHTML = `
+        <div style="text-align: center;">
+            <h4>🏆 الجوائز الأسبوعية</h4>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 10px 0;">
+                <div style="text-align: center;">
+                    <div style="background: #d4af37; color: white; padding: 5px; border-radius: 5px; font-weight: bold;">1</div>
+                    <div style="font-size: 12px; margin-top: 5px;">2000 نقطة</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="background: #c0c0c0; color: white; padding: 5px; border-radius: 5px; font-weight: bold;">2</div>
+                    <div style="font-size: 12px; margin-top: 5px;">1500 نقطة</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="background: #cd7f32; color: white; padding: 5px; border-radius: 5px; font-weight: bold;">3</div>
+                    <div style="font-size: 12px; margin-top: 5px;">1000 نقطة</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="background: #7aa2ff; color: white; padding: 5px; border-radius: 5px; font-weight: bold;">4</div>
+                    <div style="font-size: 12px; margin-top: 5px;">500 نقطة</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="background: #a17aff; color: white; padding: 5px; border-radius: 5px; font-weight: bold;">5</div>
+                    <div style="font-size: 12px; margin-top: 5px;">300 نقطة</div>
+                </div>
+            </div>
+            <p style="font-size: 12px; color: #856404; margin: 5px 0;">
+                ⚠️ يشترط 200 نقطة كحد أدنى للحصول على الجائزة
+            </p>
+            <p style="font-size: 12px; color: #856404; margin: 0;">
+                ⏰ الموعد القادم: <span id="next-distribution-time">${leaderboardSettings.nextReset ? leaderboardSettings.nextReset.toLocaleString('ar-IQ') : 'غير محدد'}</span>
+            </p>
+        </div>
+    `;
+    
+    leaderboardContainer.prepend(infoDiv);
+}
+
+// استدعاء إضافة المعلومات
+setTimeout(addDistributionInfo, 4000);
+
+// مراقبة حالة التوزيع
+function monitorDistributionStatus() {
+    if (!isOwner()) return;
+    
+    db.collection('settings').doc('leaderboard')
+        .onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                const status = data.distributionStatus;
+                
+                if (status === 'in_progress') {
+                    showNotification('🔄 جاري توزيع الجوائز...', 'info');
+                } else if (status === 'completed') {
+                    showNotification('✅ تم توزيع الجوائز بنجاح', 'success');
+                } else if (status === 'failed') {
+                    showNotification('❌ فشل توزيع الجوائز', 'error');
+                }
+            }
+        });
+}
+
+// بدء المراقبة
+setTimeout(monitorDistributionStatus, 5000);
+
+// نظام التوزيع التلقائي الصارم
+async function autoDistributeRewards() {
+    if (!isOwner()) return;
+    
+    const now = new Date();
+    const targetTime = leaderboardSettings.nextReset;
+    
+    if (!targetTime) {
+        console.log('⏰ لا يوجد موعد محدد للتوزيع');
+        return;
+    }
+    
+    // إذا حان وقت التوزيع
+    if (now >= targetTime) {
+        console.log('🔄 بدء التوزيع التلقائي...');
+        
+        try {
+            // التحقق من عدم وجود توزيع سابق
+            const settingsDoc = await db.collection('settings').doc('leaderboard').get();
+            const settings = settingsDoc.data();
+            
+            if (settings.distributionStatus === 'in_progress') {
+                console.log('⚠️ توزيع سابق قيد التنفيذ');
+                return;
+            }
+            
+            // بدء التوزيع
+            await distributeWeeklyRewards();
+            
+        } catch (error) {
+            console.error('❌ فشل التوزيع التلقائي:', error);
+        }
+    }
+}
+
+// بدء المراقبة التلقائية
+function startAutoDistributionMonitor() {
+    console.log('🔍 بدء مراقبة التوزيع التلقائي...');
+    
+    // التحقق كل دقيقة
+    setInterval(() => {
+        autoDistributeRewards();
+    }, 60000); // كل دقيقة
+    
+    // أيضًا تحقق عند تحميل الصفحة
+    setTimeout(autoDistributeRewards, 5000);
+}
+
+// استدعاء المراقبة
+startAutoDistributionMonitor();
 
 </script>
 </body>
